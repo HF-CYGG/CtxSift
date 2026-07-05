@@ -1,0 +1,62 @@
+{
+  "name": "ctxsift",
+  "version": "1.0.0",
+  "description": "Question-aware context packing for local repositories.",
+  "type": "module",
+  "packageManager": "pnpm@11.7.0",
+  "bin": {
+    "ctxsift": "./dist/cli.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/pack.d.ts",
+      "import": "./dist/pack.js"
+    },
+    "./cli": "./dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md",
+    "CONTRIBUTING.md",
+    "docs"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/starforge/ctxsift.git"
+  },
+  "keywords": [
+    "ai",
+    "llm",
+    "codex",
+    "claude",
+    "cursor",
+    "repository",
+    "context",
+    "codebase",
+    "cli",
+    "github-action"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "ci": "pnpm lint && pnpm typecheck && pnpm test && pnpm test:e2e && pnpm build && pnpm pack --dry-run",
+    "lint": "eslint .",
+    "test": "vitest run --pool=threads",
+    "test:e2e": "tsc -p tsconfig.build.json && node scripts/e2e.mjs",
+    "pack:dry-run": "pnpm pack --dry-run",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@eslint/js": "^9.30.1",
+    "@types/node": "^22.13.1",
+    "eslint": "^9.30.1",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.35.1",
+    "vitest": "^3.2.4"
+  }
+}
