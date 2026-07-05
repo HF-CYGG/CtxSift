@@ -1,0 +1,37 @@
+name: CtxSift Review Bundle
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+
+jobs:
+  review-context:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.7.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - name: Generate review context
+        run: |
+          node dist/cli.js --repo . --diff origin/${{ github.base_ref }}...HEAD --mode review --format markdown --out review-context.md
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ctxsift-review-context
+          path: review-context.md
+
+      # Optional PR commenting requires adding:
+      # permissions:
+      #   pull-requests: write
+      # and a separate comment step that posts review-context.md or a summary.
