@@ -21,6 +21,7 @@ tests, and npm package metadata.
 - Add pnpm / package.json workspace detection.
 - Emit optional workspace graph metadata with package nodes, internal dependency edges, focused packages, and package-level reasons.
 - Boost files in diff-touched workspace packages and their direct internal dependencies.
+- Add local benchmark fixtures and Markdown/JSON reports for selective packing, workspace hits, PR diffs, and security defaults.
 - Keep ranking deterministic and dependency-free.
 
 ## v1.2 GitHub Action Hardening

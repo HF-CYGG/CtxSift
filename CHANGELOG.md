@@ -9,6 +9,7 @@
 - Added `--workspace-aware`, `--workspace-graph`, and `--package` CLI options.
 - Added package manifest parsing, build target extraction, import edge extraction, and package-level ranking helpers.
 - Added `--profile balanced|private|strict` with audit risk score and blocked high-risk file reporting.
+- Added deterministic local benchmark fixtures, `pnpm bench` scripts, and Markdown/JSON benchmark reports.
 
 ## 1.0.0 - 2026-07-07
 

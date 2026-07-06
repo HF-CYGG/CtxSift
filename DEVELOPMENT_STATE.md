@@ -6,7 +6,7 @@ Context engineering v1 alpha: workspace/build-aware packing, PR review context, 
 
 ## Completed Tasks
 
-- Created feature branch `workspace-graph-review-action`.
+- Created feature branch `feat/context-engineering-v1`.
 - Confirmed baseline `pnpm typecheck` passes.
 - Confirmed baseline `pnpm test` passes outside the sandbox after sandbox `spawn EPERM`.
 - Added failing tests for workspace detection, workspace graph focus, ranker workspace boosts, Markdown/JSON workspace output, and sticky PR comments.
@@ -21,11 +21,14 @@ Context engineering v1 alpha: workspace/build-aware packing, PR review context, 
 - Added basic import edges for source imports targeting internal workspace package names.
 - Added tests and implementation for profile-based security policy.
 - Implemented `--profile balanced|private|strict`, audit `securityPolicy`, `riskScore`, and `blockedHighRiskFiles`.
+- Committed profile-based security policy milestone as `c23a3d5`.
+- Added benchmark reporter tests, local fixtures, `pnpm bench` scripts, and generated Markdown/JSON reports.
 
 ## Failed Tests
 
 - Sandbox-only `pnpm test` failure: Vitest/esbuild child process failed with `spawn EPERM`.
 - Sandbox-only `pnpm test:e2e` failure: E2E script child process failed with `spawnSync node EPERM`.
+- Sandbox-only `pnpm bench` failure: pnpm temporary file cleanup failed with `EPERM unlink`.
 
 ## Unresolved Blockers
 
@@ -33,7 +36,7 @@ Context engineering v1 alpha: workspace/build-aware packing, PR review context, 
 
 ## Next Step
 
-Validate and commit profile-based security policy milestone, then implement benchmark toolkit.
+Validate and commit benchmark toolkit milestone, then add `action.yml` and GitHub Action installation docs.
 
 ## Latest Verification Commands
 
@@ -48,7 +51,9 @@ Validate and commit profile-based security policy milestone, then implement benc
 - `pnpm run release:check` with elevated permissions
 - `pnpm test tests/package-manifest.test.ts tests/build-targets.test.ts tests/import-graph.test.ts tests/package-ranker.test.ts tests/cli-options.test.ts tests/pack.test.ts`
 - `pnpm test:e2e` with elevated permissions after sandbox EPERM
+- `pnpm test tests/benchmark-reporter.test.ts` with elevated permissions after sandbox EPERM
+- `pnpm bench` with elevated permissions after sandbox pnpm temporary-file EPERM
 
 ## Latest Commit Hash
 
-- `df2d770`
+- `c23a3d5`
