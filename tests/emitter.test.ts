@@ -22,6 +22,7 @@ const sampleOutput: PackOutput = {
     totalTokens: 42,
     selectedFiles: 1,
     droppedFiles: [],
+    droppedFilesOmitted: 0,
     redactions: 0
   },
   tree: "src/auth/login.ts",

@@ -100,6 +100,7 @@ export type PackOutput = {
     totalTokens: number;
     selectedFiles: number;
     droppedFiles: Array<{ path: string; reason: string }>;
+    droppedFilesOmitted: number;
     redactions: number;
   };
   tree: string;

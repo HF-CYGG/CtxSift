@@ -127,6 +127,51 @@ describe("packRepository", () => {
       reason: "token budget exceeded"
     });
   });
+
+  test("caps large-repository metadata while reporting omitted counts", async () => {
+    const repo = await fs.mkdtemp(path.join(os.tmpdir(), "ctxsift-large-meta-"));
+    await fs.mkdir(path.join(repo, "src"), { recursive: true });
+    await fs.writeFile(path.join(repo, "src", "target.ts"), "export const targetFeature = true;\n", "utf8");
+    for (let index = 0; index < 350; index += 1) {
+      await fs.writeFile(path.join(repo, `irrelevant-${index}.txt`), `irrelevant file ${index}\n`, "utf8");
+    }
+
+    const output = await packRepository({
+      repo: { type: "local", pathOrUrl: repo },
+      task: { mode: "question", query: "target feature", targetModel: "generic" },
+      budget: { maxTokens: 20, hardLimit: true, reserveForPrompt: 0, reserveForAnswer: 0 },
+      scope: { includeTests: true, includeDocs: true },
+      security: { redactSecrets: true, emitAuditLog: true, allowRemoteConfig: false },
+      output: { format: "json" }
+    });
+
+    expect(output.tree).toContain("more files omitted from tree");
+    expect(output.manifest.droppedFiles.length).toBeLessThanOrEqual(200);
+    expect(output.manifest.droppedFilesOmitted).toBeGreaterThan(0);
+  });
+
+  test("redacts only selected output files", async () => {
+    const repo = await fs.mkdtemp(path.join(os.tmpdir(), "ctxsift-redact-selected-"));
+    await fs.mkdir(path.join(repo, "src"), { recursive: true });
+    await fs.mkdir(path.join(repo, "logs"), { recursive: true });
+    await fs.writeFile(path.join(repo, "src", "target.ts"), "export const target = 'sk-proj-selected-secret';\n", "utf8");
+    await fs.writeFile(path.join(repo, "logs", "unselected.log"), "sk-proj-dropped-secret\n", "utf8");
+
+    const output = await packRepository({
+      repo: { type: "local", pathOrUrl: repo },
+      task: { mode: "question", query: "target", targetModel: "generic" },
+      budget: { maxTokens: 2000, hardLimit: true, reserveForPrompt: 100, reserveForAnswer: 400 },
+      scope: { includeTests: true, includeDocs: true },
+      security: { redactSecrets: true, emitAuditLog: true, allowRemoteConfig: false },
+      output: { format: "json" }
+    });
+    const allContent = output.chunks.map((chunk) => chunk.content).join("\n");
+
+    expect(allContent).toContain("[REDACTED:OPENAI_API_KEY]");
+    expect(allContent).not.toContain("sk-proj-selected-secret");
+    expect(allContent).not.toContain("sk-proj-dropped-secret");
+    expect(output.audit.redactions).toBe(1);
+  });
 });
 
 async function createBasicFixtureWithIgnoredBuildOutput(): Promise<string> {

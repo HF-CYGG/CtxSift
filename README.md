@@ -81,7 +81,7 @@ JSON 输出面向自动化工具，当前 schema 为 `1.0`，包含：
 
 - `task`：问题、模式、目标模型等任务信息。
 - `repo`：仓库来源、root、ref。
-- `manifest`：token、选中文件数、丢弃文件、redaction 数量。
+- `manifest`：token、选中文件数、丢弃文件、`droppedFilesOmitted` 截断计数、redaction 数量。
 - `tree`：入选候选文件树。
 - `selectedFiles`：文件路径、语言、分数、理由。
 - `chunks`：实际输出内容。
@@ -113,6 +113,8 @@ CLI 参数
 - `SecurityRedactor`：脱敏常见 secret，并输出审计计数。
 - `BundleEmitter`：生成 Markdown 或 JSON bundle。
 - `CliApp`：解析 CLI 参数、串联数据流、处理错误码。
+
+大型仓库下，CtxSift 会截断 `tree` 和 `manifest.droppedFiles` 元数据，避免输出包被数万条候选路径撑大；被截断数量会通过 `droppedFilesOmitted` 保留。
 
 ## 安全默认值
 
@@ -161,6 +163,16 @@ pnpm run release:check
 - `pnpm build`
 - `pnpm pack --dry-run`
 - `pnpm run audit:high`
+
+## 大型仓库实测
+
+当前已使用 `microsoft/vscode` 级别的大型生产仓库做压力测试。测试数据统一保存在项目根目录的 `large-project-test/` 下，不进入发布包和 Git 提交。
+
+实测后做过的关键优化：
+
+- 截断大型仓库的 `tree` 和 `droppedFiles` 元数据，单个 JSON bundle 从约 3.4 MB 降到约 130 KB。
+- 只对最终输出文件执行内容脱敏，默认 redaction 场景耗时接近 `--no-redact` 对照场景。
+- 保留 `droppedFilesOmitted`，避免为了减小输出而丢失审计信息。
 
 ## 本地开发
 

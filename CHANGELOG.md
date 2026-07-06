@@ -12,3 +12,4 @@
 - Added GitHub Actions CI and review-bundle workflow example.
 - Added unit, integration, CLI E2E, fixture, diff, and security tests.
 - Added release gate script covering lint, typecheck, tests, E2E, build, pack dry-run, and high-severity audit.
+- Added large-repository metadata caps and selected-output redaction for production-scale repositories.
