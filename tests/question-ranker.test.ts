@@ -15,6 +15,34 @@ describe("rankFiles", () => {
     expect(ranked[0].path).toBe("src/auth/login.ts");
     expect(ranked.find((file) => file.path.endsWith(".sql"))?.reasons).not.toContain("query matched file path");
   });
+
+  test("prioritizes implementation source over docs and test resources for implementation questions", () => {
+    const ranked = rankFiles(
+      [
+        candidate(
+          "framework-docs/modules/ROOT/pages/core/beans/dependencies/factory-method-injection.adoc",
+          "Dependency injection bean creation lifecycle management is described for users.",
+          "doc"
+        ),
+        candidate(
+          "spring-beans/src/test/resources/org/springframework/beans/factory/config/PropertiesFactoryBeanTests-test.properties",
+          "bean factory dependency injection creation lifecycle management",
+          "test"
+        ),
+        candidate(
+          "spring-beans/src/main/java/org/springframework/beans/factory/support/AbstractAutowireCapableBeanFactory.java",
+          "createBean populateBean initializeBean dependency injection lifecycle management",
+          "source"
+        )
+      ],
+      "Where is dependency injection bean creation and lifecycle management implemented?"
+    );
+
+    expect(ranked[0].path).toBe(
+      "spring-beans/src/main/java/org/springframework/beans/factory/support/AbstractAutowireCapableBeanFactory.java"
+    );
+    expect(ranked[0].reasons).toContain("implementation source context");
+  });
 });
 
 function candidate(path: string, content: string, kind: FileKind): CandidateFile {
