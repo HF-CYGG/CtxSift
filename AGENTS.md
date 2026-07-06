@@ -52,6 +52,10 @@ CtxSift should pack the right files for the task, not the whole repository.
 
 - Do not add production dependencies without a clear reason.
 
+## Language Rules
+
+- PR/RP 描述、git 提交信息和代码注释必须使用中文；引用命令、API 名称、文件路径、错误文本时可保留原文。
+
 
 
 ## Required Commands
