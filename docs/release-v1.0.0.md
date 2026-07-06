@@ -1,8 +1,15 @@
-# v1.0.0 Release Candidate Checklist
+# v1.0.0 Release Notes
 
 ## Summary
 
-CtxSift v1.0.0 is prepared as a stable question-aware context packer for local repositories and public GitHub repositories, with diff-aware review bundles, Markdown/JSON output, token budgeting, and default secret redaction.
+CtxSift v1.0.0 is the first stable release of the question-aware context packer
+for local repositories and public GitHub repositories. It ships the installable
+`ctxsift` CLI, diff-aware review bundles, Markdown/JSON output, token budgeting,
+large-repository metadata caps, and default secret redaction.
+
+Release page:
+
+- https://github.com/HF-CYGG/CtxSift/releases/tag/v1.0.0
 
 ## Highlights
 
@@ -11,21 +18,22 @@ CtxSift v1.0.0 is prepared as a stable question-aware context packer for local r
 - `ctxsift --repo https://github.com/user/repo --ask "How does routing work?"`
 - JSON schema `1.0` for downstream tooling.
 - GitHub Action example for PR review-context artifacts.
+- Tested against real repositories including Y-Link, VSCode, Kubernetes, Django,
+  and Spring Framework.
 
-## Pre-Publish Checklist
+## Verification
 
-- [ ] `pnpm install`
-- [ ] `pnpm lint`
-- [ ] `pnpm typecheck`
-- [ ] `pnpm test`
-- [ ] `pnpm test:e2e`
-- [ ] `pnpm build`
-- [ ] `pnpm pack --dry-run`
-- [ ] `pnpm run audit:high`
-- [ ] `pnpm run release:check`
-- [ ] Confirm `package.json` version is `1.0.0`.
-- [ ] Confirm README does not claim non-v1 features.
-- [ ] Confirm GitHub Actions CI passed on the release branch.
-- [ ] Confirm install smoke from the generated package tarball.
-- [ ] Confirm public GitHub repository input smoke.
-- [ ] Create GitHub release using this draft.
+- `pnpm run release:check` passed.
+- Vitest: 13 test files, 27 tests passed.
+- CLI E2E passed.
+- TypeScript build passed.
+- `pnpm pack --dry-run` passed.
+- `pnpm audit --audit-level high` reported no known vulnerabilities.
+- GitHub Actions CI passed on the release commit.
+
+## Release Metadata
+
+- Version: `1.0.0`
+- Tag: `v1.0.0`
+- Release commit: `e9a5c04`
+- Release type: stable, not prerelease

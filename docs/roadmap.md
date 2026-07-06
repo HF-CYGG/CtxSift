@@ -1,6 +1,6 @@
 # CtxSift Roadmap
 
-CtxSift v1.0.0 is the first production-ready CLI release candidate. It includes local
+CtxSift v1.0.0 is the first stable production-ready CLI release. It includes local
 repository packing, public GitHub repository input, deterministic ranking,
 diff-aware review bundles, Markdown and JSON emitters, default redaction, CI,
 tests, and npm package metadata.
