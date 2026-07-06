@@ -39,7 +39,8 @@ private repository guidance, and comment permissions.
 
 ## Optional Sticky PR Comment
 
-Sticky PR comments are disabled by default so the workflow does not require write permissions. To enable summary comments:
+Sticky PR comments are disabled by default so the workflow keeps to `contents: read` only.
+To enable summary comments:
 
 1. Add `pull-requests: write` to the workflow permissions.
 2. Set repository variable `CTXSIFT_REVIEW_COMMENT` to `true`.

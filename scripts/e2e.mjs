@@ -1,11 +1,14 @@
 import { execFileSync, spawnSync } from "node:child_process";
-import { mkdtempSync, mkdirSync, writeFileSync } from "node:fs";
+import { mkdtempSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 
 const root = process.cwd();
 const cli = path.join(root, "dist", "cli.js");
+const packageJson = JSON.parse(readFileSync(path.join(root, "package.json"), "utf8"));
 
+const version = run(["--version"]);
+assert(version.stdout.trim() === packageJson.version, "CLI --version should match package.json version");
 run(["--repo", "tests/fixtures/basic-app", "--ask", "Where does auth start?"]);
 const json = run(["--repo", "tests/fixtures/basic-app", "--ask", "Where does auth start?", "--format", "json"]);
 const parsed = JSON.parse(json.stdout);

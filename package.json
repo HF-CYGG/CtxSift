@@ -1,6 +1,6 @@
 {
   "name": "ctxsift",
-  "version": "1.0.0",
+  "version": "1.1.0-alpha.0",
   "description": "Question-aware context packing for local repositories.",
   "type": "module",
   "packageManager": "pnpm@11.7.0",

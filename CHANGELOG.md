@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- None pending for this release branch.
+
+## 1.1.0-alpha.0 - 2026-07-07
+
 - Added workspace graph alpha for pnpm and `package.json` workspaces.
 - Added package-level reasons and workspace score components to selected files.
 - Added optional JSON/Markdown workspace graph output.
@@ -11,6 +15,7 @@
 - Added `--profile balanced|private|strict` with audit risk score and blocked high-risk file reporting.
 - Added deterministic local benchmark fixtures, `pnpm bench` scripts, and Markdown/JSON benchmark reports.
 - Added root `action.yml` composite action and GitHub Action usage documentation for artifact-only and sticky-comment modes.
+- Updated release state documentation for v1.1.0-alpha.0 readiness.
 
 ## 1.0.0 - 2026-07-07
 

@@ -10,7 +10,7 @@
 
 <br />
 
-[![Release](https://img.shields.io/badge/Release-v1.0.0-000000?style=flat-square)](https://github.com/HF-CYGG/CtxSift/releases/tag/v1.0.0)
+[![Release](https://img.shields.io/badge/Release-v1.1.0--alpha.0-000000?style=flat-square)](https://github.com/HF-CYGG/CtxSift/releases/tag/v1.1.0-alpha.0)
 [![CI](https://img.shields.io/badge/CI-Passing-000000?style=flat-square)](https://github.com/HF-CYGG/CtxSift/actions)
 [![Node](https://img.shields.io/badge/Node-%3E%3D22-000000?style=flat-square)]()
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-000000?style=flat-square)]()
@@ -217,4 +217,5 @@ pnpm run release:check
 - [Monorepo 选包指南](docs/monorepo.md)
 - [Benchmark 工具包](docs/benchmark.md)
 - [架构说明](docs/architecture.md)
+- [v1.1.0-alpha.0 发布说明](docs/release-v1.1.0-alpha.0.md)
 - [v1.0.0 发布说明](docs/release-v1.0.0.md)

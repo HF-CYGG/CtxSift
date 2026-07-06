@@ -23,13 +23,13 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: HF-CYGG/CtxSift@main
+      - uses: HF-CYGG/CtxSift@master
         with:
           profile: private
 ```
 
 For local development inside this repository, use `uses: ./` instead of
-`HF-CYGG/CtxSift@main`.
+`HF-CYGG/CtxSift@master`.
 
 ## Sticky PR Comment
 
@@ -48,7 +48,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: HF-CYGG/CtxSift@main
+      - uses: HF-CYGG/CtxSift@master
         with:
           profile: private
           comment: "true"

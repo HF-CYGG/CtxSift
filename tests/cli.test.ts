@@ -10,6 +10,19 @@ const projectRoot = fileURLToPath(new URL("..", import.meta.url));
 const fixtureRoot = fileURLToPath(new URL("./fixtures/basic-app", import.meta.url));
 
 describe("ctxsift CLI", () => {
+  test("prints the package version from the package bin entrypoint", async () => {
+    await execFileAsync(process.execPath, ["node_modules/typescript/lib/tsc.js", "-p", "tsconfig.build.json"]);
+    const packageJson = JSON.parse(await readFile(path.join(projectRoot, "package.json"), "utf8")) as {
+      version: string;
+      bin: { ctxsift: string };
+    };
+    const binPath = path.join(projectRoot, packageJson.bin.ctxsift);
+
+    const { stdout } = await execFileAsync(process.execPath, [binPath, "--version"]);
+
+    expect(stdout.trim()).toBe(packageJson.version);
+  });
+
   test("prints Markdown context from the package bin entrypoint", async () => {
     await execFileAsync(process.execPath, ["node_modules/typescript/lib/tsc.js", "-p", "tsconfig.build.json"]);
     const packageJson = JSON.parse(await readFile(path.join(projectRoot, "package.json"), "utf8")) as {
