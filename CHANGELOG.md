@@ -4,6 +4,12 @@
 
 - None pending for this release branch.
 
+## 1.2.0-alpha.0 - 2026-07-07
+
+- Promoted the artifact-first GitHub Action workflow to the v1.2 alpha boundary.
+- Added regression coverage for read-only default workflow permissions and sticky-comment gating.
+- Added v1.2 alpha release notes and updated release metadata.
+
 ## 1.1.0-alpha.0 - 2026-07-07
 
 - Added workspace graph alpha for pnpm and `package.json` workspaces.

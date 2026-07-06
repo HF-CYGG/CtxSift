@@ -6,7 +6,7 @@ import { parseDiffSpec } from "./diff.js";
 import { packRepository, renderPackOutput } from "./pack.js";
 import type { OutputFormat, PackMode, PackRequest, SecurityProfile } from "./types.js";
 
-const VERSION = "1.1.0-alpha.0";
+const VERSION = "1.2.0-alpha.0";
 
 export type CliOptions = {
   ask?: string;

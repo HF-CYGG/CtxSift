@@ -16,6 +16,19 @@ describe("GitHub Action metadata", () => {
     expect(docs).toContain("artifact-only");
   });
 
+  test("keeps review workflow permissions read-only unless comments are enabled", () => {
+    const workflow = readFileSync(".github/workflows/ctxsift-review.yml", "utf8");
+    const docs = readFileSync("docs/review-bundle.md", "utf8");
+
+    expect(workflow).toContain("permissions:\n  contents: read");
+    expect(workflow).not.toContain("\n  pull-requests: write\njobs:");
+    expect(workflow).toContain("# pull-requests: write");
+    expect(workflow).toContain("comment: ${{ vars.CTXSIFT_REVIEW_COMMENT == 'true' }}");
+    expect(workflow).toContain("github-token: ${{ secrets.GITHUB_TOKEN }}");
+    expect(docs).toContain("Sticky PR comments are disabled by default");
+    expect(docs).toContain("Set repository variable `CTXSIFT_REVIEW_COMMENT` to `true`");
+  });
+
   test("quotes action descriptions that contain colon-space YAML tokens", () => {
     const metadata = readFileSync("action.yml", "utf8");
     const invalidDescriptions = metadata

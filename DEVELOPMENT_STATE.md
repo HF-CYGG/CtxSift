@@ -6,6 +6,25 @@ v1.1.0-alpha.0 local release gate complete; preparing commit/tag, then v1.2.0-al
 
 ## Latest Verification Update - 2026-07-07
 
+- v1.2.0-alpha.0 local release gate complete; GitHub Release object creation requires explicit token or `gh` CLI because the current GitHub connector does not expose releases and Git Credential Manager cannot run unattended here.
+- v1.2 changes:
+  - Promoted GitHub Action hardening to `1.2.0-alpha.0`.
+  - Added workflow permission/sticky-comment gating regression coverage in `tests/action-metadata.test.ts`.
+  - Added `docs/release-v1.2.0-alpha.0.md`.
+  - Refreshed benchmark reports with the same 6-fixture summary: 83.3% average relevant hit rate, 39.8% average token saving ratio, 33.3% average workspace package hit rate.
+- v1.2 verification results:
+  - `pnpm lint`: passed
+  - `pnpm typecheck`: passed
+  - `pnpm test`: elevated run passed with 23 files / 52 tests
+  - `pnpm test:e2e`: passed
+  - `pnpm build`: passed
+  - `pnpm pack --dry-run`: passed for `ctxsift@1.2.0-alpha.0`
+  - `pnpm run release:check`: elevated run passed
+  - `pnpm bench:fixtures`: passed
+  - `pnpm bench:report`: elevated run passed
+  - `pnpm audit --audit-level high --registry https://registry.npmjs.org`: elevated run passed with no known vulnerabilities
+- Latest milestone tag target: `v1.2.0-alpha.0`
+
 - Version alignment fixed: `package.json#version`, `ctxsift --version`, and help banner now use `1.1.0-alpha.0`.
 - Added regression coverage in `tests/cli.test.ts` and `scripts/e2e.mjs` for CLI/package version drift.
 - Added `docs/release-v1.1.0-alpha.0.md`.
