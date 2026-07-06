@@ -7,6 +7,7 @@ import { packRepository, renderPackOutput } from "./pack.js";
 import type { OutputFormat, PackMode, PackRequest, SecurityProfile } from "./types.js";
 
 const VERSION = "1.3.0-alpha.0";
+const GITHUB_REPO_URL_PATTERN = /^https:\/\/github\.com\/[^/\s?#]+\/[^/\s?#]+(?:\.git)?$/i;
 
 export type CliOptions = {
   ask?: string;
@@ -73,7 +74,7 @@ export function parseArgs(args: string[]): CliOptions {
         index += 1;
         break;
       case "--repo":
-        options.repo = requireValue(arg, next);
+        options.repo = parseRepo(requireValue(arg, next));
         index += 1;
         break;
       case "--diff":
@@ -224,6 +225,14 @@ function parseProfile(value: string): SecurityProfile {
     return value;
   }
   throw new Error("--profile must be balanced, private, or strict");
+}
+
+function parseRepo(value: string): string {
+  const repo = value.trim();
+  if (/^https:\/\/github\.com\//i.test(repo) && !GITHUB_REPO_URL_PATTERN.test(repo)) {
+    throw new Error("--repo GitHub URL must be https://github.com/owner/repo");
+  }
+  return repo;
 }
 
 function splitList(value: string): string[] {

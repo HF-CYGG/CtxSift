@@ -34,6 +34,8 @@ v1.3.0-alpha.0 continuous optimization
 - Tightened VS Code command helper `maxTokens` parsing so only safe positive integer values pass through to the CLI.
 - Added CLI option coverage for non-strict `--max-tokens` values such as `12abc` and `1.5`.
 - Tightened core CLI `--max-tokens` parsing so only safe positive integer values are accepted.
+- Added CLI option coverage that rejects GitHub repo URLs with query strings or fragments.
+- Tightened core CLI `--repo` GitHub URL parsing so only bare `https://github.com/owner/repo` and `.git` forms pass.
 
 ## Latest Verification Evidence
 
@@ -47,6 +49,8 @@ v1.3.0-alpha.0 continuous optimization
 - `pnpm run release:check`: sandbox run hit Vitest/esbuild `spawn EPERM`; elevated rerun passed with 24 Vitest files / 53 tests, E2E, examples, build, pack dry-run, and high audit after VS Code helper tightening.
 - `pnpm test tests/cli-options.test.ts`: red phase failed on missing CLI exception for `--max-tokens 12abc`; green phase passed with 3 tests after strict positive-integer parsing.
 - `pnpm run release:check`: sandbox run hit Vitest/esbuild `spawn EPERM`; elevated rerun passed with 24 Vitest files / 54 tests, E2E, examples, build, pack dry-run, and high audit after core CLI tightening.
+- `pnpm test tests/cli-options.test.ts`: red phase failed on missing CLI exception for `--repo https://github.com/HF-CYGG/CtxSift?tab=readme`; green phase passed with 4 tests after strict GitHub repo URL parsing.
+- `pnpm run release:check`: sandbox run hit Vitest/esbuild `spawn EPERM`; elevated rerun passed with 24 Vitest files / 55 tests, E2E, examples, build, pack dry-run, and high audit after CLI GitHub repo URL tightening.
 - `pnpm pack --dry-run`: latest full gate packed `ctxsift@1.3.0-alpha.0` and included `examples`.
 - `pnpm audit --audit-level high --registry https://registry.npmjs.org`: latest full gate reported no known vulnerabilities.
 

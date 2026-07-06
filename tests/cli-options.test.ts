@@ -68,4 +68,12 @@ describe("parseArgs", () => {
       );
     }
   });
+
+  test("rejects GitHub repo URLs with query strings or fragments", () => {
+    for (const repo of ["https://github.com/HF-CYGG/CtxSift?tab=readme", "https://github.com/HF-CYGG/CtxSift#readme"]) {
+      expect(() => parseArgs(["--repo", repo, "--ask", "Where does auth start?"])).toThrow(
+        "--repo GitHub URL must be https://github.com/owner/repo"
+      );
+    }
+  });
 });
