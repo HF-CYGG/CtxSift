@@ -111,7 +111,24 @@ ctxsift --repo . \
 
 Review bundle 会整理 changed files、相关测试、相关文档和风险提示，适合在 PR 评审前生成上下文。
 
-### 4. 分析公开 GitHub 仓库
+### 4. 在 PR 中上传 review context artifact
+
+```yaml
+permissions:
+  contents: read
+
+steps:
+  - uses: actions/checkout@v4
+    with:
+      fetch-depth: 0
+  - uses: HF-CYGG/CtxSift@main
+    with:
+      profile: private
+```
+
+默认只上传 artifact，不发布 PR 评论。开启 sticky comment 时需要 `pull-requests: write`，详见 [GitHub Action](docs/github-action.md)。
+
+### 5. 分析公开 GitHub 仓库
 
 ```bash
 ctxsift --repo https://github.com/user/repo \
@@ -294,6 +311,7 @@ pnpm bench
 - [CLI 参考](docs/cli.md)
 - [安全模型](docs/security.md)
 - [Review Bundle](docs/review-bundle.md)
+- [GitHub Action](docs/github-action.md)
 - [Monorepo selective packing](docs/monorepo.md)
 - [Benchmark Toolkit](docs/benchmark.md)
 - [架构说明](docs/architecture.md)

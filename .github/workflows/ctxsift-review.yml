@@ -16,33 +16,10 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: pnpm/action-setup@v4
+      - name: Generate CtxSift review context
+        uses: ./
         with:
-          version: 11.7.0
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm build
-      - name: Generate review context artifact
-        run: |
-          node dist/cli.js --repo . --diff origin/${{ github.base_ref }}...HEAD --mode review --format markdown --out review-context.md
-          node dist/cli.js --repo . --diff origin/${{ github.base_ref }}...HEAD --mode review --format json --out review-context.json
-      - uses: actions/upload-artifact@v4
-        with:
-          name: ctxsift-review-context
-          path: |
-            review-context.md
-            review-context.json
-
-      # Optional sticky PR commenting is disabled by default. To enable it:
-      # 1. Add `pull-requests: write` to permissions above.
-      # 2. Set repository variable `CTXSIFT_REVIEW_COMMENT` to `true`.
-      # The comment posts only a summary; full source context stays in the artifact.
-      - name: Update sticky PR comment
-        if: ${{ vars.CTXSIFT_REVIEW_COMMENT == 'true' }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          node dist/pr-comment-cli.js --bundle review-context.json --artifact ctxsift-review-context
+          diff: origin/${{ github.base_ref }}...HEAD
+          artifact-name: ctxsift-review-context
+          comment: ${{ vars.CTXSIFT_REVIEW_COMMENT == 'true' }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}

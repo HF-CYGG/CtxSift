@@ -22,14 +22,20 @@ CtxSift does not decide whether a PR is correct. It prepares the repository cont
 
 ## GitHub Actions
 
-The repository includes `.github/workflows/ctxsift-review.yml` as an artifact-first PR workflow. By default it uses only:
+The repository includes `action.yml` and `.github/workflows/ctxsift-review.yml`
+as artifact-first PR review-context workflows. By default they use only:
 
 ```yaml
 permissions:
   contents: read
 ```
 
-It builds the CLI, generates both `review-context.md` and `review-context.json`, and uploads them as the `ctxsift-review-context` artifact.
+The action builds the CLI, generates both `review-context.md` and
+`review-context.json`, and uploads them as the `ctxsift-review-context`
+artifact.
+
+See [GitHub Action](github-action.md) for install examples, inputs, outputs,
+private repository guidance, and comment permissions.
 
 ## Optional Sticky PR Comment
 

@@ -23,6 +23,8 @@ Context engineering v1 alpha: workspace/build-aware packing, PR review context, 
 - Implemented `--profile balanced|private|strict`, audit `securityPolicy`, `riskScore`, and `blockedHighRiskFiles`.
 - Committed profile-based security policy milestone as `c23a3d5`.
 - Added benchmark reporter tests, local fixtures, `pnpm bench` scripts, and generated Markdown/JSON reports.
+- Committed benchmark toolkit milestone as `721eb66`.
+- Added root `action.yml` composite action and GitHub Action usage documentation.
 
 ## Failed Tests
 
@@ -36,7 +38,7 @@ Context engineering v1 alpha: workspace/build-aware packing, PR review context, 
 
 ## Next Step
 
-Validate and commit benchmark toolkit milestone, then add `action.yml` and GitHub Action installation docs.
+Validate and commit GitHub Action milestone, then run the final verification command set.
 
 ## Latest Verification Commands
 

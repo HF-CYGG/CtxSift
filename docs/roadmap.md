@@ -26,6 +26,7 @@ tests, and npm package metadata.
 
 ## v1.2 GitHub Action Hardening
 
+- Provide a root `action.yml` composite action for review-context generation.
 - Upload Markdown and JSON review-context artifacts for pull requests.
 - Add optional sticky PR summary comments, disabled by default.
 - Keep default workflow permissions at `contents: read`; require `pull-requests: write` only when comments are explicitly enabled.
