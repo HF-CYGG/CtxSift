@@ -15,6 +15,7 @@
     "./cli": "./dist/cli.js"
   },
   "files": [
+    "action.yml",
     "dist",
     "README.md",
     "LICENSE",

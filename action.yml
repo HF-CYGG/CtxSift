@@ -1,0 +1,146 @@
+name: CtxSift Review Context
+author: HF-CYGG
+description: Generate diff-aware CtxSift review context artifacts and optional sticky PR summary comments.
+
+inputs:
+  repo:
+    description: Repository path to analyze. Use "." after actions/checkout.
+    required: false
+    default: "."
+  diff:
+    description: Git diff spec such as origin/main...HEAD. Defaults to origin/<base_ref>...HEAD on pull_request events.
+    required: false
+    default: ""
+  mode:
+    description: CtxSift mode to run.
+    required: false
+    default: "review"
+  profile:
+    description: "Security profile: balanced, private, or strict."
+    required: false
+    default: "balanced"
+  max-tokens:
+    description: Maximum selected-context token budget.
+    required: false
+    default: "20000"
+  workspace-aware:
+    description: Enable workspace/package graph-aware ranking.
+    required: false
+    default: "true"
+  output-prefix:
+    description: Output file prefix for generated review context files.
+    required: false
+    default: "review-context"
+  artifact-name:
+    description: Artifact name for the generated Markdown and JSON bundles.
+    required: false
+    default: "ctxsift-review-context"
+  upload-artifact:
+    description: Upload generated review-context files as a workflow artifact.
+    required: false
+    default: "true"
+  comment:
+    description: Update a sticky PR summary comment. Requires pull-requests: write.
+    required: false
+    default: "false"
+  github-token:
+    description: GitHub token used only when comment is true.
+    required: false
+    default: ""
+
+outputs:
+  markdown-path:
+    description: Path to the generated Markdown review context.
+    value: ${{ steps.generate.outputs['markdown-path'] }}
+  json-path:
+    description: Path to the generated JSON review context.
+    value: ${{ steps.generate.outputs['json-path'] }}
+  artifact-name:
+    description: Artifact name used for upload and PR comment summary.
+    value: ${{ inputs['artifact-name'] }}
+  selected-files:
+    description: Number of files selected into the review context.
+    value: ${{ steps.generate.outputs['selected-files'] }}
+
+runs:
+  using: composite
+  steps:
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: "22"
+
+    - name: Build CtxSift CLI
+      shell: bash
+      working-directory: ${{ github.action_path }}
+      run: |
+        set -euo pipefail
+        corepack enable
+        pnpm install --frozen-lockfile
+        pnpm build
+
+    - id: generate
+      name: Generate review context
+      shell: bash
+      env:
+        CTXSIFT_ACTION_PATH: ${{ github.action_path }}
+        GITHUB_BASE_REF_VALUE: ${{ github.base_ref }}
+        INPUT_REPO: ${{ inputs.repo }}
+        INPUT_DIFF: ${{ inputs.diff }}
+        INPUT_MODE: ${{ inputs.mode }}
+        INPUT_PROFILE: ${{ inputs.profile }}
+        INPUT_MAX_TOKENS: ${{ inputs['max-tokens'] }}
+        INPUT_WORKSPACE_AWARE: ${{ inputs['workspace-aware'] }}
+        INPUT_OUTPUT_PREFIX: ${{ inputs['output-prefix'] }}
+      run: |
+        set -euo pipefail
+
+        diff_spec="$INPUT_DIFF"
+        if [ -z "$diff_spec" ]; then
+          if [ -z "$GITHUB_BASE_REF_VALUE" ]; then
+            echo "ctxsift action: input 'diff' is required outside pull_request events" >&2
+            exit 1
+          fi
+          diff_spec="origin/${GITHUB_BASE_REF_VALUE}...HEAD"
+        fi
+
+        markdown_path="${INPUT_OUTPUT_PREFIX}.md"
+        json_path="${INPUT_OUTPUT_PREFIX}.json"
+        args=(--repo "$INPUT_REPO" --diff "$diff_spec" --mode "$INPUT_MODE" --profile "$INPUT_PROFILE" --max-tokens "$INPUT_MAX_TOKENS")
+        if [ "$INPUT_WORKSPACE_AWARE" = "true" ]; then
+          args+=(--workspace-aware)
+        fi
+
+        node "$CTXSIFT_ACTION_PATH/dist/cli.js" "${args[@]}" --format markdown --out "$markdown_path"
+        node "$CTXSIFT_ACTION_PATH/dist/cli.js" "${args[@]}" --format json --out "$json_path"
+
+        selected_files="$(node -e "const fs=require('fs'); const output=JSON.parse(fs.readFileSync(process.argv[1], 'utf8')); process.stdout.write(String(output.selectedFiles?.length ?? 0));" "$json_path")"
+        echo "markdown-path=$markdown_path" >> "$GITHUB_OUTPUT"
+        echo "json-path=$json_path" >> "$GITHUB_OUTPUT"
+        echo "selected-files=$selected_files" >> "$GITHUB_OUTPUT"
+
+    - name: Upload review context artifact
+      if: ${{ inputs['upload-artifact'] == 'true' }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ inputs['artifact-name'] }}
+        path: |
+          ${{ steps.generate.outputs['markdown-path'] }}
+          ${{ steps.generate.outputs['json-path'] }}
+
+    - name: Update sticky PR comment
+      if: ${{ inputs.comment == 'true' }}
+      shell: bash
+      env:
+        CTXSIFT_ACTION_PATH: ${{ github.action_path }}
+        GITHUB_TOKEN: ${{ inputs['github-token'] }}
+        BUNDLE_PATH: ${{ steps.generate.outputs['json-path'] }}
+        ARTIFACT_NAME: ${{ inputs['artifact-name'] }}
+      run: |
+        set -euo pipefail
+        if [ -z "$GITHUB_TOKEN" ]; then
+          echo "ctxsift action: github-token is required when comment is true" >&2
+          exit 1
+        fi
+        # Full source context stays in the artifact; the PR comment contains only a summary.
+        node "$CTXSIFT_ACTION_PATH/dist/pr-comment-cli.js" --bundle "$BUNDLE_PATH" --artifact "$ARTIFACT_NAME"
