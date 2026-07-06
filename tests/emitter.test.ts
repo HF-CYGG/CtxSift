@@ -91,7 +91,10 @@ const sampleOutput: PackOutput = {
   audit: {
     scannedFiles: 3,
     ignoredFiles: 2,
-    redactions: 0
+    redactions: 0,
+    securityPolicy: "balanced",
+    riskScore: 0,
+    blockedHighRiskFiles: []
   }
 };
 

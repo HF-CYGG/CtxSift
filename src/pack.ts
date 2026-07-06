@@ -1,11 +1,12 @@
 import path from "node:path";
 import { loadGitDiffSummary } from "./diff.js";
 import { emitBundle } from "./emitter.js";
+import { classifyFile } from "./file-classifier.js";
 import { prepareRepository } from "./repo-source.js";
 import { loadRepository } from "./repo-loader.js";
 import { rankFiles } from "./question-ranker.js";
-import { redactSecrets } from "./security-redactor.js";
-import { filesToChunks, selectWithinBudget, estimateTokens } from "./token-budgeter.js";
+import { calculateRiskScore, applySecurityPolicy } from "./security-policy.js";
+import { filesToChunks, selectWithinBudget } from "./token-budgeter.js";
 import { detectWorkspaces } from "./workspace-detector.js";
 import { buildWorkspaceGraph } from "./workspace-graph.js";
 import type { CandidateFile, PackRequest, PackOutput } from "./types.js";
@@ -40,8 +41,18 @@ export async function packRepository(request: PackRequest): Promise<PackOutput> 
           request.budget.reserveForAnswer,
           request.budget.hardLimit
         );
-    const redactionState = { count: 0 };
-    const selectedFiles = selected.selectedFiles.map((file) => redactFileIfNeeded(file, request.security.redactSecrets, redactionState));
+    const securityProfile = request.security.profile ?? "balanced";
+    const securityState = {
+      redactions: 0,
+      blockedHighRiskFiles: collectIgnoredHighRiskFiles(loaded.ignoredFiles)
+    };
+    const selectedFiles = selected.selectedFiles.map((file) =>
+      applySecurityPolicy(file, {
+        profile: securityProfile,
+        redactSecrets: request.security.redactSecrets,
+        state: securityState
+      })
+    );
     const chunks = filesToChunks(selectedFiles);
     const totalTokens = selectedFiles.reduce((sum, file) => sum + file.estimatedTokens, 0);
     const droppedFiles = selected.droppedFiles.slice(0, DROPPED_FILES_LIMIT);
@@ -68,7 +79,7 @@ export async function packRepository(request: PackRequest): Promise<PackOutput> 
         selectedFiles: selectedFiles.length,
         droppedFiles,
         droppedFilesOmitted: Math.max(0, selected.droppedFiles.length - droppedFiles.length),
-        redactions: redactionState.count
+        redactions: securityState.redactions
       },
       tree: loaded.tree,
       selectedFiles: selectedFiles.map(stripInternalFields),
@@ -79,7 +90,10 @@ export async function packRepository(request: PackRequest): Promise<PackOutput> 
       audit: {
         scannedFiles: loaded.files.length,
         ignoredFiles: loaded.ignoredFiles.length,
-        redactions: redactionState.count
+        redactions: securityState.redactions,
+        securityPolicy: securityProfile,
+        riskScore: calculateRiskScore(securityState),
+        blockedHighRiskFiles: securityState.blockedHighRiskFiles
       }
     };
   } finally {
@@ -91,21 +105,6 @@ export function renderPackOutput(output: PackOutput, format: "markdown" | "json"
   return emitBundle(output, format);
 }
 
-function redactFileIfNeeded(file: CandidateFile, enabled: boolean, state: { count: number }): CandidateFile {
-  if (!enabled || !file.content) {
-    return file;
-  }
-
-  const result = redactSecrets(file.content);
-  state.count += result.redactions;
-
-  return {
-    ...file,
-    content: result.content,
-    estimatedTokens: estimateTokens(result.content)
-  };
-}
-
 function stripInternalFields(file: CandidateFile): CandidateFile {
   return {
     path: file.path,
@@ -115,6 +114,15 @@ function stripInternalFields(file: CandidateFile): CandidateFile {
     reasons: file.reasons,
     scores: file.scores
   };
+}
+
+function collectIgnoredHighRiskFiles(ignoredFiles: string[]): Array<{ path: string; reason: string }> {
+  return ignoredFiles
+    .filter((filePath) => classifyFile(filePath).isHighRisk)
+    .map((filePath) => ({
+      path: filePath,
+      reason: "high-risk file excluded by security defaults"
+    }));
 }
 
 function buildPromptTemplate(query: string | undefined, mode: string): string {

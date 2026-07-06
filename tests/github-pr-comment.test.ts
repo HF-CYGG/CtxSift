@@ -117,5 +117,5 @@ const sampleOutput: PackOutput = {
     risks: ["Auth/security-sensitive path changed: src/auth/login.ts"],
     reviewerPrompt: "Review the supplied diff-aware repository context."
   },
-  audit: { scannedFiles: 3, ignoredFiles: 0, redactions: 0 }
+  audit: { scannedFiles: 3, ignoredFiles: 0, redactions: 0, securityPolicy: "balanced", riskScore: 0, blockedHighRiskFiles: [] }
 };

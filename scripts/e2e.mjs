@@ -61,6 +61,39 @@ const noRedact = run([
 ]);
 assert(noRedact.stderr.includes("WARNING: --no-redact disables secret redaction"), "--no-redact should warn");
 
+const privateProfile = run([
+  "--repo",
+  "tests/fixtures/secrets",
+  "--ask",
+  "Explain config loading",
+  "--include",
+  ".env.example",
+  "--profile",
+  "private",
+  "--format",
+  "json"
+]);
+const privateJson = JSON.parse(privateProfile.stdout);
+assert(privateJson.audit.securityPolicy === "private", "private profile should be recorded in audit");
+assert(!privateProfile.stdout.includes("sk-proj-secret-fixture-key"), "private profile should not leak fake OpenAI key");
+
+const strictProfile = run([
+  "--repo",
+  "tests/fixtures/secrets",
+  "--ask",
+  "Explain config loading",
+  "--include",
+  ".env.example",
+  "--profile",
+  "strict",
+  "--format",
+  "json"
+]);
+const strictJson = JSON.parse(strictProfile.stdout);
+assert(strictJson.audit.securityPolicy === "strict", "strict profile should be recorded in audit");
+assert(strictJson.audit.blockedHighRiskFiles.length > 0, "strict profile should report blocked high-risk files");
+assert(!strictProfile.stdout.includes("sk-proj-secret-fixture-key"), "strict profile should not leak fake OpenAI key");
+
 function run(args) {
   const result = spawnSync(process.execPath, [cli, ...args], {
     cwd: root,

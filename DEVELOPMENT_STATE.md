@@ -19,6 +19,8 @@ Context engineering v1 alpha: workspace/build-aware packing, PR review context, 
 - Implemented `--workspace-aware`, `--workspace-graph`, and `--package`.
 - Added build target extraction for package scripts, Turbo/Nx metadata, and TypeScript project references.
 - Added basic import edges for source imports targeting internal workspace package names.
+- Added tests and implementation for profile-based security policy.
+- Implemented `--profile balanced|private|strict`, audit `securityPolicy`, `riskScore`, and `blockedHighRiskFiles`.
 
 ## Failed Tests
 
@@ -31,7 +33,7 @@ Context engineering v1 alpha: workspace/build-aware packing, PR review context, 
 
 ## Next Step
 
-Commit workspace/build-aware CLI milestone, then implement profile-based security policy.
+Validate and commit profile-based security policy milestone, then implement benchmark toolkit.
 
 ## Latest Verification Commands
 
@@ -40,6 +42,7 @@ Commit workspace/build-aware CLI milestone, then implement profile-based securit
 - `pnpm test tests/workspace-detector.test.ts tests/workspace-graph.test.ts tests/github-pr-comment.test.ts tests/question-ranker.test.ts tests/emitter.test.ts tests/json-schema.test.ts tests/pack.test.ts tests/review-bundle.test.ts`
 - `pnpm lint`
 - `pnpm test:e2e` with elevated permissions after sandbox EPERM
+- `pnpm test tests/security-policy.test.ts tests/cli-options.test.ts tests/pack.test.ts tests/emitter.test.ts tests/github-pr-comment.test.ts`
 - `pnpm build`
 - `pnpm pack --dry-run`
 - `pnpm run release:check` with elevated permissions

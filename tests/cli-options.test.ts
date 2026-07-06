@@ -26,6 +26,8 @@ describe("parseArgs", () => {
       "--workspace-graph",
       "--package",
       "apps/web",
+      "--profile",
+      "private",
       "--no-redact",
       "--debug"
     ]);
@@ -43,6 +45,7 @@ describe("parseArgs", () => {
       workspaceAware: true,
       workspaceGraph: true,
       packageName: "apps/web",
+      profile: "private",
       redact: false,
       debug: true
     });

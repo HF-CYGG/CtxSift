@@ -91,6 +91,7 @@ describe("packRepository", () => {
     expect(allContent).not.toContain("sk-proj-fixture-not-real");
     expect(allContent).toContain("[REDACTED:OPENAI_API_KEY]");
     expect(output.audit.redactions).toBeGreaterThanOrEqual(1);
+    expect(output.audit.securityPolicy).toBe("balanced");
   });
 
   test("honors hard token limits by dropping oversized files", async () => {
@@ -206,6 +207,24 @@ describe("packRepository", () => {
     expect(output.workspaces?.packages.map((workspacePackage) => workspacePackage.name)).toContain("@ctxsift/auth");
     expect(output.selectedFiles).toEqual([]);
     expect(output.chunks).toEqual([]);
+  });
+
+  test("strict profile blocks high-risk file body output", async () => {
+    const output = await packRepository({
+      repo: { type: "local", pathOrUrl: fileURLToPath(new URL("./fixtures/secrets", import.meta.url)) },
+      task: { mode: "question", query: "Explain config loading", targetModel: "generic" },
+      budget: { maxTokens: 4000, hardLimit: true, reserveForPrompt: 100, reserveForAnswer: 400 },
+      scope: { include: [".env.example"], includeTests: false, includeDocs: true },
+      security: { redactSecrets: true, emitAuditLog: true, allowRemoteConfig: false, profile: "strict" },
+      output: { format: "json" }
+    });
+    const content = output.chunks.map((chunk) => chunk.content).join("\n");
+
+    expect(content).toContain("blocked high-risk file body under strict security profile");
+    expect(content).not.toContain("sk-proj-secret-fixture-key");
+    expect(output.audit.securityPolicy).toBe("strict");
+    expect(output.audit.blockedHighRiskFiles.map((file) => file.path)).toContain(".env.example");
+    expect(output.audit.riskScore).toBeGreaterThan(0);
   });
 });
 
