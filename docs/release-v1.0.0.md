@@ -1,8 +1,8 @@
-# v1.0.0 Release Draft
+# v1.0.0 Release Candidate Checklist
 
 ## Summary
 
-CtxSift v1.0.0 ships a stable question-aware context packer for local repositories and public GitHub repositories, with diff-aware review bundles, Markdown/JSON output, token budgeting, and default secret redaction.
+CtxSift v1.0.0 is prepared as a stable question-aware context packer for local repositories and public GitHub repositories, with diff-aware review bundles, Markdown/JSON output, token budgeting, and default secret redaction.
 
 ## Highlights
 
@@ -21,6 +21,11 @@ CtxSift v1.0.0 ships a stable question-aware context packer for local repositori
 - [ ] `pnpm test:e2e`
 - [ ] `pnpm build`
 - [ ] `pnpm pack --dry-run`
+- [ ] `pnpm run audit:high`
+- [ ] `pnpm run release:check`
 - [ ] Confirm `package.json` version is `1.0.0`.
 - [ ] Confirm README does not claim non-v1 features.
+- [ ] Confirm GitHub Actions CI passed on the release branch.
+- [ ] Confirm install smoke from the generated package tarball.
+- [ ] Confirm public GitHub repository input smoke.
 - [ ] Create GitHub release using this draft.

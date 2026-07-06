@@ -1,11 +1,11 @@
 # CtxSift Roadmap
 
-CtxSift v1.0.0 is the first production-ready CLI release. It includes local
+CtxSift v1.0.0 is the first production-ready CLI release candidate. It includes local
 repository packing, public GitHub repository input, deterministic ranking,
 diff-aware review bundles, Markdown and JSON emitters, default redaction, CI,
 tests, and npm package metadata.
 
-## v1.0.0 Shipped
+## v1.0.0 Release Scope
 
 - `ctxsift --ask "<question>" --repo <path>` local workflow.
 - `ctxsift --repo https://github.com/owner/repo --ask "<question>"` public clone workflow.
@@ -14,7 +14,7 @@ tests, and npm package metadata.
 - Deterministic file ranking with explainable reasons.
 - Token budgeting with explicit dropped-file reasons.
 - Default secret exclusion, content redaction, and audit counts.
-- CLI E2E tests, fixture coverage, CI workflow, and npm publish metadata.
+- CLI E2E tests, fixture coverage, CI workflow, release check script, and npm publish metadata.
 
 ## v1.1 Ranking Quality
 

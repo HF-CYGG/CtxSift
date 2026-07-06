@@ -75,6 +75,8 @@ pnpm test:e2e
 pnpm build
 
 pnpm pack --dry-run
+
+pnpm run release:check
 ```
 
 If a command does not exist, create the closest equivalent script.
@@ -108,5 +110,5 @@ Do not mark the project as v1.0.0 unless:
 - Markdown and JSON outputs are stable.
 - diff-aware mode works.
 - security redaction tests pass.
-- CI passes.
+- CI and `pnpm run release:check` pass.
 - README, docs, changelog, and package metadata are complete.
