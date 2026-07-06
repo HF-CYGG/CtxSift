@@ -1,6 +1,7 @@
 export type OutputFormat = "markdown" | "json";
 export type PackMode = "question" | "diff" | "review" | "onboarding" | "bugfix";
 export type TargetModel = "claude" | "chatgpt" | "cursor" | "generic";
+export type SecurityProfile = "balanced" | "private" | "strict";
 
 export type PackRequest = {
   repo: {
@@ -35,6 +36,7 @@ export type PackRequest = {
     redactSecrets: boolean;
     emitAuditLog: boolean;
     allowRemoteConfig: boolean;
+    profile?: SecurityProfile;
   };
   output: {
     format: OutputFormat;
@@ -117,6 +119,9 @@ export type PackOutput = {
     scannedFiles: number;
     ignoredFiles: number;
     redactions: number;
+    securityPolicy: SecurityProfile;
+    riskScore: number;
+    blockedHighRiskFiles: Array<{ path: string; reason: string }>;
   };
 };
 

@@ -18,6 +18,7 @@
 - `--workspace-aware`: explicitly enable workspace/package graph analysis. CtxSift also analyzes workspace metadata automatically when it finds workspace config.
 - `--workspace-graph`: output workspace graph metadata without selecting source chunks when no task is provided.
 - `--package <workspace-name-or-path>`: focus ranking on a workspace package, such as `apps/web` or `@scope/web`.
+- `--profile balanced|private|strict`: choose the security policy. Defaults to `balanced`.
 - `--no-redact`: disable redaction and print a warning.
 - `--debug`: reserved for verbose diagnostics.
 - `--version`: print CLI version.
@@ -51,6 +52,7 @@ Repositories without workspace configuration omit this field.
 ctxsift --repo . --ask "Where does auth start?"
 ctxsift --repo . --workspace-graph --format json
 ctxsift --repo . --package apps/web --ask "Why might routing break?"
+ctxsift --repo . --ask "Explain config loading" --profile private
 ctxsift --repo . --ask "Why might caching break?" --max-tokens 20000
 ctxsift --repo . --diff main...HEAD --mode review
 ctxsift --repo . --ask "Explain the config system" --format json --out ctxbundle.json

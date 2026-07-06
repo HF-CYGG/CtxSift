@@ -4,7 +4,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { parseDiffSpec } from "./diff.js";
 import { packRepository, renderPackOutput } from "./pack.js";
-import type { OutputFormat, PackMode, PackRequest } from "./types.js";
+import type { OutputFormat, PackMode, PackRequest, SecurityProfile } from "./types.js";
 
 const VERSION = "1.0.0";
 
@@ -21,6 +21,7 @@ export type CliOptions = {
   workspaceAware: boolean;
   workspaceGraph: boolean;
   packageName?: string;
+  profile: SecurityProfile;
   redact: boolean;
   debug: boolean;
 };
@@ -57,6 +58,7 @@ export function parseArgs(args: string[]): CliOptions {
     exclude: [],
     workspaceAware: false,
     workspaceGraph: false,
+    profile: "balanced",
     redact: true,
     debug: false
   };
@@ -116,6 +118,10 @@ export function parseArgs(args: string[]): CliOptions {
       case "--package":
         options.packageName = requireValue(arg, next);
         options.workspaceAware = true;
+        index += 1;
+        break;
+      case "--profile":
+        options.profile = parseProfile(requireValue(arg, next));
         index += 1;
         break;
       case "--no-redact":
@@ -178,7 +184,8 @@ function createPackRequest(options: CliOptions): PackRequest {
     security: {
       redactSecrets: options.redact,
       emitAuditLog: true,
-      allowRemoteConfig: false
+      allowRemoteConfig: false,
+      profile: options.profile
     },
     output: {
       format: options.format,
@@ -206,6 +213,13 @@ function parseMode(value: string): PackMode {
     return value;
   }
   throw new Error("--mode must be question, diff, review, onboarding, or bugfix");
+}
+
+function parseProfile(value: string): SecurityProfile {
+  if (value === "balanced" || value === "private" || value === "strict") {
+    return value;
+  }
+  throw new Error("--profile must be balanced, private, or strict");
 }
 
 function splitList(value: string): string[] {
@@ -236,6 +250,7 @@ Options:
   --workspace-aware
   --workspace-graph
   --package <workspace-name-or-path>
+  --profile balanced|private|strict
   --no-redact
   --debug
   --version

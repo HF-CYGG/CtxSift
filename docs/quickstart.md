@@ -43,3 +43,12 @@ Use `--package <workspace-name-or-path>` to focus ranking on one workspace packa
 ```bash
 ctxsift --repo . --package apps/web --ask "Why might routing break?"
 ```
+
+## Use a Private-Repository Security Profile
+
+```bash
+ctxsift --repo . --ask "Explain config loading" --profile private
+ctxsift --repo . --ask "Explain config loading" --profile strict
+```
+
+`private` and `strict` block high-risk file bodies and report the blocked files in audit output.

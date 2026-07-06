@@ -8,6 +8,7 @@
 - Added optional sticky PR review-context comments for the GitHub Actions workflow.
 - Added `--workspace-aware`, `--workspace-graph`, and `--package` CLI options.
 - Added package manifest parsing, build target extraction, import edge extraction, and package-level ranking helpers.
+- Added `--profile balanced|private|strict` with audit risk score and blocked high-risk file reporting.
 
 ## 1.0.0 - 2026-07-07
 
