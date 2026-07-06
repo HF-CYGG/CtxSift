@@ -1,13 +1,18 @@
 import { describe, expect, test } from "vitest";
 import { fileURLToPath } from "node:url";
+import { promises as fs } from "node:fs";
+import os from "node:os";
+import path from "node:path";
 import { packRepository } from "../src/pack.js";
 
 const fixtureRoot = fileURLToPath(new URL("./fixtures/basic-app", import.meta.url));
 
 describe("packRepository", () => {
   test("selects task-relevant auth context and excludes secrets", async () => {
+    const repo = await createBasicFixtureWithIgnoredBuildOutput();
+
     const output = await packRepository({
-      repo: { type: "local", pathOrUrl: fixtureRoot },
+      repo: { type: "local", pathOrUrl: repo },
       task: {
         mode: "question",
         query: "Where does auth start?",
@@ -123,3 +128,11 @@ describe("packRepository", () => {
     });
   });
 });
+
+async function createBasicFixtureWithIgnoredBuildOutput(): Promise<string> {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "ctxsift-basic-"));
+  await fs.cp(fixtureRoot, root, { recursive: true });
+  await fs.mkdir(path.join(root, "dist"), { recursive: true });
+  await fs.writeFile(path.join(root, "dist", "generated.js"), "export const generated = true;\n", "utf8");
+  return root;
+}
