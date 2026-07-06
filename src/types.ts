@@ -27,6 +27,9 @@ export type PackRequest = {
     focusDirs?: string[];
     includeTests?: boolean;
     includeDocs?: boolean;
+    workspaceAware?: boolean;
+    workspaceGraphOnly?: boolean;
+    targetPackage?: string;
   };
   security: {
     redactSecrets: boolean;
@@ -139,7 +142,7 @@ export type DiffSummary = {
 export type WorkspacePackageManager = "pnpm" | "package-json" | "none";
 export type WorkspaceBuildTool = "turbo" | "nx";
 export type WorkspaceDependencyType = "dependency" | "devDependency" | "peerDependency" | "optionalDependency";
-export type WorkspaceFocus = "changed" | "dependency" | "none";
+export type WorkspaceFocus = "target" | "changed" | "dependency" | "query" | "none";
 
 export type WorkspacePackage = {
   name: string;
@@ -166,6 +169,8 @@ export type WorkspaceGraph = {
   buildTools: WorkspaceBuildTool[];
   packages: WorkspacePackage[];
   dependencyEdges: WorkspaceDependencyEdge[];
+  buildTargets?: WorkspaceBuildTarget[];
+  importEdges?: WorkspaceImportEdge[];
   focusedPackages: WorkspacePackageReason[];
   packageReasons: WorkspacePackageReason[];
 };
@@ -188,4 +193,19 @@ export type WorkspaceAnalysis = {
   fileContexts: Map<string, WorkspaceFileContext>;
   changedPackageNames: Set<string>;
   dependencyPackageNames: Set<string>;
+};
+
+export type WorkspaceBuildTarget = {
+  type: "script" | "tool" | "tsconfig-reference";
+  name: string;
+  packageName: string | null;
+  packagePath: string;
+  command: string | null;
+};
+
+export type WorkspaceImportEdge = {
+  fromFile: string;
+  fromPackage: string | null;
+  specifier: string;
+  toPackage: string;
 };

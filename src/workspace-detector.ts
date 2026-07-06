@@ -1,4 +1,5 @@
 import path from "node:path";
+import { parseJsonObject, parsePackageManifest } from "./package-manifest.js";
 import type {
   CandidateFile,
   WorkspaceBuildTool,
@@ -7,19 +8,9 @@ import type {
   WorkspacePackageManager
 } from "./types.js";
 
-type PackageJson = {
-  name?: unknown;
-  scripts?: unknown;
-  workspaces?: unknown;
-  dependencies?: unknown;
-  devDependencies?: unknown;
-  peerDependencies?: unknown;
-  optionalDependencies?: unknown;
-};
-
 export function detectWorkspaces(files: CandidateFile[]): WorkspaceDetection {
   const byPath = new Map(files.map((file) => [file.path, file.content ?? ""]));
-  const rootPackageJson = parsePackageJson(byPath.get("package.json"));
+  const rootPackageJson = parseJsonObject(byPath.get("package.json"));
   const pnpmPatterns = parsePnpmWorkspaceYaml(byPath.get("pnpm-workspace.yaml"));
   const packageJsonPatterns = rootPackageJson ? parsePackageJsonWorkspaces(rootPackageJson.workspaces) : [];
   const packageManager: WorkspacePackageManager = pnpmPatterns.length > 0 ? "pnpm" : packageJsonPatterns.length > 0 ? "package-json" : "none";
@@ -43,18 +34,12 @@ function detectPackages(packageJsonFiles: CandidateFile[], patterns: string[]): 
       continue;
     }
 
-    const parsed = parsePackageJson(file.content);
+    const parsed = parsePackageManifest(file.path, file.content);
     if (!parsed) {
       continue;
     }
 
-    packages.push({
-      name: readPackageName(parsed, packageDir),
-      path: packageDir,
-      packageJsonPath: file.path,
-      scripts: readStringRecord(parsed.scripts),
-      dependencies: readDependencies(parsed)
-    });
+    packages.push(parsed);
   }
 
   packages.sort((left, right) => left.path.localeCompare(right.path));
@@ -124,39 +109,6 @@ function detectBuildTools(byPath: Map<string, string>): WorkspaceBuildTool[] {
     tools.push("nx");
   }
   return tools;
-}
-
-function parsePackageJson(content: string | undefined): PackageJson | null {
-  if (!content) {
-    return null;
-  }
-  try {
-    const parsed = JSON.parse(content) as unknown;
-    return isRecord(parsed) ? parsed : null;
-  } catch {
-    return null;
-  }
-}
-
-function readPackageName(parsed: PackageJson, packageDir: string): string {
-  return typeof parsed.name === "string" && parsed.name.length > 0 ? parsed.name : packageDir;
-}
-
-function readDependencies(parsed: PackageJson): WorkspacePackage["dependencies"] {
-  return {
-    dependency: Object.keys(readStringRecord(parsed.dependencies)),
-    devDependency: Object.keys(readStringRecord(parsed.devDependencies)),
-    peerDependency: Object.keys(readStringRecord(parsed.peerDependencies)),
-    optionalDependency: Object.keys(readStringRecord(parsed.optionalDependencies))
-  };
-}
-
-function readStringRecord(value: unknown): Record<string, string> {
-  if (!isRecord(value)) {
-    return {};
-  }
-
-  return Object.fromEntries(Object.entries(value).filter((entry): entry is [string, string] => typeof entry[1] === "string"));
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

@@ -1,3 +1,6 @@
+import { detectBuildTargets } from "./build-targets.js";
+import { extractImportGraph } from "./import-graph.js";
+import { rankWorkspacePackages } from "./package-ranker.js";
 import type {
   CandidateFile,
   WorkspaceAnalysis,
@@ -13,7 +16,17 @@ import type {
 
 const DEPENDENCY_TYPES: WorkspaceDependencyType[] = ["dependency", "devDependency", "peerDependency", "optionalDependency"];
 
-export function buildWorkspaceGraph(detection: WorkspaceDetection, files: CandidateFile[], changedFiles: string[]): WorkspaceAnalysis {
+export type BuildWorkspaceGraphOptions = {
+  query?: string;
+  targetPackage?: string;
+};
+
+export function buildWorkspaceGraph(
+  detection: WorkspaceDetection,
+  files: CandidateFile[],
+  changedFiles: string[],
+  options: BuildWorkspaceGraphOptions = {}
+): WorkspaceAnalysis {
   const dependencyEdges = buildDependencyEdges(detection.packages);
   const packageByFile = attributeFilesToPackages(files, detection.packages);
   const changedPackageNames = new Set<string>();
@@ -26,7 +39,12 @@ export function buildWorkspaceGraph(detection: WorkspaceDetection, files: Candid
   }
 
   const dependencyPackageNames = collectDependencyPackages(changedPackageNames, dependencyEdges);
-  const packageReasons = buildPackageReasons(detection.packages, changedPackageNames, dependencyPackageNames);
+  const packageRanks = rankWorkspacePackages({
+    packages: detection.packages,
+    query: options.query,
+    targetPackage: options.targetPackage
+  });
+  const packageReasons = buildPackageReasons(detection.packages, changedPackageNames, dependencyPackageNames, packageRanks);
   const fileContexts = new Map<string, WorkspaceFileContext>();
 
   for (const file of files) {
@@ -35,12 +53,16 @@ export function buildWorkspaceGraph(detection: WorkspaceDetection, files: Candid
       continue;
     }
 
-    const focus = focusForPackage(workspacePackage.name, changedPackageNames, dependencyPackageNames);
+    const focus = focusForPackage(workspacePackage.name, changedPackageNames, dependencyPackageNames, packageRanks);
     const reasons = [`workspace package: ${workspacePackage.name}`];
-    if (focus === "changed") {
+    if (focus === "target") {
+      reasons.push("matched --package selector");
+    } else if (focus === "changed") {
       reasons.push("workspace package changed in requested diff");
     } else if (focus === "dependency") {
       reasons.push("workspace dependency of changed package");
+    } else if (focus === "query") {
+      reasons.push("query matched workspace package");
     }
 
     fileContexts.set(file.path, {
@@ -56,7 +78,9 @@ export function buildWorkspaceGraph(detection: WorkspaceDetection, files: Candid
     buildTools: detection.buildTools,
     packages: detection.packages,
     dependencyEdges,
-    focusedPackages: packageReasons.filter((reason) => changedPackageNames.has(reason.name) || dependencyPackageNames.has(reason.name)),
+    buildTargets: detectBuildTargets({ files, packages: detection.packages }),
+    importEdges: extractImportGraph({ files, packages: detection.packages }),
+    focusedPackages: packageReasons,
     packageReasons
   };
 
@@ -119,7 +143,8 @@ function collectDependencyPackages(changedPackageNames: Set<string>, dependencyE
 function buildPackageReasons(
   packages: WorkspacePackage[],
   changedPackageNames: Set<string>,
-  dependencyPackageNames: Set<string>
+  dependencyPackageNames: Set<string>,
+  packageRanks: Map<string, { score: number; reasons: string[] }>
 ): WorkspacePackageReason[] {
   return packages
     .map((workspacePackage) => {
@@ -130,6 +155,9 @@ function buildPackageReasons(
       if (dependencyPackageNames.has(workspacePackage.name)) {
         reasons.push("internal dependency of changed workspace package");
       }
+      for (const reason of packageRanks.get(workspacePackage.name)?.reasons ?? []) {
+        reasons.push(reason);
+      }
       return {
         name: workspacePackage.name,
         path: workspacePackage.path,
@@ -139,12 +167,24 @@ function buildPackageReasons(
     .filter((reason) => reason.reasons.length > 0);
 }
 
-function focusForPackage(packageName: string, changedPackageNames: Set<string>, dependencyPackageNames: Set<string>): WorkspaceFocus {
+function focusForPackage(
+  packageName: string,
+  changedPackageNames: Set<string>,
+  dependencyPackageNames: Set<string>,
+  packageRanks: Map<string, { score: number; reasons: string[] }>
+): WorkspaceFocus {
+  const rankReasons = packageRanks.get(packageName)?.reasons ?? [];
+  if (rankReasons.includes("matched --package selector")) {
+    return "target";
+  }
   if (changedPackageNames.has(packageName)) {
     return "changed";
   }
   if (dependencyPackageNames.has(packageName)) {
     return "dependency";
+  }
+  if (rankReasons.includes("query matched workspace package")) {
+    return "query";
   }
   return "none";
 }

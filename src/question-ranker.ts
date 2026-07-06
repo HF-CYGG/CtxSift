@@ -123,10 +123,14 @@ function scoreFile(
     for (const reason of workspaceContext.reasons) {
       reasons.add(reason);
     }
-    if (workspaceContext.focus === "changed") {
+    if (workspaceContext.focus === "target") {
+      workspaceScore += 30;
+    } else if (workspaceContext.focus === "changed") {
       workspaceScore += 18;
     } else if (workspaceContext.focus === "dependency") {
       workspaceScore += 12;
+    } else if (workspaceContext.focus === "query") {
+      workspaceScore += 10;
     }
   }
 

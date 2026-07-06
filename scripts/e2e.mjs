@@ -19,6 +19,27 @@ assert(
   "monorepo JSON output should include workspace graph package metadata"
 );
 
+const workspaceGraph = run(["--repo", "tests/fixtures/monorepo", "--workspace-graph", "--format", "json"]);
+const workspaceGraphJson = JSON.parse(workspaceGraph.stdout);
+assert(workspaceGraphJson.selectedFiles.length === 0, "workspace graph-only output should not emit selected file chunks");
+
+const packageScoped = run([
+  "--repo",
+  "tests/fixtures/monorepo",
+  "--package",
+  "apps/web",
+  "--ask",
+  "Why might routing break?",
+  "--workspace-aware",
+  "--format",
+  "json"
+]);
+const packageScopedJson = JSON.parse(packageScoped.stdout);
+assert(
+  packageScopedJson.selectedFiles.some((file) => file.path === "apps/web/src/router.ts"),
+  "package-scoped query should include files from selected workspace package"
+);
+
 const diffRepo = createDiffRepo();
 const review = run(["--repo", diffRepo, "--diff", "main...HEAD", "--mode", "review", "--format", "json"]);
 const reviewJson = JSON.parse(review.stdout);

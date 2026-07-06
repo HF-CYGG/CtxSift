@@ -192,6 +192,21 @@ describe("packRepository", () => {
       "workspace package: @ctxsift/auth"
     );
   });
+
+  test("supports graph-only workspace output without a task query", async () => {
+    const output = await packRepository({
+      repo: { type: "local", pathOrUrl: monorepoFixtureRoot },
+      task: { mode: "onboarding", targetModel: "generic" },
+      budget: { maxTokens: 3000, hardLimit: true, reserveForPrompt: 100, reserveForAnswer: 400 },
+      scope: { includeTests: true, includeDocs: true, workspaceGraphOnly: true },
+      security: { redactSecrets: true, emitAuditLog: true, allowRemoteConfig: false },
+      output: { format: "json" }
+    });
+
+    expect(output.workspaces?.packages.map((workspacePackage) => workspacePackage.name)).toContain("@ctxsift/auth");
+    expect(output.selectedFiles).toEqual([]);
+    expect(output.chunks).toEqual([]);
+  });
 });
 
 async function createBasicFixtureWithIgnoredBuildOutput(): Promise<string> {
