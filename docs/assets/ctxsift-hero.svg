@@ -1,0 +1,67 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">CtxSift overview</title>
+  <desc id="desc">Question-aware context packing flow from task to selected safe bundle.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="630" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0B1220"/>
+      <stop offset="0.58" stop-color="#111827"/>
+      <stop offset="1" stop-color="#052E2B"/>
+    </linearGradient>
+    <linearGradient id="line" x1="160" y1="315" x2="1040" y2="315" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#60A5FA"/>
+      <stop offset="0.5" stop-color="#34D399"/>
+      <stop offset="1" stop-color="#FBBF24"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="18" stdDeviation="24" flood-color="#000000" flood-opacity="0.28"/>
+    </filter>
+  </defs>
+
+  <rect width="1200" height="630" rx="30" fill="url(#bg)"/>
+  <rect x="40" y="40" width="1120" height="550" rx="24" fill="#0F172A" stroke="#243044"/>
+
+  <text x="88" y="128" fill="#F8FAFC" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="58" font-weight="800">CtxSift</text>
+  <text x="90" y="174" fill="#A7F3D0" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="22" font-weight="600">Pack the right files for the task, not the whole repo.</text>
+  <text x="90" y="216" fill="#CBD5E1" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="19">Question-aware repository context bundles for Codex, ChatGPT, Claude, Cursor and review automation.</text>
+
+  <g filter="url(#shadow)">
+    <rect x="84" y="268" width="250" height="210" rx="18" fill="#111827" stroke="#334155"/>
+    <text x="112" y="318" fill="#93C5FD" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="18" font-weight="700">1. Ask</text>
+    <text x="112" y="357" fill="#E5E7EB" font-family="Consolas,Menlo,monospace" font-size="17">--ask "Where</text>
+    <text x="112" y="384" fill="#E5E7EB" font-family="Consolas,Menlo,monospace" font-size="17">does auth start?"</text>
+    <text x="112" y="429" fill="#94A3B8" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="15">Local path or public</text>
+    <text x="112" y="452" fill="#94A3B8" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="15">GitHub repository input</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="474" y="268" width="250" height="210" rx="18" fill="#111827" stroke="#334155"/>
+    <text x="502" y="318" fill="#6EE7B7" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="18" font-weight="700">2. Sift</text>
+    <text x="502" y="357" fill="#E5E7EB" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="16">Rank by path, content,</text>
+    <text x="502" y="383" fill="#E5E7EB" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="16">docs, tests and diff</text>
+    <text x="502" y="429" fill="#94A3B8" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="15">Ignore generated files</text>
+    <text x="502" y="452" fill="#94A3B8" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="15">and redact common secrets</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="864" y="268" width="250" height="210" rx="18" fill="#111827" stroke="#334155"/>
+    <text x="892" y="318" fill="#FDE68A" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="18" font-weight="700">3. Bundle</text>
+    <text x="892" y="357" fill="#E5E7EB" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="16">Markdown for chat</text>
+    <text x="892" y="383" fill="#E5E7EB" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="16">JSON for automation</text>
+    <text x="892" y="429" fill="#94A3B8" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="15">Reasons, tree, chunks</text>
+    <text x="892" y="452" fill="#94A3B8" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="15">and token budget audit</text>
+  </g>
+
+  <path d="M354 373H454" stroke="url(#line)" stroke-width="8" stroke-linecap="round"/>
+  <path d="M744 373H844" stroke="url(#line)" stroke-width="8" stroke-linecap="round"/>
+  <path d="M441 356L459 373L441 390" stroke="#34D399" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M831 356L849 373L831 390" stroke="#FBBF24" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <rect x="88" y="514" width="186" height="38" rx="19" fill="#172554" stroke="#1D4ED8"/>
+  <text x="115" y="539" fill="#BFDBFE" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="15" font-weight="700">CLI first</text>
+  <rect x="292" y="514" width="204" height="38" rx="19" fill="#064E3B" stroke="#10B981"/>
+  <text x="319" y="539" fill="#A7F3D0" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="15" font-weight="700">Local-first</text>
+  <rect x="514" y="514" width="244" height="38" rx="19" fill="#422006" stroke="#D97706"/>
+  <text x="541" y="539" fill="#FDE68A" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="15" font-weight="700">Secret-safe defaults</text>
+  <rect x="776" y="514" width="260" height="38" rx="19" fill="#312E81" stroke="#6366F1"/>
+  <text x="803" y="539" fill="#C7D2FE" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="15" font-weight="700">Large-repo tested</text>
+</svg>

@@ -1,0 +1,36 @@
+<svg width="1200" height="720" viewBox="0 0 1200 720" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">CtxSift JSON and review preview</title>
+  <desc id="desc">Preview of JSON output and diff-aware review bundle fields.</desc>
+  <rect width="1200" height="720" rx="28" fill="#0A0F1C"/>
+  <text x="72" y="82" fill="#F8FAFC" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="38" font-weight="800">Automation-ready context</text>
+  <text x="74" y="122" fill="#94A3B8" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="18">Markdown for humans. JSON schema 1.0 for actions, agents and editor integrations.</text>
+
+  <rect x="70" y="166" width="500" height="476" rx="18" fill="#111827" stroke="#334155"/>
+  <rect x="630" y="166" width="500" height="476" rx="18" fill="#111827" stroke="#334155"/>
+
+  <text x="102" y="214" fill="#93C5FD" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="19" font-weight="800">JSON bundle</text>
+  <text x="102" y="260" fill="#E5E7EB" font-family="Consolas,Menlo,monospace" font-size="16">{</text>
+  <text x="128" y="292" fill="#A7F3D0" font-family="Consolas,Menlo,monospace" font-size="16">"schemaVersion": "1.0",</text>
+  <text x="128" y="324" fill="#A7F3D0" font-family="Consolas,Menlo,monospace" font-size="16">"task": { "mode": "question" },</text>
+  <text x="128" y="356" fill="#A7F3D0" font-family="Consolas,Menlo,monospace" font-size="16">"manifest": {</text>
+  <text x="154" y="388" fill="#CBD5E1" font-family="Consolas,Menlo,monospace" font-size="16">"totalTokens": 19500,</text>
+  <text x="154" y="420" fill="#CBD5E1" font-family="Consolas,Menlo,monospace" font-size="16">"selectedFiles": 14,</text>
+  <text x="154" y="452" fill="#CBD5E1" font-family="Consolas,Menlo,monospace" font-size="16">"droppedFilesOmitted": 23763</text>
+  <text x="128" y="484" fill="#A7F3D0" font-family="Consolas,Menlo,monospace" font-size="16">},</text>
+  <text x="128" y="516" fill="#A7F3D0" font-family="Consolas,Menlo,monospace" font-size="16">"audit": { "redactions": 0 }</text>
+  <text x="102" y="548" fill="#E5E7EB" font-family="Consolas,Menlo,monospace" font-size="16">}</text>
+  <rect x="102" y="580" width="310" height="34" rx="17" fill="#172554" stroke="#2563EB"/>
+  <text x="126" y="602" fill="#BFDBFE" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="14" font-weight="700">Stable machine-readable schema</text>
+
+  <text x="662" y="214" fill="#FDE68A" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="19" font-weight="800">Diff-aware review bundle</text>
+  <text x="662" y="260" fill="#E5E7EB" font-family="Consolas,Menlo,monospace" font-size="16">ctxsift --diff main...HEAD --mode review</text>
+  <line x1="662" y1="288" x2="1098" y2="288" stroke="#334155"/>
+  <text x="662" y="334" fill="#A7F3D0" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="17" font-weight="700">Changed files</text>
+  <text x="690" y="366" fill="#CBD5E1" font-family="Consolas,Menlo,monospace" font-size="15">src/router/index.ts</text>
+  <text x="690" y="394" fill="#CBD5E1" font-family="Consolas,Menlo,monospace" font-size="15">backend/src/middleware/auth.ts</text>
+  <text x="662" y="444" fill="#A7F3D0" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="17" font-weight="700">Reviewer prompt</text>
+  <text x="690" y="476" fill="#CBD5E1" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="15">Focus on regressions, missing tests,</text>
+  <text x="690" y="502" fill="#CBD5E1" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="15">security-sensitive edits and compatibility risks.</text>
+  <rect x="662" y="558" width="334" height="36" rx="18" fill="#422006" stroke="#D97706"/>
+  <text x="688" y="581" fill="#FDE68A" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="14" font-weight="700">Built for PR review artifacts</text>
+</svg>

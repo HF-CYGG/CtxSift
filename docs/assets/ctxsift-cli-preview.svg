@@ -1,0 +1,38 @@
+<svg width="1200" height="720" viewBox="0 0 1200 720" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">CtxSift CLI preview</title>
+  <desc id="desc">Terminal preview showing CtxSift selecting task-relevant files.</desc>
+  <defs>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="20" stdDeviation="28" flood-color="#000000" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+  <rect width="1200" height="720" rx="28" fill="#0B1120"/>
+  <text x="72" y="82" fill="#F8FAFC" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="38" font-weight="800">Question-aware CLI bundle</text>
+  <text x="74" y="122" fill="#94A3B8" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="18">Ask a concrete task. CtxSift returns selected files, reasons and an audit trail.</text>
+
+  <g filter="url(#shadow)">
+    <rect x="72" y="166" width="1056" height="466" rx="18" fill="#101826" stroke="#334155"/>
+    <rect x="72" y="166" width="1056" height="54" rx="18" fill="#172033"/>
+    <circle cx="106" cy="193" r="7" fill="#F87171"/>
+    <circle cx="130" cy="193" r="7" fill="#FBBF24"/>
+    <circle cx="154" cy="193" r="7" fill="#34D399"/>
+    <text x="186" y="199" fill="#CBD5E1" font-family="Consolas,Menlo,monospace" font-size="15">ctxsift --repo . --ask "Where does auth start?"</text>
+
+    <text x="104" y="266" fill="#60A5FA" font-family="Consolas,Menlo,monospace" font-size="19">$ ctxsift --repo . --ask "Where does auth start?"</text>
+    <text x="104" y="306" fill="#E5E7EB" font-family="Consolas,Menlo,monospace" font-size="17"># CtxSift Bundle</text>
+    <text x="104" y="346" fill="#A7F3D0" font-family="Consolas,Menlo,monospace" font-size="17">## Selected Files</text>
+    <text x="132" y="382" fill="#F8FAFC" font-family="Consolas,Menlo,monospace" font-size="17">src/auth/login.ts</text>
+    <text x="132" y="410" fill="#94A3B8" font-family="Consolas,Menlo,monospace" font-size="15">reasons: query matched file path; implementation source context</text>
+    <text x="132" y="450" fill="#F8FAFC" font-family="Consolas,Menlo,monospace" font-size="17">src/auth/session.ts</text>
+    <text x="132" y="478" fill="#94A3B8" font-family="Consolas,Menlo,monospace" font-size="15">reasons: query matched file content; related auth flow</text>
+    <text x="132" y="518" fill="#F8FAFC" font-family="Consolas,Menlo,monospace" font-size="17">tests/auth.test.ts</text>
+    <text x="132" y="546" fill="#94A3B8" font-family="Consolas,Menlo,monospace" font-size="15">reasons: related test context</text>
+
+    <rect x="732" y="300" width="330" height="232" rx="14" fill="#0F172A" stroke="#26364D"/>
+    <text x="760" y="342" fill="#FDE68A" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="18" font-weight="800">Audit</text>
+    <text x="760" y="382" fill="#CBD5E1" font-family="Consolas,Menlo,monospace" font-size="16">scannedFiles: 485</text>
+    <text x="760" y="414" fill="#CBD5E1" font-family="Consolas,Menlo,monospace" font-size="16">ignoredFiles: 36804</text>
+    <text x="760" y="446" fill="#CBD5E1" font-family="Consolas,Menlo,monospace" font-size="16">redactions: 7</text>
+    <text x="760" y="478" fill="#CBD5E1" font-family="Consolas,Menlo,monospace" font-size="16">tokens: 19472 / 20000</text>
+  </g>
+</svg>
