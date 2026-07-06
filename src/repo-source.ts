@@ -5,6 +5,7 @@ import path from "node:path";
 import { promisify } from "node:util";
 
 const execFileAsync = promisify(execFile);
+const GITHUB_REPO_URL_PATTERN = /^https:\/\/github\.com\/[^/\s?#]+\/[^/\s?#]+(?:\.git)?$/i;
 
 export type PreparedRepo = {
   type: "local" | "remote";
@@ -15,13 +16,18 @@ export type PreparedRepo = {
 };
 
 export async function prepareRepository(source: string): Promise<PreparedRepo> {
-  if (isGitHubUrl(source)) {
+  const normalizedSource = source.trim();
+  if (isRemoteUrl(normalizedSource) && !isGitHubRepoUrl(normalizedSource)) {
+    throw new Error("Remote repository URL must be https://github.com/owner/repo");
+  }
+
+  if (isGitHubRepoUrl(normalizedSource)) {
     const tempRoot = await mkdtemp(path.join(os.tmpdir(), "ctxsift-"));
     const cloneTarget = path.join(tempRoot, "repo");
-    await execFileAsync("git", ["clone", "--depth", "1", source, cloneTarget]);
+    await execFileAsync("git", ["clone", "--depth", "1", normalizedSource, cloneTarget]);
     return {
       type: "remote",
-      source,
+      source: normalizedSource,
       root: cloneTarget,
       ref: await readGitRef(cloneTarget),
       cleanup: async () => {
@@ -32,15 +38,19 @@ export async function prepareRepository(source: string): Promise<PreparedRepo> {
 
   return {
     type: "local",
-    source,
-    root: source,
-    ref: await readGitRef(source),
+    source: normalizedSource,
+    root: normalizedSource,
+    ref: await readGitRef(normalizedSource),
     cleanup: async () => {}
   };
 }
 
-function isGitHubUrl(value: string): boolean {
-  return /^https:\/\/github\.com\/[^/\s]+\/[^/\s]+(?:\.git)?$/i.test(value);
+export function isGitHubRepoUrl(value: string): boolean {
+  return GITHUB_REPO_URL_PATTERN.test(value.trim());
+}
+
+function isRemoteUrl(value: string): boolean {
+  return /^https?:\/\//i.test(value);
 }
 
 async function readGitRef(repoRoot: string): Promise<string> {
