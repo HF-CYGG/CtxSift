@@ -1,0 +1,21 @@
+{
+  "name": "ctxsift-vscode-command-example",
+  "version": "1.3.0-alpha.0",
+  "private": true,
+  "type": "module",
+  "main": "./extension.js",
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "activationEvents": [
+    "onCommand:ctxsift.packWorkspaceContext"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "ctxsift.packWorkspaceContext",
+        "title": "CtxSift: Pack Current Workspace Context"
+      }
+    ]
+  }
+}

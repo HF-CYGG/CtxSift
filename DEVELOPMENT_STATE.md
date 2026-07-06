@@ -6,6 +6,28 @@ v1.1.0-alpha.0 local release gate complete; preparing commit/tag, then v1.2.0-al
 
 ## Latest Verification Update - 2026-07-07
 
+- v1.3.0-alpha.0 local release gate complete; GitHub tag push will follow, while GitHub Release object creation still requires explicit `GITHUB_TOKEN`/`GH_TOKEN` or an installed authenticated `gh` CLI.
+- v1.3 changes:
+  - Added VS Code command example under `examples/vscode-command`.
+  - Added public GitHub-only web demo under `examples/public-web-demo`.
+  - Added `scripts/examples-smoke.mjs`.
+  - Added `pnpm test:examples` and included it in `pnpm run release:check`.
+  - Included `examples` in the package dry-run contents without adding production dependencies.
+  - Added `docs/release-v1.3.0-alpha.0.md`.
+- v1.3 verification results:
+  - `pnpm lint`: passed
+  - `pnpm typecheck`: passed
+  - `pnpm test`: elevated run passed with 23 files / 52 tests
+  - `pnpm test:e2e`: elevated run passed
+  - `pnpm test:examples`: passed
+  - `pnpm build`: passed
+  - `pnpm pack --dry-run`: passed for `ctxsift@1.3.0-alpha.0` and includes `examples`
+  - `pnpm run release:check`: elevated run passed
+  - `pnpm bench:fixtures`: passed
+  - `pnpm bench:report`: elevated run passed
+  - `pnpm audit --audit-level high --registry https://registry.npmjs.org`: elevated run passed with no known vulnerabilities
+- Latest milestone tag target: `v1.3.0-alpha.0`
+
 - v1.2.0-alpha.0 local release gate complete; GitHub Release object creation requires explicit token or `gh` CLI because the current GitHub connector does not expose releases and Git Credential Manager cannot run unattended here.
 - v1.2 changes:
   - Promoted GitHub Action hardening to `1.2.0-alpha.0`.

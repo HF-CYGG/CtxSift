@@ -34,8 +34,8 @@ tests, and npm package metadata.
 
 ## v1.3 Editor and Web Workflows
 
-- VS Code command that shells out to the local CLI.
-- Public Web demo for public repositories only.
+- VS Code command example that shells out to the local CLI.
+- Public Web demo example for public GitHub repositories only.
 - Shareable example bundles without storing private source.
 
 ## v2.0 MCP Adapter

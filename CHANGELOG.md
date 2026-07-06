@@ -4,6 +4,13 @@
 
 - None pending for this release branch.
 
+## 1.3.0-alpha.0 - 2026-07-07
+
+- Added a VS Code command example that shells out to the local CtxSift CLI.
+- Added a public GitHub-only web demo example that returns CtxSift JSON bundles.
+- Added `pnpm test:examples` and included it in `pnpm run release:check`.
+- Kept root CLI production dependencies unchanged while adding example workflows.
+
 ## 1.2.0-alpha.0 - 2026-07-07
 
 - Promoted the artifact-first GitHub Action workflow to the v1.2 alpha boundary.
