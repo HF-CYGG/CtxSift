@@ -30,8 +30,9 @@ export function buildCtxSiftArgs(options) {
 
   const args = ["--repo", repo, "--ask", ask, "--format", format, "--out", outputPath, "--profile", profile];
   if (options.maxTokens !== undefined) {
-    const maxTokens = Number.parseInt(String(options.maxTokens), 10);
-    if (!Number.isFinite(maxTokens) || maxTokens <= 0) {
+    const maxTokensText = String(options.maxTokens).trim();
+    const maxTokens = Number(maxTokensText);
+    if (!/^[1-9]\d*$/.test(maxTokensText) || !Number.isSafeInteger(maxTokens)) {
       throw new Error("maxTokens must be a positive integer");
     }
     args.push("--max-tokens", String(maxTokens));

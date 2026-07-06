@@ -28,6 +28,19 @@ assert.deepEqual(vscodeArgs, [
   "private"
 ]);
 
+for (const maxTokens of ["12abc", "1.5"]) {
+  assert.throws(
+    () =>
+      buildCtxSiftArgs({
+        ask: "Where does auth start?",
+        maxTokens,
+        outputPath: defaultOutputPath("ctxsift-demo"),
+        repo: "ctxsift-demo"
+      }),
+    /maxTokens must be a positive integer/
+  );
+}
+
 assert.equal(resolveCtxSiftCommand({ extensionPath: "examples/vscode-command", workspaceRoot: "." }).args.length, 1);
 assert.equal(isAllowedPublicGitHubRepo("https://github.com/HF-CYGG/CtxSift"), true);
 assert.equal(isAllowedPublicGitHubRepo("https://github.com/HF-CYGG/CtxSift.git"), true);
