@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.0.0 - 2026-07-06
+## 1.0.0 - Unreleased
 
 - Added installable `ctxsift` CLI.
 - Added local directory and public GitHub repository inputs.
@@ -11,3 +11,4 @@
 - Added default redaction for common secret classes and `--no-redact` warning.
 - Added GitHub Actions CI and review-bundle workflow example.
 - Added unit, integration, CLI E2E, fixture, diff, and security tests.
+- Added release gate script covering lint, typecheck, tests, E2E, build, pack dry-run, and high-severity audit.

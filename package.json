@@ -24,7 +24,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/starforge/ctxsift.git"
+    "url": "https://github.com/HF-CYGG/CtxSift.git"
   },
   "keywords": [
     "ai",
@@ -39,12 +39,15 @@
     "github-action"
   ],
   "scripts": {
+    "audit:high": "pnpm audit --audit-level high --registry https://registry.npmjs.org",
     "build": "tsc -p tsconfig.build.json",
-    "ci": "pnpm lint && pnpm typecheck && pnpm test && pnpm test:e2e && pnpm build && pnpm pack --dry-run",
+    "ci": "pnpm run release:check",
     "lint": "eslint .",
     "test": "vitest run --pool=threads",
     "test:e2e": "tsc -p tsconfig.build.json && node scripts/e2e.mjs",
     "pack:dry-run": "pnpm pack --dry-run",
+    "prepublishOnly": "pnpm run release:check",
+    "release:check": "pnpm lint && pnpm typecheck && pnpm test && pnpm test:e2e && pnpm build && pnpm pack --dry-run && pnpm run audit:high",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "engines": {

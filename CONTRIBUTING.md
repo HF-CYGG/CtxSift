@@ -18,7 +18,10 @@ pnpm test
 pnpm test:e2e
 pnpm build
 pnpm pack --dry-run
+pnpm run release:check
 ```
+
+`pnpm run release:check` is the release gate used by CI and `prepublishOnly`.
 
 ## Principles
 

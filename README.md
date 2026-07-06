@@ -35,14 +35,14 @@ Where does auth start?
 - Redactions: 0
 ```
 
-## Current v1.0.0 Status
+## v1.0.0 Release Candidate Scope
 
 - CLI: `--repo`, `--ask`, `--diff`, `--mode`, `--max-tokens`, `--format`, `--out`, `--include`, `--exclude`, `--no-redact`, `--debug`, `--version`, `--help`
 - Inputs: local directory and public GitHub repository URL
 - Outputs: Markdown and JSON schema `1.0`
 - Security: default high-risk path exclusion, common secret redaction, audit summary, `--no-redact` warning
 - Review bundle: diff summary, changed files, related tests/docs, risks, reviewer prompt, token stats
-- CI: pnpm lint, typecheck, unit/integration/E2E tests, build, pack dry-run
+- CI/release gate: `pnpm run release:check` covers lint, typecheck, unit/integration/E2E tests, build, pack dry-run, and high-severity audit
 
 ## Development
 
@@ -54,6 +54,7 @@ pnpm test
 pnpm test:e2e
 pnpm build
 pnpm pack --dry-run
+pnpm run release:check
 ```
 
 See [docs/quickstart.md](docs/quickstart.md), [docs/cli.md](docs/cli.md), [docs/security.md](docs/security.md), and [docs/review-bundle.md](docs/review-bundle.md).
