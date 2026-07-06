@@ -85,9 +85,13 @@ export function parseArgs(args: string[]): CliOptions {
         index += 1;
         break;
       case "--max-tokens":
-        options.maxTokens = Number.parseInt(requireValue(arg, next), 10);
-        if (!Number.isFinite(options.maxTokens) || options.maxTokens <= 0) {
-          throw new Error("--max-tokens must be a positive integer");
+        {
+          const maxTokensText = requireValue(arg, next).trim();
+          const maxTokens = Number(maxTokensText);
+          if (!/^[1-9]\d*$/.test(maxTokensText) || !Number.isSafeInteger(maxTokens)) {
+            throw new Error("--max-tokens must be a positive integer");
+          }
+          options.maxTokens = maxTokens;
         }
         index += 1;
         break;
@@ -242,7 +246,7 @@ Options:
   --ask <question>
   --diff <base>...<head>
   --mode question|review|diff|onboarding|bugfix
-  --max-tokens <number>
+  --max-tokens <positive-integer>
   --format markdown|json
   --out <file>
   --include <glob[,glob]>

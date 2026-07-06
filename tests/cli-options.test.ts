@@ -60,4 +60,12 @@ describe("parseArgs", () => {
       format: "json"
     });
   });
+
+  test("rejects non-strict max token values", () => {
+    for (const maxTokens of ["12abc", "1.5"]) {
+      expect(() => parseArgs(["--repo", ".", "--ask", "Where does auth start?", "--max-tokens", maxTokens])).toThrow(
+        "--max-tokens must be a positive integer"
+      );
+    }
+  });
 });
