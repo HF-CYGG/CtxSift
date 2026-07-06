@@ -1,0 +1,121 @@
+import { describe, expect, test } from "vitest";
+import { buildReviewComment, CTXSIFT_COMMENT_MARKER, upsertPullRequestComment } from "../src/github-pr-comment.js";
+import { parseArgs } from "../src/pr-comment-cli.js";
+import type { PackOutput } from "../src/types.js";
+
+describe("github PR comments", () => {
+  test("builds a review summary without embedding source chunks", () => {
+    const body = buildReviewComment(sampleOutput, { artifactName: "ctxsift-review-context" });
+
+    expect(body).toContain(CTXSIFT_COMMENT_MARKER);
+    expect(body).toContain("ctxsift-review-context");
+    expect(body).toContain("Changed files: 1");
+    expect(body).toContain("src/auth/login.ts");
+    expect(body).not.toContain("export function login");
+  });
+
+  test("updates an existing sticky comment", async () => {
+    const calls: Array<{ url: string; method: string }> = [];
+    const fetchImpl = async (url: string | URL, init?: RequestInit): Promise<Response> => {
+      calls.push({ url: String(url), method: init?.method ?? "GET" });
+      if (!init?.method) {
+        return jsonResponse([{ id: 42, body: `${CTXSIFT_COMMENT_MARKER}\nold` }]);
+      }
+      return jsonResponse({ id: 42 });
+    };
+
+    await upsertPullRequestComment(
+      {
+        owner: "acme",
+        repo: "demo",
+        pullNumber: 7,
+        token: "ghs_test",
+        body: "new body"
+      },
+      fetchImpl
+    );
+
+    expect(calls).toEqual([
+      {
+        url: "https://api.github.com/repos/acme/demo/issues/7/comments?per_page=100",
+        method: "GET"
+      },
+      {
+        url: "https://api.github.com/repos/acme/demo/issues/comments/42",
+        method: "PATCH"
+      }
+    ]);
+  });
+
+  test("parses PR comment CLI options", () => {
+    expect(parseArgs(["--bundle", "bundle.json", "--artifact", "ctxsift-review-context"])).toEqual({
+      bundlePath: "bundle.json",
+      artifactName: "ctxsift-review-context"
+    });
+  });
+});
+
+function jsonResponse(value: unknown): Response {
+  return new Response(JSON.stringify(value), {
+    status: 200,
+    headers: { "content-type": "application/json" }
+  });
+}
+
+const sampleOutput: PackOutput = {
+  schemaVersion: "1.0",
+  task: { mode: "review", query: "Review auth", diff: "main...HEAD", targetModel: "generic" },
+  repo: { type: "local", source: ".", root: ".", ref: "local" },
+  manifest: {
+    repo: ".",
+    ref: "local",
+    query: "Review auth",
+    totalTokens: 20,
+    selectedFiles: 1,
+    droppedFiles: [],
+    droppedFilesOmitted: 0,
+    redactions: 0
+  },
+  tree: "src/auth/login.ts",
+  selectedFiles: [
+    {
+      path: "src/auth/login.ts",
+      language: "typescript",
+      sizeBytes: 24,
+      estimatedTokens: 6,
+      reasons: ["changed in requested diff", "workspace package: @acme/auth"],
+      scores: {
+        lexical: 0,
+        structural: 0,
+        git: 20,
+        test: 0,
+        docs: 0,
+        workspace: 18,
+        riskPenalty: 0,
+        total: 38
+      }
+    }
+  ],
+  chunks: [
+    {
+      id: "file-1",
+      title: "src/auth/login.ts",
+      path: "src/auth/login.ts",
+      content: "export function login() {}",
+      tokens: 6
+    }
+  ],
+  promptTemplate: "Review this change.",
+  review: {
+    spec: "main...HEAD",
+    base: "main",
+    head: "HEAD",
+    stat: "src/auth/login.ts | 1 +",
+    changedFiles: ["src/auth/login.ts"],
+    relatedTests: [],
+    relatedDocs: [],
+    risks: ["Auth/security-sensitive path changed: src/auth/login.ts"],
+    reviewerPrompt: "Review the supplied diff-aware repository context."
+  },
+  audit: { scannedFiles: 3, ignoredFiles: 0, redactions: 0, securityPolicy: "balanced", riskScore: 0, blockedHighRiskFiles: [] }
+};

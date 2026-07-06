@@ -1,0 +1,89 @@
+{
+  "generatedAt": "2026-07-06T19:43:11.980Z",
+  "results": [
+    {
+      "fixture": "simple-ts",
+      "selectedFilesCount": 6,
+      "estimatedTokens": 237,
+      "relevantFilesHitRate": 1,
+      "droppedFilesCount": 3,
+      "securityFindingsCount": 1,
+      "bundleGenerationMs": 169,
+      "fullRepoBaselineTokens": 273,
+      "selectedContextTokenSavingRatio": 0.13186813186813187,
+      "topNRelevantFileCoverage": 1,
+      "workspacePackageHitRate": 0
+    },
+    {
+      "fixture": "pnpm-monorepo",
+      "selectedFilesCount": 5,
+      "estimatedTokens": 145,
+      "relevantFilesHitRate": 1,
+      "droppedFilesCount": 4,
+      "securityFindingsCount": 0,
+      "bundleGenerationMs": 159,
+      "fullRepoBaselineTokens": 192,
+      "selectedContextTokenSavingRatio": 0.24479166666666666,
+      "topNRelevantFileCoverage": 1,
+      "workspacePackageHitRate": 1
+    },
+    {
+      "fixture": "turbo-monorepo",
+      "selectedFilesCount": 3,
+      "estimatedTokens": 94,
+      "relevantFilesHitRate": 1,
+      "droppedFilesCount": 6,
+      "securityFindingsCount": 0,
+      "bundleGenerationMs": 155,
+      "fullRepoBaselineTokens": 192,
+      "selectedContextTokenSavingRatio": 0.5104166666666666,
+      "topNRelevantFileCoverage": 1,
+      "workspacePackageHitRate": 1
+    },
+    {
+      "fixture": "nx-monorepo",
+      "selectedFilesCount": 0,
+      "estimatedTokens": 0,
+      "relevantFilesHitRate": 0,
+      "droppedFilesCount": 0,
+      "securityFindingsCount": 0,
+      "bundleGenerationMs": 155,
+      "fullRepoBaselineTokens": 192,
+      "selectedContextTokenSavingRatio": 1,
+      "topNRelevantFileCoverage": 0,
+      "workspacePackageHitRate": 0
+    },
+    {
+      "fixture": "secrets",
+      "selectedFilesCount": 2,
+      "estimatedTokens": 37,
+      "relevantFilesHitRate": 1,
+      "droppedFilesCount": 0,
+      "securityFindingsCount": 1,
+      "bundleGenerationMs": 161,
+      "fullRepoBaselineTokens": 74,
+      "selectedContextTokenSavingRatio": 0.5,
+      "topNRelevantFileCoverage": 1,
+      "workspacePackageHitRate": 0
+    },
+    {
+      "fixture": "pr-diff",
+      "selectedFilesCount": 3,
+      "estimatedTokens": 45,
+      "relevantFilesHitRate": 1,
+      "droppedFilesCount": 0,
+      "securityFindingsCount": 0,
+      "bundleGenerationMs": 270,
+      "fullRepoBaselineTokens": 45,
+      "selectedContextTokenSavingRatio": 0,
+      "topNRelevantFileCoverage": 1,
+      "workspacePackageHitRate": 0
+    }
+  ],
+  "summary": {
+    "fixtures": 6,
+    "averageRelevantHitRate": 0.8333333333333334,
+    "averageTokenSavingRatio": 0.39784607753357754,
+    "averageWorkspacePackageHitRate": 0.3333333333333333
+  }
+}

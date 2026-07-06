@@ -6,6 +6,7 @@ import path from "node:path";
 import { packRepository } from "../src/pack.js";
 
 const fixtureRoot = fileURLToPath(new URL("./fixtures/basic-app", import.meta.url));
+const monorepoFixtureRoot = fileURLToPath(new URL("./fixtures/monorepo", import.meta.url));
 
 describe("packRepository", () => {
   test("selects task-relevant auth context and excludes secrets", async () => {
@@ -90,6 +91,7 @@ describe("packRepository", () => {
     expect(allContent).not.toContain("sk-proj-fixture-not-real");
     expect(allContent).toContain("[REDACTED:OPENAI_API_KEY]");
     expect(output.audit.redactions).toBeGreaterThanOrEqual(1);
+    expect(output.audit.securityPolicy).toBe("balanced");
   });
 
   test("honors hard token limits by dropping oversized files", async () => {
@@ -171,6 +173,58 @@ describe("packRepository", () => {
     expect(allContent).not.toContain("sk-proj-selected-secret");
     expect(allContent).not.toContain("sk-proj-dropped-secret");
     expect(output.audit.redactions).toBe(1);
+  });
+
+  test("emits workspace graph metadata for monorepos", async () => {
+    const output = await packRepository({
+      repo: { type: "local", pathOrUrl: monorepoFixtureRoot },
+      task: { mode: "question", query: "Where is auth implemented?", targetModel: "generic" },
+      budget: { maxTokens: 3000, hardLimit: true, reserveForPrompt: 100, reserveForAnswer: 400 },
+      scope: { includeTests: true, includeDocs: true },
+      security: { redactSecrets: true, emitAuditLog: true, allowRemoteConfig: false },
+      output: { format: "json" }
+    });
+
+    expect(output.workspaces?.packageManager).toBe("pnpm");
+    expect(output.workspaces?.packages.map((workspacePackage) => workspacePackage.name)).toEqual(
+      expect.arrayContaining(["@ctxsift/web", "@ctxsift/auth"])
+    );
+    expect(output.selectedFiles.find((file) => file.path === "packages/auth/src/index.ts")?.reasons).toContain(
+      "workspace package: @ctxsift/auth"
+    );
+  });
+
+  test("supports graph-only workspace output without a task query", async () => {
+    const output = await packRepository({
+      repo: { type: "local", pathOrUrl: monorepoFixtureRoot },
+      task: { mode: "onboarding", targetModel: "generic" },
+      budget: { maxTokens: 3000, hardLimit: true, reserveForPrompt: 100, reserveForAnswer: 400 },
+      scope: { includeTests: true, includeDocs: true, workspaceGraphOnly: true },
+      security: { redactSecrets: true, emitAuditLog: true, allowRemoteConfig: false },
+      output: { format: "json" }
+    });
+
+    expect(output.workspaces?.packages.map((workspacePackage) => workspacePackage.name)).toContain("@ctxsift/auth");
+    expect(output.selectedFiles).toEqual([]);
+    expect(output.chunks).toEqual([]);
+  });
+
+  test("strict profile blocks high-risk file body output", async () => {
+    const output = await packRepository({
+      repo: { type: "local", pathOrUrl: fileURLToPath(new URL("./fixtures/secrets", import.meta.url)) },
+      task: { mode: "question", query: "Explain config loading", targetModel: "generic" },
+      budget: { maxTokens: 4000, hardLimit: true, reserveForPrompt: 100, reserveForAnswer: 400 },
+      scope: { include: [".env.example"], includeTests: false, includeDocs: true },
+      security: { redactSecrets: true, emitAuditLog: true, allowRemoteConfig: false, profile: "strict" },
+      output: { format: "json" }
+    });
+    const content = output.chunks.map((chunk) => chunk.content).join("\n");
+
+    expect(content).toContain("blocked high-risk file body under strict security profile");
+    expect(content).not.toContain("sk-proj-secret-fixture-key");
+    expect(output.audit.securityPolicy).toBe("strict");
+    expect(output.audit.blockedHighRiskFiles.map((file) => file.path)).toContain(".env.example");
+    expect(output.audit.riskScore).toBeGreaterThan(0);
   });
 });
 

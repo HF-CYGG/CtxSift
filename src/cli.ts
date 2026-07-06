@@ -4,7 +4,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { parseDiffSpec } from "./diff.js";
 import { packRepository, renderPackOutput } from "./pack.js";
-import type { OutputFormat, PackMode, PackRequest } from "./types.js";
+import type { OutputFormat, PackMode, PackRequest, SecurityProfile } from "./types.js";
 
 const VERSION = "1.0.0";
 
@@ -18,6 +18,10 @@ export type CliOptions = {
   output?: string;
   include: string[];
   exclude: string[];
+  workspaceAware: boolean;
+  workspaceGraph: boolean;
+  packageName?: string;
+  profile: SecurityProfile;
   redact: boolean;
   debug: boolean;
 };
@@ -52,6 +56,9 @@ export function parseArgs(args: string[]): CliOptions {
     format: "markdown",
     include: [],
     exclude: [],
+    workspaceAware: false,
+    workspaceGraph: false,
+    profile: "balanced",
     redact: true,
     debug: false
   };
@@ -101,6 +108,22 @@ export function parseArgs(args: string[]): CliOptions {
         options.exclude.push(...splitList(requireValue(arg, next)));
         index += 1;
         break;
+      case "--workspace-aware":
+        options.workspaceAware = true;
+        break;
+      case "--workspace-graph":
+        options.workspaceGraph = true;
+        options.workspaceAware = true;
+        break;
+      case "--package":
+        options.packageName = requireValue(arg, next);
+        options.workspaceAware = true;
+        index += 1;
+        break;
+      case "--profile":
+        options.profile = parseProfile(requireValue(arg, next));
+        index += 1;
+        break;
       case "--no-redact":
         options.redact = false;
         break;
@@ -122,8 +145,8 @@ export function parseArgs(args: string[]): CliOptions {
     }
   }
 
-  if (!options.ask && !options.diff) {
-    throw new Error("Provide --ask <question> or --diff <base>...<head>");
+  if (!options.ask && !options.diff && !options.workspaceGraph) {
+    throw new Error("Provide --ask <question>, --diff <base>...<head>, or --workspace-graph");
   }
 
   return options;
@@ -137,7 +160,7 @@ function createPackRequest(options: CliOptions): PackRequest {
       pathOrUrl: options.repo
     },
     task: {
-      mode: options.mode,
+      mode: options.workspaceGraph && !options.ask && !options.diff ? "onboarding" : options.mode,
       query: options.ask,
       diffBase: parsedDiff?.base,
       diffHead: parsedDiff?.head,
@@ -153,12 +176,16 @@ function createPackRequest(options: CliOptions): PackRequest {
       include: options.include,
       exclude: options.exclude,
       includeTests: true,
-      includeDocs: true
+      includeDocs: true,
+      workspaceAware: true,
+      workspaceGraphOnly: options.workspaceGraph && !options.ask && !options.diff,
+      targetPackage: options.packageName
     },
     security: {
       redactSecrets: options.redact,
       emitAuditLog: true,
-      allowRemoteConfig: false
+      allowRemoteConfig: false,
+      profile: options.profile
     },
     output: {
       format: options.format,
@@ -188,6 +215,13 @@ function parseMode(value: string): PackMode {
   throw new Error("--mode must be question, diff, review, onboarding, or bugfix");
 }
 
+function parseProfile(value: string): SecurityProfile {
+  if (value === "balanced" || value === "private" || value === "strict") {
+    return value;
+  }
+  throw new Error("--profile must be balanced, private, or strict");
+}
+
 function splitList(value: string): string[] {
   return value
     .split(",")
@@ -213,6 +247,10 @@ Options:
   --out <file>
   --include <glob[,glob]>
   --exclude <glob[,glob]>
+  --workspace-aware
+  --workspace-graph
+  --package <workspace-name-or-path>
+  --profile balanced|private|strict
   --no-redact
   --debug
   --version

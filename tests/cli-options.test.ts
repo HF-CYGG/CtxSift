@@ -22,6 +22,12 @@ describe("parseArgs", () => {
       "src/**",
       "--exclude",
       "dist/**",
+      "--workspace-aware",
+      "--workspace-graph",
+      "--package",
+      "apps/web",
+      "--profile",
+      "private",
       "--no-redact",
       "--debug"
     ]);
@@ -36,8 +42,22 @@ describe("parseArgs", () => {
       output: "ctxbundle.json",
       include: ["src/**"],
       exclude: ["dist/**"],
+      workspaceAware: true,
+      workspaceGraph: true,
+      packageName: "apps/web",
+      profile: "private",
       redact: false,
       debug: true
+    });
+  });
+
+  test("allows workspace graph output without ask or diff", () => {
+    const options = parseArgs(["--repo", ".", "--workspace-graph", "--format", "json"]);
+
+    expect(options).toMatchObject({
+      repo: ".",
+      workspaceGraph: true,
+      format: "json"
     });
   });
 });

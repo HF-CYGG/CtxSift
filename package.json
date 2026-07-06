@@ -15,6 +15,7 @@
     "./cli": "./dist/cli.js"
   },
   "files": [
+    "action.yml",
     "dist",
     "README.md",
     "LICENSE",
@@ -40,6 +41,9 @@
   ],
   "scripts": {
     "audit:high": "pnpm audit --audit-level high --registry https://registry.npmjs.org",
+    "bench": "pnpm bench:fixtures && pnpm bench:report",
+    "bench:fixtures": "node scripts/bench.mjs --fixtures",
+    "bench:report": "pnpm build && node scripts/bench.mjs --report",
     "build": "tsc -p tsconfig.build.json",
     "ci": "pnpm run release:check",
     "lint": "eslint .",

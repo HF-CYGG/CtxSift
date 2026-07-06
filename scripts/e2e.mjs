@@ -12,6 +12,34 @@ const parsed = JSON.parse(json.stdout);
 assert(parsed.schemaVersion === "1.0", "JSON output should include schemaVersion 1.0");
 assert(parsed.selectedFiles.some((file) => file.path === "src/auth/login.ts"), "JSON output should include auth login file");
 
+const monorepo = run(["--repo", "tests/fixtures/monorepo", "--ask", "Where is auth implemented?", "--format", "json"]);
+const monorepoJson = JSON.parse(monorepo.stdout);
+assert(
+  monorepoJson.workspaces?.packages?.some((workspacePackage) => workspacePackage.name === "@ctxsift/auth"),
+  "monorepo JSON output should include workspace graph package metadata"
+);
+
+const workspaceGraph = run(["--repo", "tests/fixtures/monorepo", "--workspace-graph", "--format", "json"]);
+const workspaceGraphJson = JSON.parse(workspaceGraph.stdout);
+assert(workspaceGraphJson.selectedFiles.length === 0, "workspace graph-only output should not emit selected file chunks");
+
+const packageScoped = run([
+  "--repo",
+  "tests/fixtures/monorepo",
+  "--package",
+  "apps/web",
+  "--ask",
+  "Why might routing break?",
+  "--workspace-aware",
+  "--format",
+  "json"
+]);
+const packageScopedJson = JSON.parse(packageScoped.stdout);
+assert(
+  packageScopedJson.selectedFiles.some((file) => file.path === "apps/web/src/router.ts"),
+  "package-scoped query should include files from selected workspace package"
+);
+
 const diffRepo = createDiffRepo();
 const review = run(["--repo", diffRepo, "--diff", "main...HEAD", "--mode", "review", "--format", "json"]);
 const reviewJson = JSON.parse(review.stdout);
@@ -32,6 +60,39 @@ const noRedact = run([
   "--no-redact"
 ]);
 assert(noRedact.stderr.includes("WARNING: --no-redact disables secret redaction"), "--no-redact should warn");
+
+const privateProfile = run([
+  "--repo",
+  "tests/fixtures/secrets",
+  "--ask",
+  "Explain config loading",
+  "--include",
+  ".env.example",
+  "--profile",
+  "private",
+  "--format",
+  "json"
+]);
+const privateJson = JSON.parse(privateProfile.stdout);
+assert(privateJson.audit.securityPolicy === "private", "private profile should be recorded in audit");
+assert(!privateProfile.stdout.includes("sk-proj-secret-fixture-key"), "private profile should not leak fake OpenAI key");
+
+const strictProfile = run([
+  "--repo",
+  "tests/fixtures/secrets",
+  "--ask",
+  "Explain config loading",
+  "--include",
+  ".env.example",
+  "--profile",
+  "strict",
+  "--format",
+  "json"
+]);
+const strictJson = JSON.parse(strictProfile.stdout);
+assert(strictJson.audit.securityPolicy === "strict", "strict profile should be recorded in audit");
+assert(strictJson.audit.blockedHighRiskFiles.length > 0, "strict profile should report blocked high-risk files");
+assert(!strictProfile.stdout.includes("sk-proj-secret-fixture-key"), "strict profile should not leak fake OpenAI key");
 
 function run(args) {
   const result = spawnSync(process.execPath, [cli, ...args], {

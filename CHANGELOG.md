@@ -1,5 +1,17 @@
 # Changelog
 
+## Unreleased
+
+- Added workspace graph alpha for pnpm and `package.json` workspaces.
+- Added package-level reasons and workspace score components to selected files.
+- Added optional JSON/Markdown workspace graph output.
+- Added optional sticky PR review-context comments for the GitHub Actions workflow.
+- Added `--workspace-aware`, `--workspace-graph`, and `--package` CLI options.
+- Added package manifest parsing, build target extraction, import edge extraction, and package-level ranking helpers.
+- Added `--profile balanced|private|strict` with audit risk score and blocked high-risk file reporting.
+- Added deterministic local benchmark fixtures, `pnpm bench` scripts, and Markdown/JSON benchmark reports.
+- Added root `action.yml` composite action and GitHub Action usage documentation for artifact-only and sticky-comment modes.
+
 ## 1.0.0 - 2026-07-07
 
 - Added installable `ctxsift` CLI.

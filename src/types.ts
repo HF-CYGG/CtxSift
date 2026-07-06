@@ -1,6 +1,7 @@
 export type OutputFormat = "markdown" | "json";
 export type PackMode = "question" | "diff" | "review" | "onboarding" | "bugfix";
 export type TargetModel = "claude" | "chatgpt" | "cursor" | "generic";
+export type SecurityProfile = "balanced" | "private" | "strict";
 
 export type PackRequest = {
   repo: {
@@ -27,11 +28,15 @@ export type PackRequest = {
     focusDirs?: string[];
     includeTests?: boolean;
     includeDocs?: boolean;
+    workspaceAware?: boolean;
+    workspaceGraphOnly?: boolean;
+    targetPackage?: string;
   };
   security: {
     redactSecrets: boolean;
     emitAuditLog: boolean;
     allowRemoteConfig: boolean;
+    profile?: SecurityProfile;
   };
   output: {
     format: OutputFormat;
@@ -66,6 +71,7 @@ export type CandidateFile = {
     git: number;
     test: number;
     docs: number;
+    workspace: number;
     riskPenalty: number;
     total: number;
   };
@@ -107,11 +113,15 @@ export type PackOutput = {
   selectedFiles: CandidateFile[];
   chunks: BundleChunk[];
   promptTemplate: string;
+  workspaces?: WorkspaceGraph;
   review?: DiffSummary;
   audit: {
     scannedFiles: number;
     ignoredFiles: number;
     redactions: number;
+    securityPolicy: SecurityProfile;
+    riskScore: number;
+    blockedHighRiskFiles: Array<{ path: string; reason: string }>;
   };
 };
 
@@ -132,4 +142,96 @@ export type DiffSummary = {
   relatedDocs: string[];
   risks: string[];
   reviewerPrompt: string;
+};
+
+export type WorkspacePackageManager = "pnpm" | "package-json" | "none";
+export type WorkspaceBuildTool = "turbo" | "nx";
+export type WorkspaceDependencyType = "dependency" | "devDependency" | "peerDependency" | "optionalDependency";
+export type WorkspaceFocus = "target" | "changed" | "dependency" | "query" | "none";
+
+export type WorkspacePackage = {
+  name: string;
+  path: string;
+  packageJsonPath: string;
+  scripts: Record<string, string>;
+  dependencies: Partial<Record<WorkspaceDependencyType, string[]>>;
+};
+
+export type WorkspaceDependencyEdge = {
+  from: string;
+  to: string;
+  type: WorkspaceDependencyType;
+};
+
+export type WorkspacePackageReason = {
+  name: string;
+  path: string;
+  reasons: string[];
+};
+
+export type WorkspaceGraph = {
+  packageManager: WorkspacePackageManager;
+  buildTools: WorkspaceBuildTool[];
+  packages: WorkspacePackage[];
+  dependencyEdges: WorkspaceDependencyEdge[];
+  buildTargets?: WorkspaceBuildTarget[];
+  importEdges?: WorkspaceImportEdge[];
+  focusedPackages: WorkspacePackageReason[];
+  packageReasons: WorkspacePackageReason[];
+};
+
+export type WorkspaceDetection = {
+  packageManager: WorkspacePackageManager;
+  buildTools: WorkspaceBuildTool[];
+  packages: WorkspacePackage[];
+};
+
+export type WorkspaceFileContext = {
+  packageName: string;
+  packagePath: string;
+  focus: WorkspaceFocus;
+  reasons: string[];
+};
+
+export type WorkspaceAnalysis = {
+  graph: WorkspaceGraph;
+  fileContexts: Map<string, WorkspaceFileContext>;
+  changedPackageNames: Set<string>;
+  dependencyPackageNames: Set<string>;
+};
+
+export type WorkspaceBuildTarget = {
+  type: "script" | "tool" | "tsconfig-reference";
+  name: string;
+  packageName: string | null;
+  packagePath: string;
+  command: string | null;
+};
+
+export type WorkspaceImportEdge = {
+  fromFile: string;
+  fromPackage: string | null;
+  specifier: string;
+  toPackage: string;
+};
+
+export type BenchmarkResult = {
+  fixture: string;
+  selectedFilesCount: number;
+  estimatedTokens: number;
+  relevantFilesHitRate: number;
+  droppedFilesCount: number;
+  securityFindingsCount: number;
+  bundleGenerationMs: number;
+  fullRepoBaselineTokens: number;
+  selectedContextTokenSavingRatio: number;
+  topNRelevantFileCoverage: number;
+  workspacePackageHitRate: number;
+};
+
+export type BenchmarkSummary = {
+  fixtures: number;
+  averageRelevantHitRate: number;
+  averageTokenSavingRatio: number;
+  averageWorkspacePackageHitRate: number;
 };

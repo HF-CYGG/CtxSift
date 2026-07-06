@@ -37,6 +37,31 @@ function emitMarkdown(output: PackOutput): string {
     lines.push(`### ${file.path}`, "", `- Tokens: ${file.estimatedTokens}`, `- Score: ${file.scores.total}`, `- Reasons: ${file.reasons.join("; ") || "highest remaining score"}`, "");
   }
 
+  if (output.workspaces) {
+    lines.push(
+      "## Workspace Graph",
+      "",
+      `- Package manager: ${output.workspaces.packageManager}`,
+      `- Build tools: ${output.workspaces.buildTools.join(", ") || "(none)"}`,
+      `- Packages: ${output.workspaces.packages.length}`,
+      `- Dependency edges: ${output.workspaces.dependencyEdges.length}`,
+      ""
+    );
+
+    for (const workspacePackage of output.workspaces.packages) {
+      lines.push(`- ${workspacePackage.name} (${workspacePackage.path})`);
+    }
+
+    if (output.workspaces.focusedPackages.length > 0) {
+      lines.push("", "### Focused Packages", "");
+      for (const workspacePackage of output.workspaces.focusedPackages) {
+        lines.push(`- ${workspacePackage.name} (${workspacePackage.path}): ${workspacePackage.reasons.join("; ")}`);
+      }
+    }
+
+    lines.push("");
+  }
+
   lines.push("## Dropped Files", "");
   for (const dropped of output.manifest.droppedFiles) {
     lines.push(`- ${dropped.path}: ${dropped.reason}`);

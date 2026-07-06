@@ -1,4 +1,4 @@
-import type { CandidateFile } from "./types.js";
+import type { CandidateFile, WorkspaceAnalysis } from "./types.js";
 
 const STOP_WORDS = new Set([
   "a",
@@ -26,10 +26,15 @@ const STOP_WORDS = new Set([
   "with"
 ]);
 
-export function rankFiles(files: CandidateFile[], query: string | undefined, changedFiles: string[] = []): CandidateFile[] {
+export function rankFiles(
+  files: CandidateFile[],
+  query: string | undefined,
+  changedFiles: string[] = [],
+  workspace?: WorkspaceAnalysis
+): CandidateFile[] {
   const queryTerms = tokenize(query ?? "");
   const changed = new Set(changedFiles);
-  const ranked = files.map((file) => scoreFile(file, queryTerms, changed));
+  const ranked = files.map((file) => scoreFile(file, queryTerms, changed, workspace));
 
   ranked.sort((left, right) => {
     if (right.scores.total !== left.scores.total) {
@@ -41,7 +46,12 @@ export function rankFiles(files: CandidateFile[], query: string | undefined, cha
   return ranked;
 }
 
-function scoreFile(file: CandidateFile, queryTerms: string[], changedFiles: Set<string>): CandidateFile {
+function scoreFile(
+  file: CandidateFile,
+  queryTerms: string[],
+  changedFiles: Set<string>,
+  workspace: WorkspaceAnalysis | undefined
+): CandidateFile {
   const pathText = file.path.toLowerCase();
   const contentText = (file.content ?? "").toLowerCase();
   const reasons = new Set(file.reasons);
@@ -51,6 +61,7 @@ function scoreFile(file: CandidateFile, queryTerms: string[], changedFiles: Set<
   let structural = 0;
   let test = 0;
   let docs = 0;
+  let workspaceScore = 0;
   let explicit = 0;
   let git = 0;
 
@@ -107,12 +118,28 @@ function scoreFile(file: CandidateFile, queryTerms: string[], changedFiles: Set<
     explicit = 100;
   }
 
+  const workspaceContext = workspace?.fileContexts.get(file.path);
+  if (workspaceContext) {
+    for (const reason of workspaceContext.reasons) {
+      reasons.add(reason);
+    }
+    if (workspaceContext.focus === "target") {
+      workspaceScore += 30;
+    } else if (workspaceContext.focus === "changed") {
+      workspaceScore += 18;
+    } else if (workspaceContext.focus === "dependency") {
+      workspaceScore += 12;
+    } else if (workspaceContext.focus === "query") {
+      workspaceScore += 10;
+    }
+  }
+
   const riskPenalty = file.classification?.isHighRisk ? 5 : 0;
   const sizePenalty = file.sizeBytes > 100_000 ? 8 : file.sizeBytes > 30_000 ? 3 : 0;
   if (sizePenalty > 0) {
     reasons.add("large file penalty applied");
   }
-  const total = lexical + structural + test + docs + git + explicit - riskPenalty - sizePenalty;
+  const total = lexical + structural + test + docs + workspaceScore + git + explicit - riskPenalty - sizePenalty;
 
   return {
     ...file,
@@ -123,6 +150,7 @@ function scoreFile(file: CandidateFile, queryTerms: string[], changedFiles: Set<
       git,
       test,
       docs,
+      workspace: workspaceScore,
       riskPenalty,
       total
     }
