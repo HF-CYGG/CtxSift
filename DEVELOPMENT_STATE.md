@@ -25,6 +25,8 @@ Context engineering v1 alpha: workspace/build-aware packing, PR review context, 
 - Added benchmark reporter tests, local fixtures, `pnpm bench` scripts, and generated Markdown/JSON reports.
 - Committed benchmark toolkit milestone as `721eb66`.
 - Added root `action.yml` composite action and GitHub Action usage documentation.
+- Committed GitHub Action milestone as `29ce5dd`.
+- Ran the final verification command set successfully.
 
 ## Failed Tests
 
@@ -38,7 +40,7 @@ Context engineering v1 alpha: workspace/build-aware packing, PR review context, 
 
 ## Next Step
 
-Validate and commit GitHub Action milestone, then run the final verification command set.
+Ready for review and release decision. The remaining local `AGENTS.md` change is user-owned and intentionally outside these commits.
 
 ## Latest Verification Commands
 
@@ -55,7 +57,11 @@ Validate and commit GitHub Action milestone, then run the final verification com
 - `pnpm test:e2e` with elevated permissions after sandbox EPERM
 - `pnpm test tests/benchmark-reporter.test.ts` with elevated permissions after sandbox EPERM
 - `pnpm bench` with elevated permissions after sandbox pnpm temporary-file EPERM
+- `pnpm install` with elevated permissions
+- `pnpm audit --audit-level high --registry https://registry.npmjs.org`
+- `pnpm run release:check` with elevated permissions after the GitHub Action milestone
+- `pnpm bench` with elevated permissions after the GitHub Action milestone
 
-## Latest Commit Hash
+## Latest Milestone Commit Hash
 
-- `c23a3d5`
+- `29ce5dd`
