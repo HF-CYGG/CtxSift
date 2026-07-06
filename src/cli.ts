@@ -200,10 +200,11 @@ function createPackRequest(options: CliOptions): PackRequest {
 }
 
 function requireValue(flag: string, value: string | undefined): string {
-  if (!value || value.startsWith("--")) {
+  const normalized = value?.trim();
+  if (!normalized || normalized.startsWith("--")) {
     throw new Error(`Missing value for ${flag}`);
   }
-  return value;
+  return normalized;
 }
 
 function parseFormat(value: string): OutputFormat {

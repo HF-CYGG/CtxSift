@@ -84,4 +84,9 @@ describe("parseArgs", () => {
       );
     }
   });
+
+  test("rejects blank option values", () => {
+    expect(() => parseArgs(["--repo", "   ", "--ask", "Where does auth start?"])).toThrow("Missing value for --repo");
+    expect(() => parseArgs(["--repo", ".", "--ask", "   "])).toThrow("Missing value for --ask");
+  });
 });
