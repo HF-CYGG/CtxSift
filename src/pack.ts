@@ -8,6 +8,8 @@ import { redactSecrets } from "./security-redactor.js";
 import { filesToChunks, selectWithinBudget, estimateTokens } from "./token-budgeter.js";
 import type { CandidateFile, PackRequest, PackOutput } from "./types.js";
 
+const DROPPED_FILES_LIMIT = 200;
+
 export async function packRepository(request: PackRequest): Promise<PackOutput> {
   const prepared = await prepareRepository(request.repo.pathOrUrl);
   try {
@@ -19,16 +21,18 @@ export async function packRepository(request: PackRequest): Promise<PackOutput> 
       ? await loadGitDiffSummary(loaded.root, `${request.task.diffBase}...${request.task.diffHead}`)
       : undefined;
     const ranked = rankFiles(loaded.files, request.task.query, diffSummary?.changedFiles ?? []);
-    const redactionState = { count: 0 };
-    const redacted = ranked.map((file) => redactFileIfNeeded(file, request.security.redactSecrets, redactionState));
     const selected = selectWithinBudget(
-      redacted,
+      ranked,
       request.budget.maxTokens,
       request.budget.reserveForPrompt,
       request.budget.reserveForAnswer,
       request.budget.hardLimit
     );
-    const chunks = filesToChunks(selected.selectedFiles);
+    const redactionState = { count: 0 };
+    const selectedFiles = selected.selectedFiles.map((file) => redactFileIfNeeded(file, request.security.redactSecrets, redactionState));
+    const chunks = filesToChunks(selectedFiles);
+    const totalTokens = selectedFiles.reduce((sum, file) => sum + file.estimatedTokens, 0);
+    const droppedFiles = selected.droppedFiles.slice(0, DROPPED_FILES_LIMIT);
 
     return {
       schemaVersion: "1.0",
@@ -48,13 +52,14 @@ export async function packRepository(request: PackRequest): Promise<PackOutput> 
         repo: path.resolve(loaded.root),
         ref: request.repo.ref ?? prepared.ref,
         query: request.task.query,
-        totalTokens: selected.totalTokens,
-        selectedFiles: selected.selectedFiles.length,
-        droppedFiles: selected.droppedFiles,
+        totalTokens,
+        selectedFiles: selectedFiles.length,
+        droppedFiles,
+        droppedFilesOmitted: Math.max(0, selected.droppedFiles.length - droppedFiles.length),
         redactions: redactionState.count
       },
       tree: loaded.tree,
-      selectedFiles: selected.selectedFiles.map(stripInternalFields),
+      selectedFiles: selectedFiles.map(stripInternalFields),
       chunks,
       promptTemplate: buildPromptTemplate(request.task.query, request.task.mode),
       review: diffSummary,

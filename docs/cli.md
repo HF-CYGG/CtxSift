@@ -19,6 +19,15 @@
 - `--version`: print CLI version.
 - `--help`: print usage.
 
+## Large Repository Output
+
+For large repositories, CtxSift caps verbose metadata so JSON and Markdown remain practical to copy or upload:
+
+- `tree` includes a bounded list plus an omitted-count line.
+- `manifest.droppedFiles` is capped.
+- `manifest.droppedFilesOmitted` records how many dropped-file entries were omitted from metadata.
+- `audit.redactions` counts redactions in emitted output files.
+
 ## Examples
 
 ```bash

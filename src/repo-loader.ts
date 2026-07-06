@@ -20,6 +20,7 @@ const DEFAULT_IGNORES = [
 ];
 
 const MAX_TEXT_FILE_BYTES = 512 * 1024;
+const TREE_ENTRY_LIMIT = 200;
 const execFileAsync = promisify(execFile);
 
 export async function loadRepository(rootPath: string, options?: { include?: string[]; exclude?: string[] }): Promise<RepoLoadResult> {
@@ -184,7 +185,14 @@ function matchesPattern(filePath: string, rule: string): boolean {
 }
 
 function buildTree(paths: string[]): string {
-  return paths.join("\n");
+  if (paths.length <= TREE_ENTRY_LIMIT) {
+    return paths.join("\n");
+  }
+
+  return [
+    ...paths.slice(0, TREE_ENTRY_LIMIT),
+    `... ${paths.length - TREE_ENTRY_LIMIT} more files omitted from tree`
+  ].join("\n");
 }
 
 function looksBinary(buffer: Buffer): boolean {
