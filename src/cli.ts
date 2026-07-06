@@ -232,6 +232,9 @@ function parseRepo(value: string): string {
   if (/^https:\/\/github\.com\//i.test(repo) && !GITHUB_REPO_URL_PATTERN.test(repo)) {
     throw new Error("--repo GitHub URL must be https://github.com/owner/repo");
   }
+  if (/^https?:\/\//i.test(repo) && !GITHUB_REPO_URL_PATTERN.test(repo)) {
+    throw new Error("--repo remote URL must be https://github.com/owner/repo");
+  }
   return repo;
 }
 

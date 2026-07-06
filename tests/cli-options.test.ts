@@ -76,4 +76,12 @@ describe("parseArgs", () => {
       );
     }
   });
+
+  test("rejects unsupported remote repo URLs", () => {
+    for (const repo of ["https://example.com/HF-CYGG/CtxSift", "http://github.com/HF-CYGG/CtxSift"]) {
+      expect(() => parseArgs(["--repo", repo, "--ask", "Where does auth start?"])).toThrow(
+        "--repo remote URL must be https://github.com/owner/repo"
+      );
+    }
+  });
 });

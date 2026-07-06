@@ -38,6 +38,8 @@ v1.3.0-alpha.0 continuous optimization
 - Tightened core CLI `--repo` GitHub URL parsing so only bare `https://github.com/owner/repo` and `.git` forms pass.
 - Added repository source coverage for strict GitHub URL recognition and unsupported remote URL rejection.
 - Tightened repository source preparation so non-GitHub HTTP(S) URLs are rejected before local loading.
+- Added CLI option coverage that rejects unsupported remote repo URLs such as `https://example.com/...` and `http://github.com/...`.
+- Tightened core CLI `--repo` parsing so unsupported HTTP(S) remote URLs fail during argument parsing.
 
 ## Latest Verification Evidence
 
@@ -55,6 +57,8 @@ v1.3.0-alpha.0 continuous optimization
 - `pnpm run release:check`: sandbox run hit Vitest/esbuild `spawn EPERM`; elevated rerun passed with 24 Vitest files / 55 tests, E2E, examples, build, pack dry-run, and high audit after CLI GitHub repo URL tightening.
 - `pnpm test tests/repo-source.test.ts`: red phase failed on missing exported GitHub URL recognizer and unsupported remote URL rejection; green phase passed with 2 tests after repository source tightening.
 - `pnpm run release:check`: sandbox run hit Vitest/esbuild `spawn EPERM`; elevated rerun passed with 25 Vitest files / 57 tests, E2E, examples, build, pack dry-run, and high audit after repository source tightening.
+- `pnpm test tests/cli-options.test.ts`: red phase failed on missing CLI exception for unsupported remote repo URLs; green phase passed with 5 tests after CLI remote URL tightening.
+- `pnpm run release:check`: sandbox run hit Vitest/esbuild `spawn EPERM`; elevated rerun passed with 25 Vitest files / 58 tests, E2E, examples, build, pack dry-run, and high audit after CLI unsupported remote URL tightening.
 - `pnpm pack --dry-run`: latest full gate packed `ctxsift@1.3.0-alpha.0` and included `examples`.
 - `pnpm audit --audit-level high --registry https://registry.npmjs.org`: latest full gate reported no known vulnerabilities.
 
