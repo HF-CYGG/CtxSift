@@ -214,3 +214,24 @@ export type WorkspaceImportEdge = {
   specifier: string;
   toPackage: string;
 };
+
+export type BenchmarkResult = {
+  fixture: string;
+  selectedFilesCount: number;
+  estimatedTokens: number;
+  relevantFilesHitRate: number;
+  droppedFilesCount: number;
+  securityFindingsCount: number;
+  bundleGenerationMs: number;
+  fullRepoBaselineTokens: number;
+  selectedContextTokenSavingRatio: number;
+  topNRelevantFileCoverage: number;
+  workspacePackageHitRate: number;
+};
+
+export type BenchmarkSummary = {
+  fixtures: number;
+  averageRelevantHitRate: number;
+  averageTokenSavingRatio: number;
+  averageWorkspacePackageHitRate: number;
+};
