@@ -12,6 +12,7 @@ const DEFAULT_IGNORES = [
   "dist",
   "build",
   "coverage",
+  ".vs",
   ".next",
   ".nuxt",
   ".turbo",

@@ -12,5 +12,6 @@ describe("file classification", () => {
     expect(classifyFile("README.md").kind).toBe("doc");
     expect(classifyFile(".env").kind).toBe("secret");
     expect(classifyFile("dist/generated.js").kind).toBe("generated");
+    expect(classifyFile(".vs/VSWorkspaceState.json").kind).toBe("generated");
   });
 });

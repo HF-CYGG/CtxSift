@@ -45,6 +45,7 @@ const GENERATED_SEGMENTS = new Set([
   "dist",
   "build",
   "coverage",
+  ".vs",
   ".next",
   ".nuxt",
   ".turbo",

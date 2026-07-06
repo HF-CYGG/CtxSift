@@ -1,6 +1,30 @@
 import type { CandidateFile } from "./types.js";
 
-const STOP_WORDS = new Set(["a", "an", "the", "is", "are", "does", "do", "where", "what", "why", "how", "in", "of", "to"]);
+const STOP_WORDS = new Set([
+  "a",
+  "an",
+  "and",
+  "are",
+  "at",
+  "by",
+  "do",
+  "does",
+  "for",
+  "from",
+  "how",
+  "in",
+  "is",
+  "of",
+  "on",
+  "or",
+  "the",
+  "this",
+  "to",
+  "what",
+  "where",
+  "why",
+  "with"
+]);
 
 export function rankFiles(files: CandidateFile[], query: string | undefined, changedFiles: string[] = []): CandidateFile[] {
   const queryTerms = tokenize(query ?? "");
