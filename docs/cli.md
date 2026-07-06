@@ -28,6 +28,17 @@ For large repositories, CtxSift caps verbose metadata so JSON and Markdown remai
 - `manifest.droppedFilesOmitted` records how many dropped-file entries were omitted from metadata.
 - `audit.redactions` counts redactions in emitted output files.
 
+## Workspace Graph Output
+
+When a repository includes `pnpm-workspace.yaml` or root `package.json#workspaces`, output can include optional `workspaces` metadata:
+
+- package nodes with names, paths, scripts, and package manifests;
+- internal dependency edges between workspace packages;
+- focused packages touched by a requested diff and their direct internal dependencies;
+- package-level reasons that also appear on selected files.
+
+Repositories without workspace configuration omit this field.
+
 ## Examples
 
 ```bash

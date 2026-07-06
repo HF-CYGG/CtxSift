@@ -1,0 +1,7 @@
+{
+  "name": "@ctxsift/auth",
+  "private": true,
+  "scripts": {
+    "test": "vitest run"
+  }
+}

@@ -12,6 +12,13 @@ const parsed = JSON.parse(json.stdout);
 assert(parsed.schemaVersion === "1.0", "JSON output should include schemaVersion 1.0");
 assert(parsed.selectedFiles.some((file) => file.path === "src/auth/login.ts"), "JSON output should include auth login file");
 
+const monorepo = run(["--repo", "tests/fixtures/monorepo", "--ask", "Where is auth implemented?", "--format", "json"]);
+const monorepoJson = JSON.parse(monorepo.stdout);
+assert(
+  monorepoJson.workspaces?.packages?.some((workspacePackage) => workspacePackage.name === "@ctxsift/auth"),
+  "monorepo JSON output should include workspace graph package metadata"
+);
+
 const diffRepo = createDiffRepo();
 const review = run(["--repo", diffRepo, "--diff", "main...HEAD", "--mode", "review", "--format", "json"]);
 const reviewJson = JSON.parse(review.stdout);

@@ -37,6 +37,7 @@ function candidate(path: string, content: string, estimatedTokens: number): Cand
       git: 0,
       test: 0,
       docs: 0,
+      workspace: 0,
       riskPenalty: 0,
       total: 120
     }

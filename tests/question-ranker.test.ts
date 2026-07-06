@@ -1,5 +1,7 @@
 import { describe, expect, test } from "vitest";
 import { rankFiles } from "../src/question-ranker.js";
+import { detectWorkspaces } from "../src/workspace-detector.js";
+import { buildWorkspaceGraph } from "../src/workspace-graph.js";
 import type { CandidateFile, FileKind } from "../src/types.js";
 
 describe("rankFiles", () => {
@@ -43,6 +45,30 @@ describe("rankFiles", () => {
     );
     expect(ranked[0].reasons).toContain("implementation source context");
   });
+
+  test("boosts files in dependency packages of a changed workspace", () => {
+    const files = [
+      candidate("pnpm-workspace.yaml", "packages:\n  - apps/*\n  - packages/*\n", "config"),
+      candidate(
+        "apps/web/package.json",
+        JSON.stringify({ name: "@acme/web", dependencies: { "@acme/auth": "workspace:*" } }),
+        "config"
+      ),
+      candidate("apps/web/src/router.ts", "import { authenticate } from '@acme/auth';\n", "source"),
+      candidate("packages/auth/package.json", JSON.stringify({ name: "@acme/auth" }), "config"),
+      candidate("packages/auth/src/index.ts", "export const authenticate = true;\n", "source"),
+      candidate("packages/billing/package.json", JSON.stringify({ name: "@acme/billing" }), "config"),
+      candidate("packages/billing/src/index.ts", "export const authenticate = true;\n", "source")
+    ];
+    const analysis = buildWorkspaceGraph(detectWorkspaces(files), files, ["apps/web/src/router.ts"]);
+
+    const ranked = rankFiles(files, "authenticate", ["apps/web/src/router.ts"], analysis);
+
+    expect(ranked.find((file) => file.path === "packages/auth/src/index.ts")?.scores.workspace).toBeGreaterThan(0);
+    expect(ranked.findIndex((file) => file.path === "packages/auth/src/index.ts")).toBeLessThan(
+      ranked.findIndex((file) => file.path === "packages/billing/src/index.ts")
+    );
+  });
 });
 
 function candidate(path: string, content: string, kind: FileKind): CandidateFile {
@@ -66,6 +92,7 @@ function candidate(path: string, content: string, kind: FileKind): CandidateFile
       git: 0,
       test: 0,
       docs: 0,
+      workspace: 0,
       riskPenalty: 0,
       total: 0
     }

@@ -6,6 +6,8 @@ import { loadRepository } from "./repo-loader.js";
 import { rankFiles } from "./question-ranker.js";
 import { redactSecrets } from "./security-redactor.js";
 import { filesToChunks, selectWithinBudget, estimateTokens } from "./token-budgeter.js";
+import { detectWorkspaces } from "./workspace-detector.js";
+import { buildWorkspaceGraph } from "./workspace-graph.js";
 import type { CandidateFile, PackRequest, PackOutput } from "./types.js";
 
 const DROPPED_FILES_LIMIT = 200;
@@ -20,7 +22,8 @@ export async function packRepository(request: PackRequest): Promise<PackOutput> 
     const diffSummary = request.task.diffBase && request.task.diffHead
       ? await loadGitDiffSummary(loaded.root, `${request.task.diffBase}...${request.task.diffHead}`)
       : undefined;
-    const ranked = rankFiles(loaded.files, request.task.query, diffSummary?.changedFiles ?? []);
+    const workspaceAnalysis = buildWorkspaceGraph(detectWorkspaces(loaded.files), loaded.files, diffSummary?.changedFiles ?? []);
+    const ranked = rankFiles(loaded.files, request.task.query, diffSummary?.changedFiles ?? [], workspaceAnalysis);
     const selected = selectWithinBudget(
       ranked,
       request.budget.maxTokens,
@@ -62,6 +65,7 @@ export async function packRepository(request: PackRequest): Promise<PackOutput> 
       selectedFiles: selectedFiles.map(stripInternalFields),
       chunks,
       promptTemplate: buildPromptTemplate(request.task.query, request.task.mode),
+      workspaces: workspaceAnalysis.graph.packages.length > 0 ? workspaceAnalysis.graph : undefined,
       review: diffSummary,
       audit: {
         scannedFiles: loaded.files.length,

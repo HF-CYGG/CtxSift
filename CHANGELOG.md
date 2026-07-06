@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- Added workspace graph alpha for pnpm and `package.json` workspaces.
+- Added package-level reasons and workspace score components to selected files.
+- Added optional JSON/Markdown workspace graph output.
+- Added optional sticky PR review-context comments for the GitHub Actions workflow.
+
 ## 1.0.0 - 2026-07-07
 
 - Added installable `ctxsift` CLI.
