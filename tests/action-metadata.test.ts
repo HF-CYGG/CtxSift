@@ -15,4 +15,18 @@ describe("GitHub Action metadata", () => {
     expect(docs).toContain("pull-requests: write");
     expect(docs).toContain("artifact-only");
   });
+
+  test("quotes action descriptions that contain colon-space YAML tokens", () => {
+    const metadata = readFileSync("action.yml", "utf8");
+    const invalidDescriptions = metadata
+      .split(/\r?\n/)
+      .map((line, index) => ({ line, lineNumber: index + 1 }))
+      .filter(({ line }) => line.trimStart().startsWith("description:"))
+      .filter(({ line }) => {
+        const value = line.slice(line.indexOf("description:") + "description:".length).trim();
+        return value.includes(": ") && !value.startsWith('"') && !value.startsWith("'");
+      });
+
+    expect(invalidDescriptions).toEqual([]);
+  });
 });
