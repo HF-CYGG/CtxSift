@@ -28,6 +28,8 @@ v1.3.0-alpha.0 continuous optimization
 - Preserved release evidence and removed stale pre-v1.3 milestone text from the active state file.
 - Added Web Demo smoke coverage that rejects GitHub repo URLs with query strings or fragments.
 - Tightened the public Web Demo repo allowlist so only bare `https://github.com/owner/repo` and `.git` forms pass.
+- Added Web Demo smoke coverage for non-strict `maxTokens` values such as `12abc` and `1.5`.
+- Tightened Web Demo `maxTokens` parsing so only safe positive integer values pass through to the CLI.
 
 ## Latest Verification Evidence
 
@@ -36,6 +38,7 @@ v1.3.0-alpha.0 continuous optimization
 - `pnpm run release:check`: post-cleanup elevated rerun passed with 24 Vitest files / 53 tests.
 - `pnpm test:examples`: red phase failed on a query-suffixed GitHub URL; green phase passed after Web Demo URL allowlist tightening.
 - `pnpm run release:check`: sandbox run hit Vitest/esbuild `spawn EPERM`; elevated rerun passed with 24 Vitest files / 53 tests, E2E, examples, build, pack dry-run, and high audit.
+- `pnpm test:examples`: red phase failed on missing exception for `maxTokens=12abc`; green phase passed after strict positive-integer parsing.
 - `pnpm pack --dry-run`: latest full gate packed `ctxsift@1.3.0-alpha.0` and included `examples`.
 - `pnpm audit --audit-level high --registry https://registry.npmjs.org`: latest full gate reported no known vulnerabilities.
 

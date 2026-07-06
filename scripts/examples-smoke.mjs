@@ -46,6 +46,18 @@ assert.throws(
   /repo must be a public https:\/\/github\.com\/owner\/repo URL/
 );
 
+for (const maxTokens of ["12abc", "1.5"]) {
+  assert.throws(
+    () =>
+      buildPackArgs({
+        ask: "Where is routing?",
+        maxTokens,
+        repo: "https://github.com/HF-CYGG/CtxSift"
+      }),
+    /maxTokens must be a positive integer/
+  );
+}
+
 assert.deepEqual(
   buildPackArgs({
     ask: "Where is routing?",

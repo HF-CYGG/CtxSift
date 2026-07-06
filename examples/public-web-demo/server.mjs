@@ -37,7 +37,8 @@ export function normalizePackInput(input) {
   const repo = requireText(input.repo, "repo").trim();
   const ask = requireText(input.ask, "ask").trim();
   const profile = input.profile ?? "private";
-  const maxTokens = input.maxTokens === undefined ? 20000 : Number.parseInt(String(input.maxTokens), 10);
+  const maxTokensText = input.maxTokens === undefined ? "20000" : String(input.maxTokens).trim();
+  const maxTokens = Number(maxTokensText);
 
   if (!isAllowedPublicGitHubRepo(repo)) {
     throw new Error("repo must be a public https://github.com/owner/repo URL");
@@ -45,7 +46,7 @@ export function normalizePackInput(input) {
   if (!ALLOWED_PROFILES.has(profile)) {
     throw new Error("profile must be balanced, private, or strict");
   }
-  if (!Number.isFinite(maxTokens) || maxTokens <= 0) {
+  if (!/^[1-9]\d*$/.test(maxTokensText) || !Number.isSafeInteger(maxTokens)) {
     throw new Error("maxTokens must be a positive integer");
   }
 
