@@ -1,7 +1,5 @@
 # AGENTS.md
 
-
-
 ## Project
 
 
