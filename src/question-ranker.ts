@@ -45,6 +45,8 @@ function scoreFile(file: CandidateFile, queryTerms: string[], changedFiles: Set<
   const pathText = file.path.toLowerCase();
   const contentText = (file.content ?? "").toLowerCase();
   const reasons = new Set(file.reasons);
+  const hasQueryMatch = queryTerms.some((term) => pathText.includes(term) || contentText.includes(term));
+  const asksForImplementation = isImplementationQuestion(queryTerms);
   let lexical = 0;
   let structural = 0;
   let test = 0;
@@ -66,6 +68,11 @@ function scoreFile(file: CandidateFile, queryTerms: string[], changedFiles: Set<
   if (/src\/(index|main|server|app)\./i.test(file.path)) {
     structural += 4;
     reasons.add("entrypoint-like file");
+  }
+
+  if (file.classification?.kind === "source" && hasQueryMatch) {
+    structural += asksForImplementation ? 40 : 6;
+    reasons.add("implementation source context");
   }
 
   if (file.classification?.kind === "test") {
@@ -148,4 +155,35 @@ function expandTerm(term: string): string[] {
     variants.push(term.slice(0, -1));
   }
   return variants;
+}
+
+function isImplementationQuestion(queryTerms: string[]): boolean {
+  return queryTerms.some((term) => {
+    return (
+      term.startsWith("implement") ||
+      term.startsWith("handl") ||
+      term.startsWith("manag") ||
+      term.startsWith("mapp") ||
+      term.startsWith("schedul") ||
+      term.startsWith("reconcil") ||
+      term.startsWith("authenticat") ||
+      term.startsWith("authoriz") ||
+      [
+        "apply",
+        "applied",
+        "creation",
+        "create",
+        "lifecycle",
+        "flow",
+        "route",
+        "routing",
+        "controller",
+        "controllers",
+        "interceptor",
+        "interceptors",
+        "annotation",
+        "annotations"
+      ].includes(term)
+    );
+  });
 }

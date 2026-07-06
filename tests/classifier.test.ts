@@ -13,5 +13,6 @@ describe("file classification", () => {
     expect(classifyFile(".env").kind).toBe("secret");
     expect(classifyFile("dist/generated.js").kind).toBe("generated");
     expect(classifyFile(".vs/VSWorkspaceState.json").kind).toBe("generated");
+    expect(classifyFile("spring-beans/src/test/resources/example.properties").kind).toBe("test");
   });
 });
