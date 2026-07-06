@@ -2,7 +2,7 @@
 
 ## Current Milestone
 
-Dual-line alpha: workspace graph support plus PR review context Action hardening.
+Context engineering v1 alpha: workspace/build-aware packing, PR review context, zero-leak profiles, and benchmark toolkit.
 
 ## Completed Tasks
 
@@ -14,6 +14,11 @@ Dual-line alpha: workspace graph support plus PR review context Action hardening
 - Implemented optional sticky PR summary comments and `pr-comment-cli`.
 - Updated README, architecture, CLI, quickstart, review-bundle, roadmap, and changelog docs.
 - Ran full release gate successfully.
+- Committed stable workspace graph and PR summary milestone as `df2d770`.
+- Added tests for package manifest parsing, build target extraction, import graph extraction, package ranking, workspace graph-only CLI, and package-scoped CLI.
+- Implemented `--workspace-aware`, `--workspace-graph`, and `--package`.
+- Added build target extraction for package scripts, Turbo/Nx metadata, and TypeScript project references.
+- Added basic import edges for source imports targeting internal workspace package names.
 
 ## Failed Tests
 
@@ -26,7 +31,7 @@ Dual-line alpha: workspace graph support plus PR review context Action hardening
 
 ## Next Step
 
-Ready for review. Keep user-owned `AGENTS.md` modification separate from implementation changes.
+Commit workspace/build-aware CLI milestone, then implement profile-based security policy.
 
 ## Latest Verification Commands
 
@@ -38,7 +43,9 @@ Ready for review. Keep user-owned `AGENTS.md` modification separate from impleme
 - `pnpm build`
 - `pnpm pack --dry-run`
 - `pnpm run release:check` with elevated permissions
+- `pnpm test tests/package-manifest.test.ts tests/build-targets.test.ts tests/import-graph.test.ts tests/package-ranker.test.ts tests/cli-options.test.ts tests/pack.test.ts`
+- `pnpm test:e2e` with elevated permissions after sandbox EPERM
 
 ## Latest Commit Hash
 
-- `288ad99`
+- `df2d770`

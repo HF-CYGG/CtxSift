@@ -31,3 +31,15 @@ ctxsift --repo . --diff main...HEAD --mode review --out review-context.md
 The output is context for an AI reviewer, not an automated review verdict.
 
 In pnpm or `package.json` workspaces, review bundles also include package-level reasons for diff-touched packages and their direct internal dependencies. The included GitHub Actions example uploads review context artifacts and can optionally update a sticky PR summary comment.
+
+## Inspect a Workspace Graph
+
+```bash
+ctxsift --repo . --workspace-graph --format json
+```
+
+Use `--package <workspace-name-or-path>` to focus ranking on one workspace package:
+
+```bash
+ctxsift --repo . --package apps/web --ask "Why might routing break?"
+```

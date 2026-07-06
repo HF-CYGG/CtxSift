@@ -18,6 +18,9 @@ export type CliOptions = {
   output?: string;
   include: string[];
   exclude: string[];
+  workspaceAware: boolean;
+  workspaceGraph: boolean;
+  packageName?: string;
   redact: boolean;
   debug: boolean;
 };
@@ -52,6 +55,8 @@ export function parseArgs(args: string[]): CliOptions {
     format: "markdown",
     include: [],
     exclude: [],
+    workspaceAware: false,
+    workspaceGraph: false,
     redact: true,
     debug: false
   };
@@ -101,6 +106,18 @@ export function parseArgs(args: string[]): CliOptions {
         options.exclude.push(...splitList(requireValue(arg, next)));
         index += 1;
         break;
+      case "--workspace-aware":
+        options.workspaceAware = true;
+        break;
+      case "--workspace-graph":
+        options.workspaceGraph = true;
+        options.workspaceAware = true;
+        break;
+      case "--package":
+        options.packageName = requireValue(arg, next);
+        options.workspaceAware = true;
+        index += 1;
+        break;
       case "--no-redact":
         options.redact = false;
         break;
@@ -122,8 +139,8 @@ export function parseArgs(args: string[]): CliOptions {
     }
   }
 
-  if (!options.ask && !options.diff) {
-    throw new Error("Provide --ask <question> or --diff <base>...<head>");
+  if (!options.ask && !options.diff && !options.workspaceGraph) {
+    throw new Error("Provide --ask <question>, --diff <base>...<head>, or --workspace-graph");
   }
 
   return options;
@@ -137,7 +154,7 @@ function createPackRequest(options: CliOptions): PackRequest {
       pathOrUrl: options.repo
     },
     task: {
-      mode: options.mode,
+      mode: options.workspaceGraph && !options.ask && !options.diff ? "onboarding" : options.mode,
       query: options.ask,
       diffBase: parsedDiff?.base,
       diffHead: parsedDiff?.head,
@@ -153,7 +170,10 @@ function createPackRequest(options: CliOptions): PackRequest {
       include: options.include,
       exclude: options.exclude,
       includeTests: true,
-      includeDocs: true
+      includeDocs: true,
+      workspaceAware: true,
+      workspaceGraphOnly: options.workspaceGraph && !options.ask && !options.diff,
+      targetPackage: options.packageName
     },
     security: {
       redactSecrets: options.redact,
@@ -213,6 +233,9 @@ Options:
   --out <file>
   --include <glob[,glob]>
   --exclude <glob[,glob]>
+  --workspace-aware
+  --workspace-graph
+  --package <workspace-name-or-path>
   --no-redact
   --debug
   --version

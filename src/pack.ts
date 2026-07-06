@@ -22,15 +22,24 @@ export async function packRepository(request: PackRequest): Promise<PackOutput> 
     const diffSummary = request.task.diffBase && request.task.diffHead
       ? await loadGitDiffSummary(loaded.root, `${request.task.diffBase}...${request.task.diffHead}`)
       : undefined;
-    const workspaceAnalysis = buildWorkspaceGraph(detectWorkspaces(loaded.files), loaded.files, diffSummary?.changedFiles ?? []);
-    const ranked = rankFiles(loaded.files, request.task.query, diffSummary?.changedFiles ?? [], workspaceAnalysis);
-    const selected = selectWithinBudget(
-      ranked,
-      request.budget.maxTokens,
-      request.budget.reserveForPrompt,
-      request.budget.reserveForAnswer,
-      request.budget.hardLimit
-    );
+    const workspaceAnalysis = request.scope.workspaceAware === false
+      ? buildWorkspaceGraph({ packageManager: "none", buildTools: [], packages: [] }, loaded.files, [])
+      : buildWorkspaceGraph(detectWorkspaces(loaded.files), loaded.files, diffSummary?.changedFiles ?? [], {
+          query: request.task.query,
+          targetPackage: request.scope.targetPackage
+        });
+    const ranked = request.scope.workspaceGraphOnly
+      ? []
+      : rankFiles(loaded.files, request.task.query, diffSummary?.changedFiles ?? [], workspaceAnalysis);
+    const selected = request.scope.workspaceGraphOnly
+      ? { selectedFiles: [], droppedFiles: [], totalTokens: 0 }
+      : selectWithinBudget(
+          ranked,
+          request.budget.maxTokens,
+          request.budget.reserveForPrompt,
+          request.budget.reserveForAnswer,
+          request.budget.hardLimit
+        );
     const redactionState = { count: 0 };
     const selectedFiles = selected.selectedFiles.map((file) => redactFileIfNeeded(file, request.security.redactSecrets, redactionState));
     const chunks = filesToChunks(selectedFiles);

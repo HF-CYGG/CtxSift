@@ -124,6 +124,9 @@ ctxsift --repo https://github.com/user/repo \
 | `--repo <path-or-url>` | 本地仓库路径或公开 GitHub 仓库 URL。 |
 | `--ask <question>` | 当前任务/问题；排序器会围绕它选择文件。 |
 | `--diff <base>...<head>` | 生成 diff-aware review bundle。 |
+| `--workspace-aware` | 显式启用 workspace/package graph 感知；默认会在发现 workspace 配置时自动分析。 |
+| `--workspace-graph` | 输出 workspace graph；不需要同时传 `--ask` 或 `--diff`。 |
+| `--package <name-or-path>` | 将指定 workspace package 作为当前任务重点，例如 `apps/web` 或 `@scope/web`。 |
 | `--mode <mode>` | 支持 `question`、`review`、`diff`、`onboarding`、`bugfix`。 |
 | `--max-tokens <number>` | 输出 token 预算，默认 `20000`。 |
 | `--format markdown|json` | 输出 Markdown 或 JSON。 |
@@ -164,6 +167,8 @@ JSON 输出面向自动化工具，当前 schema 为 `1.0`，包含：
 - `selectedFiles`：文件路径、语言、分数、理由。
 - `chunks`：实际输出内容。
 - `workspaces`：可选 workspace graph，包含 package nodes、内部依赖边、focused packages 和 package-level reasons。
+- `workspaces.buildTargets`：package scripts、Turbo/Nx 标记和 TypeScript project references 摘要。
+- `workspaces.importEdges`：源码中指向内部 workspace package 的基础 import 边。
 - `review`：diff-aware 模式下的 changed files、相关测试/文档、风险提示。
 - `audit`：扫描、忽略、脱敏统计。
 
@@ -260,5 +265,6 @@ pnpm run release:check
 - [CLI 参考](docs/cli.md)
 - [安全模型](docs/security.md)
 - [Review Bundle](docs/review-bundle.md)
+- [Monorepo selective packing](docs/monorepo.md)
 - [架构说明](docs/architecture.md)
 - [v1.0.0 发布说明](docs/release-v1.0.0.md)

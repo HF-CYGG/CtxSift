@@ -6,6 +6,8 @@
 - Added package-level reasons and workspace score components to selected files.
 - Added optional JSON/Markdown workspace graph output.
 - Added optional sticky PR review-context comments for the GitHub Actions workflow.
+- Added `--workspace-aware`, `--workspace-graph`, and `--package` CLI options.
+- Added package manifest parsing, build target extraction, import edge extraction, and package-level ranking helpers.
 
 ## 1.0.0 - 2026-07-07
 
