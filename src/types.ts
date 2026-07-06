@@ -66,6 +66,7 @@ export type CandidateFile = {
     git: number;
     test: number;
     docs: number;
+    workspace: number;
     riskPenalty: number;
     total: number;
   };
@@ -107,6 +108,7 @@ export type PackOutput = {
   selectedFiles: CandidateFile[];
   chunks: BundleChunk[];
   promptTemplate: string;
+  workspaces?: WorkspaceGraph;
   review?: DiffSummary;
   audit: {
     scannedFiles: number;
@@ -132,4 +134,58 @@ export type DiffSummary = {
   relatedDocs: string[];
   risks: string[];
   reviewerPrompt: string;
+};
+
+export type WorkspacePackageManager = "pnpm" | "package-json" | "none";
+export type WorkspaceBuildTool = "turbo" | "nx";
+export type WorkspaceDependencyType = "dependency" | "devDependency" | "peerDependency" | "optionalDependency";
+export type WorkspaceFocus = "changed" | "dependency" | "none";
+
+export type WorkspacePackage = {
+  name: string;
+  path: string;
+  packageJsonPath: string;
+  scripts: Record<string, string>;
+  dependencies: Partial<Record<WorkspaceDependencyType, string[]>>;
+};
+
+export type WorkspaceDependencyEdge = {
+  from: string;
+  to: string;
+  type: WorkspaceDependencyType;
+};
+
+export type WorkspacePackageReason = {
+  name: string;
+  path: string;
+  reasons: string[];
+};
+
+export type WorkspaceGraph = {
+  packageManager: WorkspacePackageManager;
+  buildTools: WorkspaceBuildTool[];
+  packages: WorkspacePackage[];
+  dependencyEdges: WorkspaceDependencyEdge[];
+  focusedPackages: WorkspacePackageReason[];
+  packageReasons: WorkspacePackageReason[];
+};
+
+export type WorkspaceDetection = {
+  packageManager: WorkspacePackageManager;
+  buildTools: WorkspaceBuildTool[];
+  packages: WorkspacePackage[];
+};
+
+export type WorkspaceFileContext = {
+  packageName: string;
+  packagePath: string;
+  focus: WorkspaceFocus;
+  reasons: string[];
+};
+
+export type WorkspaceAnalysis = {
+  graph: WorkspaceGraph;
+  fileContexts: Map<string, WorkspaceFileContext>;
+  changedPackageNames: Set<string>;
+  dependencyPackageNames: Set<string>;
 };

@@ -1,0 +1,10 @@
+{
+  "name": "@ctxsift/web",
+  "private": true,
+  "scripts": {
+    "build": "vite build"
+  },
+  "dependencies": {
+    "@ctxsift/auth": "workspace:*"
+  }
+}

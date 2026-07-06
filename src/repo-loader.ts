@@ -68,6 +68,7 @@ export async function loadRepository(rootPath: string, options?: { include?: str
         git: 0,
         test: 0,
         docs: 0,
+        workspace: 0,
         riskPenalty: classification.isHighRisk ? 100 : 0,
         total: 0
       }

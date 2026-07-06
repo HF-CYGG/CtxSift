@@ -16,18 +16,18 @@ tests, and npm package metadata.
 - Default secret exclusion, content redaction, and audit counts.
 - CLI E2E tests, fixture coverage, CI workflow, release check script, and npm publish metadata.
 
-## v1.1 Ranking Quality
+## v1.1 Dual-Line Alpha
 
-- Improve language-aware related-test discovery.
-- Add optional custom ranking weights through a config file.
-- Emit richer debug traces for score components.
-- Benchmark larger repositories and tune default limits.
+- Add pnpm / package.json workspace detection.
+- Emit optional workspace graph metadata with package nodes, internal dependency edges, focused packages, and package-level reasons.
+- Boost files in diff-touched workspace packages and their direct internal dependencies.
+- Keep ranking deterministic and dependency-free.
 
 ## v1.2 GitHub Action Hardening
 
-- Publish a reusable Action wrapper around the CLI.
-- Upload bundle artifacts for pull requests.
-- Add examples for safe least-privilege permissions.
+- Upload Markdown and JSON review-context artifacts for pull requests.
+- Add optional sticky PR summary comments, disabled by default.
+- Keep default workflow permissions at `contents: read`; require `pull-requests: write` only when comments are explicitly enabled.
 - Add documentation for private repository execution in CI.
 
 ## v1.3 Editor and Web Workflows

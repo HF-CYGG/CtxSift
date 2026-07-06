@@ -36,11 +36,12 @@ const sampleOutput: PackOutput = {
       scores: {
         lexical: 10,
         structural: 5,
-        git: 0,
-        test: 0,
-        docs: 0,
-        riskPenalty: 0,
-        total: 15
+      git: 0,
+      test: 0,
+      docs: 0,
+      workspace: 0,
+      riskPenalty: 0,
+      total: 15
       }
     }
   ],
@@ -54,6 +55,39 @@ const sampleOutput: PackOutput = {
     }
   ],
   promptTemplate: "Use this context to answer the question.",
+  workspaces: {
+    packageManager: "pnpm",
+    buildTools: ["turbo"],
+    packages: [
+      {
+        name: "@acme/auth",
+        path: "packages/auth",
+        packageJsonPath: "packages/auth/package.json",
+        scripts: { test: "vitest run" },
+        dependencies: {
+          dependency: [],
+          devDependency: [],
+          peerDependency: [],
+          optionalDependency: []
+        }
+      }
+    ],
+    dependencyEdges: [],
+    focusedPackages: [
+      {
+        name: "@acme/auth",
+        path: "packages/auth",
+        reasons: ["changed file in requested diff"]
+      }
+    ],
+    packageReasons: [
+      {
+        name: "@acme/auth",
+        path: "packages/auth",
+        reasons: ["changed file in requested diff"]
+      }
+    ]
+  },
   audit: {
     scannedFiles: 3,
     ignoredFiles: 2,
@@ -76,6 +110,8 @@ describe("emitBundle", () => {
     expect(emitted).toContain("# CtxSift Bundle");
     expect(emitted).toContain("Where does auth start?");
     expect(emitted).toContain("query matched file path");
+    expect(emitted).toContain("## Workspace Graph");
+    expect(emitted).toContain("@acme/auth");
     expect(emitted).toContain("## Audit");
   });
 

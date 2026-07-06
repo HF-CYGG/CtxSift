@@ -6,6 +6,7 @@ import path from "node:path";
 import { packRepository } from "../src/pack.js";
 
 const fixtureRoot = fileURLToPath(new URL("./fixtures/basic-app", import.meta.url));
+const monorepoFixtureRoot = fileURLToPath(new URL("./fixtures/monorepo", import.meta.url));
 
 describe("packRepository", () => {
   test("selects task-relevant auth context and excludes secrets", async () => {
@@ -171,6 +172,25 @@ describe("packRepository", () => {
     expect(allContent).not.toContain("sk-proj-selected-secret");
     expect(allContent).not.toContain("sk-proj-dropped-secret");
     expect(output.audit.redactions).toBe(1);
+  });
+
+  test("emits workspace graph metadata for monorepos", async () => {
+    const output = await packRepository({
+      repo: { type: "local", pathOrUrl: monorepoFixtureRoot },
+      task: { mode: "question", query: "Where is auth implemented?", targetModel: "generic" },
+      budget: { maxTokens: 3000, hardLimit: true, reserveForPrompt: 100, reserveForAnswer: 400 },
+      scope: { includeTests: true, includeDocs: true },
+      security: { redactSecrets: true, emitAuditLog: true, allowRemoteConfig: false },
+      output: { format: "json" }
+    });
+
+    expect(output.workspaces?.packageManager).toBe("pnpm");
+    expect(output.workspaces?.packages.map((workspacePackage) => workspacePackage.name)).toEqual(
+      expect.arrayContaining(["@ctxsift/web", "@ctxsift/auth"])
+    );
+    expect(output.selectedFiles.find((file) => file.path === "packages/auth/src/index.ts")?.reasons).toContain(
+      "workspace package: @ctxsift/auth"
+    );
   });
 });
 
