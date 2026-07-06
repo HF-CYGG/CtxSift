@@ -31,9 +31,20 @@ assert.deepEqual(vscodeArgs, [
 assert.equal(resolveCtxSiftCommand({ extensionPath: "examples/vscode-command", workspaceRoot: "." }).args.length, 1);
 assert.equal(isAllowedPublicGitHubRepo("https://github.com/HF-CYGG/CtxSift"), true);
 assert.equal(isAllowedPublicGitHubRepo("https://github.com/HF-CYGG/CtxSift.git"), true);
+assert.equal(isAllowedPublicGitHubRepo("https://github.com/HF-CYGG/CtxSift?tab=readme"), false);
+assert.equal(isAllowedPublicGitHubRepo("https://github.com/HF-CYGG/CtxSift#readme"), false);
 assert.equal(isAllowedPublicGitHubRepo("git@github.com:HF-CYGG/CtxSift.git"), false);
 assert.equal(isAllowedPublicGitHubRepo("F:/StarForge/CtxSift"), false);
 assert.equal(isAllowedPublicGitHubRepo("https://example.com/HF-CYGG/CtxSift"), false);
+
+assert.throws(
+  () =>
+    buildPackArgs({
+      ask: "Where is routing?",
+      repo: "https://github.com/HF-CYGG/CtxSift?tab=readme"
+    }),
+  /repo must be a public https:\/\/github\.com\/owner\/repo URL/
+);
 
 assert.deepEqual(
   buildPackArgs({

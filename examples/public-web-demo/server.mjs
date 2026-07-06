@@ -7,7 +7,7 @@ import { promisify } from "node:util";
 
 const execFileAsync = promisify(execFile);
 const ALLOWED_PROFILES = new Set(["balanced", "private", "strict"]);
-const PUBLIC_GITHUB_REPO_PATTERN = /^https:\/\/github\.com\/[^/\s]+\/[^/\s]+(?:\.git)?$/i;
+const PUBLIC_GITHUB_REPO_PATTERN = /^https:\/\/github\.com\/[^/\s?#]+\/[^/\s?#]+(?:\.git)?$/i;
 
 export function isAllowedPublicGitHubRepo(value) {
   return typeof value === "string" && PUBLIC_GITHUB_REPO_PATTERN.test(value.trim());
