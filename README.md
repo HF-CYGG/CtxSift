@@ -134,9 +134,13 @@ CLI 参数
 
 ## 当前状态
 
-当前仓库处于 `v1.0.0` 发布候选状态，而不是已正式发布状态。
+当前仓库已正式发布 `v1.0.0`。
 
-已具备：
+发布页：
+
+- [CtxSift v1.0.0](https://github.com/HF-CYGG/CtxSift/releases/tag/v1.0.0)
+
+当前版本具备：
 
 - 可安装 CLI：`ctxsift`
 - 本地路径和公开 GitHub 仓库输入
@@ -148,7 +152,7 @@ CLI 参数
 - GitHub Actions CI
 - npm 发布前检查脚本
 
-发布门禁：
+当前发布门禁：
 
 ```bash
 pnpm run release:check
@@ -163,6 +167,8 @@ pnpm run release:check
 - `pnpm build`
 - `pnpm pack --dry-run`
 - `pnpm run audit:high`
+
+最近一次 `v1.0.0` 发布验证已通过完整门禁；GitHub Actions CI 对发布提交返回 `success`。
 
 ## 大型仓库实测
 
