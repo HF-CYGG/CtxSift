@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.0.0 - Unreleased
+## 1.0.0 - 2026-07-07
 
 - Added installable `ctxsift` CLI.
 - Added local directory and public GitHub repository inputs.
