@@ -86,6 +86,9 @@ function hasAsciiControlCharacter(value: string): boolean {
 }
 
 export function parsePullRequestNumber(event: { pull_request?: { number?: unknown } }): number {
+  if (typeof event !== "object" || event === null || Array.isArray(event)) {
+    throw new Error("GITHUB_EVENT_PATH does not contain a positive pull_request.number");
+  }
   const pullNumber = event.pull_request?.number;
   if (typeof pullNumber !== "number" || !Number.isSafeInteger(pullNumber) || pullNumber <= 0) {
     throw new Error("GITHUB_EVENT_PATH does not contain a positive pull_request.number");

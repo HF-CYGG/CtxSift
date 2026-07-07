@@ -4,6 +4,6 @@ export default defineConfig({
   test: {
     include: ["tests/*.test.ts"],
     exclude: ["tests/fixtures/**", "node_modules/**", "dist/**"],
-    pool: "threads"
+    pool: "forks"
   }
 });

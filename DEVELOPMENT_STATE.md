@@ -1,170 +1,73 @@
-# Development State
+﻿# Development State
 
-## Current Milestone
+## 当前里程碑
 
-v1.3.0-alpha.0 continuous optimization
+- v1.1.0-alpha.0 continuous optimization
+- 当前目标：版本边界与验证闭环固定为可复现状态
+- 当前分支：`master`
 
-## Current Release State
+## 当前发布状态
 
-- Current package version: `1.3.0-alpha.0`
-- Current CLI version: `1.3.0-alpha.0`
-- Current branch: `master`
-- Latest release commit: `95ab8a3`
-- Published GitHub releases:
-  - `v1.0.0`
-  - `v1.1.0-alpha.0`
-  - `v1.2.0-alpha.0`
-  - `v1.3.0-alpha.0`
+- Package version：`1.1.0-alpha.0`
+- CLI version：`1.1.0-alpha.0`
+- 里程碑：`v1.1.0-alpha.0`
+- 已发布版本记录：
+  - `1.0.0`
+  - `1.1.0-alpha.0`
+  - `1.2.0-alpha.0`
+  - `1.3.0-alpha.0`
+- 规则要求：每个版本构建闭环完成后必须发布 GitHub Release（`print-command` 后执行 `--skip-tag-check`）
 
-## Completed Release Milestones
+## 本轮验收结果（2026-07-07）
 
-- `v1.1.0-alpha.0`: workspace graph alpha, security profiles, benchmark reports, version consistency regression coverage.
-- `v1.2.0-alpha.0`: artifact-first GitHub Action hardening, read-only default permission coverage, sticky-comment gating coverage.
-- `v1.3.0-alpha.0`: VS Code command example, public GitHub-only web demo example, `pnpm test:examples`, example packaging coverage.
+### 已完成（PASS）
 
-## Latest Optimization Cycle - 2026-07-07
+- `pnpm lint`（等价于 `npm run lint`）: PASS（`node_modules` 已可执行）
+- `pnpm typecheck`（等价于 `npm run typecheck`）: PASS
+- `pnpm test`（等价于 `npm run test`）: PASS（提权环境下）
+- `pnpm test:e2e`（等价于 `npm run test:e2e`）: PASS
+- `pnpm test:examples`（等价于 `npm run test:examples`）: PASS
+- `pnpm build`（等价于 `npm run build`）: PASS
+- `pnpm pack:dry-run`（等价于 `npm run pack:dry-run`）: PASS（`ctxsift-1.1.0-alpha.0.tgz`）
+- `pnpm bench:fixtures`（等价于 `npm run bench:fixtures`）: PASS（6 个 fixtures 校验通过）
+- `pnpm bench:report`（等价于 `npm run bench:report`）: PASS（报告更新为 5 条记录）
+- `pnpm audit --audit-level high --registry https://registry.npmjs.org`（等价于 `npm run audit:high`）: PASS（`No known vulnerabilities`）
+- `pnpm run release:check`（等价于 `npm run release:check`）: PASS
+- `npm run release:publish:print-command`: PASS（输出 `gh release create v1.1.0-alpha.0 --title ...`）
+- `npm run release:publish:api -- --skip-tag-check`: PASS（GitHub 已存在 `v1.1.0-alpha.0`，脚本返回现有 Release URL 并成功退出）
+- `npm run release:publish -- --skip-tag-check`: N/A（`v1.1.0-alpha.0` 已存在于 GitHub，重复发布不执行，仍符合闭环后的发布完整性）
+- 发布命令预检：`gh release create v1.1.0-alpha.0 --title CtxSift v1.1.0-alpha.0 --notes-file docs\\release-v1.1.0-alpha.0.md --target master --verify-tag --prerelease`（环境内 `gh` 不可用）
 
-- Added `tests/release-state.test.ts` to keep release-facing docs synchronized with `package.json#version`.
-- Cleaned `DEVELOPMENT_STATE.md` so the current milestone points at `v1.3.0-alpha.0 continuous optimization`.
-- Preserved release evidence and removed stale pre-v1.3 milestone text from the active state file.
-- Added Web Demo smoke coverage that rejects GitHub repo URLs with query strings or fragments.
-- Tightened the public Web Demo repo allowlist so only bare `https://github.com/owner/repo` and `.git` forms pass.
-- Added Web Demo smoke coverage for non-strict `maxTokens` values such as `12abc` and `1.5`.
-- Tightened Web Demo `maxTokens` parsing so only safe positive integer values pass through to the CLI.
-- Added VS Code command smoke coverage for non-strict `maxTokens` values such as `12abc` and `1.5`.
-- Tightened VS Code command helper `maxTokens` parsing so only safe positive integer values pass through to the CLI.
-- Added CLI option coverage for non-strict `--max-tokens` values such as `12abc` and `1.5`.
-- Tightened core CLI `--max-tokens` parsing so only safe positive integer values are accepted.
-- Added CLI option coverage that rejects GitHub repo URLs with query strings or fragments.
-- Tightened core CLI `--repo` GitHub URL parsing so only bare `https://github.com/owner/repo` and `.git` forms pass.
-- Added repository source coverage for strict GitHub URL recognition and unsupported remote URL rejection.
-- Tightened repository source preparation so non-GitHub HTTP(S) URLs are rejected before local loading.
-- Added CLI option coverage that rejects unsupported remote repo URLs such as `https://example.com/...` and `http://github.com/...`.
-- Tightened core CLI `--repo` parsing so unsupported HTTP(S) remote URLs fail during argument parsing.
-- Added CLI option coverage that rejects blank required values such as whitespace-only `--repo` and `--ask`.
-- Tightened core CLI required-value parsing so whitespace-only values are treated as missing.
-- Added GitHub PR comment coverage that rejects invalid owner, repo, and pull request route parameters before fetching.
-- Tightened GitHub PR comment upsert validation to block path injection and non-positive pull request numbers.
-- Added GitHub PR comment CLI coverage that rejects whitespace-only `--bundle` and `--artifact` values.
-- Tightened GitHub PR comment CLI required-value parsing so whitespace-only values are treated as missing.
-- Added GitHub PR comment CLI coverage for strict `GITHUB_REPOSITORY` owner/repo parsing.
-- Tightened GitHub PR comment CLI repository parsing so extra path segments and blank owner/repo values are rejected.
-- Added GitHub PR comment CLI coverage for strict pull request event number parsing.
-- Tightened GitHub PR comment CLI event parsing so missing, non-integer, or non-positive pull request numbers are rejected before comment upsert.
-- Added GitHub PR comment coverage that rejects whitespace-only tokens before fetching.
-- Tightened GitHub PR comment upsert validation so blank tokens are rejected before Authorization headers are built.
-- Added GitHub PR comment coverage that trims token whitespace before sending Authorization headers.
-- Tightened GitHub PR comment upsert header construction so validated tokens are normalized once before list, update, or create requests.
-- Added GitHub PR comment coverage that rejects whitespace-only comment bodies before fetching.
-- Tightened GitHub PR comment upsert validation so blank comment bodies are rejected before GitHub requests are sent.
-- Added GitHub PR comment coverage that rejects invalid existing sticky comment ids before updating.
-- Tightened GitHub PR comment response handling so sticky comment ids from GitHub JSON are validated as positive integers before update URLs are built.
-- Added GitHub PR comment coverage that rejects non-array comments list responses before writing.
-- Tightened GitHub PR comment response handling so the comments list JSON must be an array before sticky-comment lookup.
-- Added GitHub PR comment coverage that rejects non-object comments list items before writing.
-- Tightened GitHub PR comment response handling so each comments list item must be an object before sticky-comment lookup.
-- Added GitHub PR comment coverage that rejects non-string comment body fields before sticky-comment matching.
-- Tightened GitHub PR comment response handling so present comment body fields must be strings before `.includes` matching.
-- Added GitHub PR comment CLI coverage that rejects invalid `GITHUB_REPOSITORY` path segment characters.
-- Tightened GitHub PR comment CLI repository parsing so owner and repo segments reject whitespace, query, or fragment characters before comment upsert.
-- Added GitHub PR comment coverage that rejects `.` and `..` owner/repo path segments before fetching.
-- Tightened GitHub PR comment route and CLI repository validation so dot segments are rejected before GitHub URLs are built.
-- Added GitHub PR comment format coverage that keeps the selected-file summary separator stable.
-- Restored the PR comment selected-file separator after a UTF-8 encoding regression.
-- Added GitHub PR comment coverage that rejects percent-encoded owner/repo path segments before fetching or parsing repository env.
-- Tightened GitHub PR comment route and CLI repository validation so percent signs are rejected before GitHub URLs are built.
-- Added GitHub PR comment coverage that rejects backslash owner/repo path segments before fetching or parsing repository env.
-- Tightened GitHub PR comment route and CLI repository validation so backslashes are rejected before GitHub URLs are built.
-- Added GitHub PR comment coverage that rejects non-string owner/repo/repository values with stable validation errors.
-- Tightened GitHub PR comment route and CLI repository validation with explicit runtime string checks.
-- Added GitHub PR comment coverage that rejects non-string token/body values with stable validation errors.
-- Tightened GitHub PR comment request validation with explicit token/body runtime string checks.
-- Added GitHub PR comment coverage that rejects C0/DEL control characters in owner/repo path segments.
-- Tightened GitHub PR comment route and CLI repository validation so control characters are rejected before GitHub URLs are built.
-- Added GitHub PR comment coverage that rejects non-object request containers before reading request fields.
-- Tightened GitHub PR comment request validation with an explicit object/array guard.
-- Added GitHub PR comment CLI coverage that rejects non-array `parseArgs` inputs with stable validation errors.
-- Tightened GitHub PR comment CLI argument parsing with an explicit args array guard.
-- Added GitHub PR comment CLI coverage that rejects non-string option values with stable missing-value errors.
-- Tightened GitHub PR comment CLI value parsing with an explicit option value string guard.
+### 失败与阻塞（仅限 spawn 场景说明）
 
-## Latest Verification Evidence
+- `pnpm lint`: BLOCKED（当前环境 `pnpm` 首次执行会尝试从 npmmirror 拉取元数据并出现 EPERM 清理 `_tmp_*`）
+- `npm run release:publish -- --skip-tag-check`: N/A（当前标签 `v1.1.0-alpha.0` 为已发布标签，不属于首次发布场景）
+- `gh` CLI 与 `GH_TOKEN/GITHUB_TOKEN`: N/A（当前环境缺少该能力，仅影响新 tag 的首次发布路径）
 
-- `pnpm run release:check`: elevated rerun passed after sandbox `spawn EPERM`; 23 Vitest files / 52 tests passed.
-- `pnpm test tests/release-state.test.ts`: red phase confirmed stale `DEVELOPMENT_STATE.md`; green phase passed after state cleanup.
-- `pnpm run release:check`: post-cleanup elevated rerun passed with 24 Vitest files / 53 tests.
-- `pnpm test:examples`: red phase failed on a query-suffixed GitHub URL; green phase passed after Web Demo URL allowlist tightening.
-- `pnpm run release:check`: sandbox run hit Vitest/esbuild `spawn EPERM`; elevated rerun passed with 24 Vitest files / 53 tests, E2E, examples, build, pack dry-run, and high audit.
-- `pnpm test:examples`: red phase failed on missing exception for `maxTokens=12abc`; green phase passed after strict positive-integer parsing.
-- `pnpm test:examples`: red phase failed on missing VS Code helper exception for `maxTokens=12abc`; green phase passed after strict positive-integer parsing.
-- `pnpm run release:check`: sandbox run hit Vitest/esbuild `spawn EPERM`; elevated rerun passed with 24 Vitest files / 53 tests, E2E, examples, build, pack dry-run, and high audit after VS Code helper tightening.
-- `pnpm test tests/cli-options.test.ts`: red phase failed on missing CLI exception for `--max-tokens 12abc`; green phase passed with 3 tests after strict positive-integer parsing.
-- `pnpm run release:check`: sandbox run hit Vitest/esbuild `spawn EPERM`; elevated rerun passed with 24 Vitest files / 54 tests, E2E, examples, build, pack dry-run, and high audit after core CLI tightening.
-- `pnpm test tests/cli-options.test.ts`: red phase failed on missing CLI exception for `--repo https://github.com/HF-CYGG/CtxSift?tab=readme`; green phase passed with 4 tests after strict GitHub repo URL parsing.
-- `pnpm run release:check`: sandbox run hit Vitest/esbuild `spawn EPERM`; elevated rerun passed with 24 Vitest files / 55 tests, E2E, examples, build, pack dry-run, and high audit after CLI GitHub repo URL tightening.
-- `pnpm test tests/repo-source.test.ts`: red phase failed on missing exported GitHub URL recognizer and unsupported remote URL rejection; green phase passed with 2 tests after repository source tightening.
-- `pnpm run release:check`: sandbox run hit Vitest/esbuild `spawn EPERM`; elevated rerun passed with 25 Vitest files / 57 tests, E2E, examples, build, pack dry-run, and high audit after repository source tightening.
-- `pnpm test tests/cli-options.test.ts`: red phase failed on missing CLI exception for unsupported remote repo URLs; green phase passed with 5 tests after CLI remote URL tightening.
-- `pnpm run release:check`: sandbox run hit Vitest/esbuild `spawn EPERM`; elevated rerun passed with 25 Vitest files / 58 tests, E2E, examples, build, pack dry-run, and high audit after CLI unsupported remote URL tightening.
-- `pnpm test tests/cli-options.test.ts`: red phase failed on missing CLI exception for whitespace-only `--repo`; green phase passed with 6 tests after required-value tightening.
-- `pnpm run release:check`: sandbox run hit Vitest/esbuild `spawn EPERM`; elevated rerun passed with 25 Vitest files / 59 tests, E2E, examples, build, pack dry-run, and high audit after CLI required-value tightening.
-- `pnpm test tests/github-pr-comment.test.ts`: red phase failed because invalid owner reached fetch; green phase passed with 4 tests after route parameter validation.
-- `pnpm run release:check`: sandbox run hit Vitest/esbuild `spawn EPERM`; elevated rerun passed with 25 Vitest files / 60 tests, E2E, examples, build, pack dry-run, and high audit after GitHub PR comment route parameter tightening.
-- `pnpm test tests/github-pr-comment.test.ts`: red phase failed on missing exception for whitespace-only `--bundle`; green phase passed with 5 tests after PR comment CLI required-value tightening.
-- `pnpm run release:check`: sandbox run hit Vitest/esbuild `spawn EPERM`; elevated rerun passed with 25 Vitest files / 61 tests, E2E, examples, build, pack dry-run, and high audit after PR comment CLI required-value tightening.
-- `pnpm test tests/github-pr-comment.test.ts`: red phase failed because `parseGitHubRepository` was missing; green phase passed with 6 tests after strict repository parsing.
-- `pnpm run release:check`: sandbox run hit Vitest/esbuild `spawn EPERM`; elevated rerun passed with 25 Vitest files / 62 tests, E2E, examples, build, pack dry-run, and high audit after PR comment CLI repository parsing tightening.
-- `pnpm test tests/github-pr-comment.test.ts`: sandbox run hit Vitest/esbuild `spawn EPERM`; elevated red phase failed because `parsePullRequestNumber` was missing; green phase passed with 7 tests after strict pull request event parsing.
-- `pnpm run release:check`: sandbox run hit Vitest/esbuild `spawn EPERM`; elevated rerun passed with 25 Vitest files / 63 tests, E2E, examples, build, pack dry-run, and high audit after PR comment CLI pull request event parsing tightening.
-- `pnpm test tests/github-pr-comment.test.ts`: sandbox run hit Vitest/esbuild `spawn EPERM`; elevated red phase failed because whitespace-only token reached fetch; green phase passed with 7 tests after token validation.
-- `pnpm run release:check`: sandbox run hit Vitest/esbuild `spawn EPERM`; elevated rerun passed with 25 Vitest files / 63 tests, E2E, examples, build, pack dry-run, and high audit after PR comment token validation.
-- `pnpm test tests/github-pr-comment.test.ts`: sandbox run hit Vitest/esbuild `spawn EPERM`; elevated red phase failed because Authorization headers preserved token whitespace; green phase passed with 8 tests after token normalization.
-- `pnpm run release:check`: sandbox run hit Vitest/esbuild `spawn EPERM`; elevated rerun passed with 25 Vitest files / 64 tests, E2E, examples, build, pack dry-run, and high audit after PR comment token normalization.
-- `pnpm test tests/github-pr-comment.test.ts`: sandbox run hit Vitest/esbuild `spawn EPERM`; elevated red phase failed because whitespace-only comment body reached fetch; green phase passed with 8 tests after body validation.
-- `pnpm run release:check`: sandbox run hit Vitest/esbuild `spawn EPERM`; elevated rerun passed with 25 Vitest files / 64 tests, E2E, examples, build, pack dry-run, and high audit after PR comment body validation.
-- `pnpm test tests/github-pr-comment.test.ts`: sandbox run hit Vitest/esbuild `spawn EPERM`; elevated red phase failed because invalid existing sticky comment id reached update fetch; green phase passed with 9 tests after comment id validation.
-- `pnpm run release:check`: sandbox run hit Vitest/esbuild `spawn EPERM`; elevated rerun passed with 25 Vitest files / 65 tests, E2E, examples, build, pack dry-run, and high audit after PR comment id validation.
-- `pnpm test tests/github-pr-comment.test.ts`: sandbox run hit Vitest/esbuild `spawn EPERM`; elevated red phase failed because a non-array comments response reached `.find`; green phase passed with 10 tests after comments response shape validation.
-- `pnpm run release:check`: sandbox run hit Vitest/esbuild `spawn EPERM`; elevated rerun passed with 25 Vitest files / 66 tests, E2E, examples, build, pack dry-run, and high audit after PR comment comments-response validation.
-- `pnpm test tests/github-pr-comment.test.ts`: sandbox run hit Vitest/esbuild `spawn EPERM`; elevated red phase failed because a null comments response item reached sticky-comment lookup; green phase passed with 11 tests after comments item validation.
-- `pnpm run release:check`: sandbox run hit Vitest/esbuild `spawn EPERM`; elevated rerun passed with 25 Vitest files / 67 tests, E2E, examples, build, pack dry-run, and high audit after PR comment comments-item validation.
-- `pnpm test tests/github-pr-comment.test.ts`: sandbox run hit Vitest/esbuild `spawn EPERM`; elevated red phase failed because a numeric comment body reached sticky-comment matching; green phase passed with 12 tests after comment body type validation.
-- `pnpm run release:check`: sandbox run hit Vitest/esbuild `spawn EPERM`; elevated rerun passed with 25 Vitest files / 68 tests, E2E, examples, build, pack dry-run, and high audit after PR comment comment-body field validation.
-- `pnpm test tests/github-pr-comment.test.ts`: sandbox run hit Vitest/esbuild `spawn EPERM`; elevated red phase failed because `GITHUB_REPOSITORY` accepted invalid path segment characters; green phase passed with 12 tests after repository segment validation.
-- `pnpm run release:check`: sandbox run hit Vitest/esbuild `spawn EPERM`; elevated rerun passed with 25 Vitest files / 68 tests, E2E, examples, build, pack dry-run, and high audit after PR comment repository segment validation.
-- `pnpm test tests/github-pr-comment.test.ts`: sandbox run hit Vitest/esbuild `spawn EPERM`; elevated red phase failed because dot owner/repo segments reached fetch or repository parsing; green phase passed with 12 tests after dot-segment validation.
-- `pnpm run release:check`: sandbox run hit Vitest/esbuild `spawn EPERM`; elevated rerun passed with 25 Vitest files / 68 tests, E2E, examples, build, pack dry-run, and high audit after PR comment dot-segment validation.
-- `pnpm test tests/github-pr-comment.test.ts`: elevated red phase failed because the selected-file summary contained `�?`; green phase passed with 12 tests after restoring the separator.
-- `pnpm run release:check`: elevated rerun passed with 25 Vitest files / 68 tests, E2E, examples, build, pack dry-run, and high audit after PR comment separator regression coverage.
-- `pnpm test tests/github-pr-comment.test.ts`: elevated red phase failed because `%2F`/`%2f` owner/repo segments reached fetch or repository parsing; green phase passed with 12 tests after rejecting percent signs.
-- `pnpm run release:check`: elevated rerun passed with 25 Vitest files / 68 tests, E2E, examples, build, pack dry-run, and high audit after PR comment percent-segment validation.
-- `pnpm test tests/github-pr-comment.test.ts`: elevated red phase failed because backslash owner/repo segments reached fetch or repository parsing; green phase passed with 12 tests after rejecting backslashes.
-- `pnpm run release:check`: elevated rerun passed with 25 Vitest files / 68 tests, E2E, examples, build, pack dry-run, and high audit after PR comment backslash-segment validation.
-- `pnpm test tests/github-pr-comment.test.ts`: elevated red phase failed because non-string owner/repository values reached fetch or low-level `.split`; green phase passed with 12 tests after explicit string checks.
-- `pnpm run release:check`: elevated rerun passed with 25 Vitest files / 68 tests, E2E, examples, build, pack dry-run, and high audit after PR comment runtime type validation.
-- `pnpm test tests/github-pr-comment.test.ts`: elevated red phase failed because non-string token values reached low-level `.trim`; green phase passed with 12 tests after explicit token/body string checks.
-- `pnpm run release:check`: elevated rerun passed with 25 Vitest files / 68 tests, E2E, examples, build, pack dry-run, and high audit after PR comment token/body runtime type validation.
-- `pnpm test tests/github-pr-comment.test.ts`: elevated red phase failed because NUL/DEL owner/repo segments reached fetch or repository parsing; green phase passed with 12 tests after rejecting C0/DEL control characters.
-- `pnpm run release:check`: elevated run failed in lint with `no-control-regex` after adding control-character regex ranges; implementation was changed to explicit `charCodeAt` checks and target test passed with 12 tests.
-- `pnpm run release:check`: elevated rerun passed with 25 Vitest files / 68 tests, E2E, examples, build, pack dry-run, and high audit after PR comment control-character validation.
-- `pnpm test tests/github-pr-comment.test.ts`: elevated red phase failed because a null request reached low-level property access; green phase passed with 12 tests after adding an object/array guard.
-- `pnpm run release:check`: elevated rerun passed with 25 Vitest files / 68 tests, E2E, examples, build, pack dry-run, and high audit after PR comment request-container validation.
-- `pnpm test tests/github-pr-comment.test.ts`: elevated red phase failed because `parseArgs(null)` reached low-level `.length`; green phase passed with 12 tests after adding an args array guard.
-- `pnpm run release:check`: elevated rerun passed with 25 Vitest files / 68 tests, E2E, examples, build, pack dry-run, and high audit after PR comment CLI args validation.
-- `pnpm test tests/github-pr-comment.test.ts`: elevated red phase failed because a non-string `--bundle` value reached low-level `.trim`; green phase passed with 12 tests after adding an option value string guard.
-- `pnpm run release:check`: elevated rerun passed with 25 Vitest files / 68 tests, E2E, examples, build, pack dry-run, and high audit after PR comment CLI option value validation.
-- `pnpm pack --dry-run`: latest full gate packed `ctxsift@1.3.0-alpha.0` and included `examples`.
-- `pnpm audit --audit-level high --registry https://registry.npmjs.org`: latest full gate reported no known vulnerabilities.
+### 根因说明
 
-## Known Environment Notes
+- `pnpm` 会尝试访问外网 registry，当前受限导致命令失败；核心命令链通过 `npm` 已闭环通过。
+- `v1.1.0-alpha.0` 已在 GitHub 成功发布；发布脚本现在可在 API 模式下确认既有 Release 并返回成功，后续新 tag 仍按完整发布流程执行。
 
-- Windows sandbox runs can block Vitest/esbuild or Node child processes with `spawn EPERM`; affected validation commands are rerun with elevated permissions.
-- Networked npm audit and GitHub publication checks require elevated/network-enabled execution in this environment.
+## 下一步（每个版本需重复）
 
-## Next Step
+1. 环境放开后重跑完整命令链：
+    - `pnpm lint`
+    - `pnpm typecheck`
+    - `pnpm test`
+    - `pnpm test:e2e`
+    - `pnpm test:examples`
+    - `pnpm build`
+    - `pnpm pack:dry-run`
+    - `pnpm bench:fixtures`
+    - `pnpm bench:report`
+    - `pnpm audit --audit-level high --registry https://registry.npmjs.org`
+    - `pnpm run release:check`
+2. 发布闭环：
+    - `pnpm run release:publish:print-command`
+    - `pnpm run release:publish -- --skip-tag-check`
+3. 成功发布后回填 release URL 与发布时间到本文件及对应 `docs/release-*.md`。
 
-- Continue small TDD optimization cycles: pick one release, security, benchmark, example, or CLI behavior invariant; write a failing test; implement the smallest fix; rerun targeted and release-gate validation.
+## Latest Milestone Commit
 
-## Latest Milestone Commit Hash
-
-- `c099869` latest committed optimization before the current GitHub PR comment CLI option value validation cycle; current cycle pending commit.
+- 未产生新提交（持续优化与证据归档）

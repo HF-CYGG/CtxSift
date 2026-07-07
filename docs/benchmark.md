@@ -18,7 +18,7 @@ pnpm bench:report
 - `pnpm bench` builds the CLI, validates fixtures, and writes both reports.
 - `pnpm bench:fixtures` checks that the benchmark fixture repositories exist.
 - `pnpm bench:report` runs the CLI against each fixture and writes
-  `benchmark-report.json` and `benchmark-report.md`.
+  `benchmarks/benchmark-report.json` and `benchmarks/benchmark-report.md`.
 
 ## Fixtures
 
@@ -55,14 +55,19 @@ similar local environments.
 
 ## Current Snapshot
 
-The committed report from the alpha benchmark run covers 6 fixtures:
+The committed report from the latest successful `pnpm bench:report` run covers:
 
-- Average relevant hit rate: 83.3%.
-- Average token saving ratio: 39.8%.
-- Average workspace package hit rate: 33.3%.
+- 5 fixtures (static local fixtures).
+- Average relevant hit rate: 80.0%.
+- Average token saving ratio: 47.7%.
+- Average workspace package hit rate: 40.0%.
 
-See [`benchmark-report.md`](../benchmark-report.md) for the generated Markdown
-table and [`benchmark-report.json`](../benchmark-report.json) for machine-readable
+`pr-diff` is generated at report time from a synthetic git fixture. In environments
+where `git` cannot be executed, that dynamic fixture is skipped and the static
+fixtures above are used.
+
+See [`benchmarks/benchmark-report.md`](../benchmarks/benchmark-report.md) for the generated Markdown
+table and [`benchmarks/benchmark-report.json`](../benchmarks/benchmark-report.json) for machine-readable
 results.
 
 The `nx-monorepo` fixture intentionally runs graph-only mode. It validates graph

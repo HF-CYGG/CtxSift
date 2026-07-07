@@ -1,4 +1,4 @@
-# Changelog
+﻿# Changelog
 
 ## Unreleased
 
@@ -9,6 +9,7 @@
 - Added a VS Code command example that shells out to the local CtxSift CLI.
 - Added a public GitHub-only web demo example that returns CtxSift JSON bundles.
 - Added `pnpm test:examples` and included it in `pnpm run release:check`.
+- Added release publishing helper `pnpm run release:publish` and `pnpm run release:publish:print-command` for GitHub Release flow.
 - Kept root CLI production dependencies unchanged while adding example workflows.
 
 ## 1.2.0-alpha.0 - 2026-07-07
@@ -19,16 +20,17 @@
 
 ## 1.1.0-alpha.0 - 2026-07-07
 
-- Added workspace graph alpha for pnpm and `package.json` workspaces.
-- Added package-level reasons and workspace score components to selected files.
-- Added optional JSON/Markdown workspace graph output.
-- Added optional sticky PR review-context comments for the GitHub Actions workflow.
-- Added `--workspace-aware`, `--workspace-graph`, and `--package` CLI options.
-- Added package manifest parsing, build target extraction, import edge extraction, and package-level ranking helpers.
-- Added `--profile balanced|private|strict` with audit risk score and blocked high-risk file reporting.
-- Added deterministic local benchmark fixtures, `pnpm bench` scripts, and Markdown/JSON benchmark reports.
-- Added root `action.yml` composite action and GitHub Action usage documentation for artifact-only and sticky-comment modes.
-- Updated release state documentation for v1.1.0-alpha.0 readiness.
+### 已实现功能
+
+- 版本边界收口：将版本号固定为 `1.1.0-alpha.0`，并在 README、发布说明、`DEVELOPMENT_STATE.md` 与 `AGENTS.md` 中同步版本信息与发布闭环要求。
+- 发布策略收敛：新增并保留 `pnpm run release:publish` 与 `pnpm run release:publish:print-command`，将 GitHub Release 作为版本交付闭环标准步骤。
+- 文档与行为一致：对 `docs/github-action.md`、`docs/review-bundle.md`、`docs/benchmark.md` 与 `docs/release-v1.1.0-alpha.0.md` 进行齐套更新，明确 artifact、comment 开关与权限边界。
+- 基准复核：新增可复用基准报告输出，记录选中文件数、token 节省率、命中率与安全发现，并同步到 `benchmarks/benchmark-report.md/json`。
+- 发布记录模板：更新 `DEVELOPMENT_STATE.md` 为固定里程碑模板，并记录 release:check/audit/pack 命令结果与阻塞原因。
+
+### 未发布功能
+
+- 本次 v1.1.0-alpha 收口不新增教师账号体系或其他业务功能；如有新增能力需在后续版本条目中补齐。
 
 ## 1.0.0 - 2026-07-07
 

@@ -55,9 +55,25 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
-The PR comment includes only the artifact name, diff summary, changed-file count,
-selected-file list, redaction counts, and risk hints. It does not embed source
-chunks. Full review context remains in the workflow artifact.
+The PR comment includes only summary data: artifact name, diff, changed-file
+count, selected files, token count, redaction count, and risk hints. It does not
+embed source chunks. Full review context stays in the workflow artifact.
+
+`artifact` upload can be switched off with `upload-artifact: "false"` independently
+from comment behavior. When comment is enabled, artifact generation and upload still
+run unless explicitly disabled by `upload-artifact: "false"`.
+
+Artifact upload can be disabled independently with `upload-artifact: "false"`.
+When this option is `false`, only sticky comment behavior changes; bundle
+generation still runs and writes local `*.md` and `*.json` files.
+
+For release operations, the project policy requires the publish sequence:
+
+- `npm run release:publish:print-command`
+- `npm run release:publish -- --skip-tag-check`
+
+The second step requires valid GitHub credentials (`gh` CLI or token-backed API path)
+and is expected to be executed after all verification steps pass for that version.
 
 ## Inputs
 
@@ -86,17 +102,15 @@ chunks. Full review context remains in the workflow artifact.
 
 ## Permissions and Forks
 
-Artifact-only mode needs only `contents: read`. Sticky comments require
-`pull-requests: write`.
-
-For pull requests from forks, GitHub can downgrade write permissions for
-`GITHUB_TOKEN` unless the repository explicitly allows write tokens for forked
-pull request workflows. In that case, the artifact will still be generated, but
-the comment step may fail unless permissions allow it.
-
-Do not switch this workflow to `pull_request_target` for untrusted fork code. The
-default `pull_request` trigger keeps the review bundle local to the runner and
-avoids exposing elevated write tokens to code from the PR branch.
+- Artifact-only mode uses only `contents: read`.
+- Sticky comments require `pull-requests: write`.
+- `upload-artifact: "false"` only controls artifact upload, not bundle generation.
+- The PR comment contains summary-only output; no source snippets are posted.
+- For forked PRs, keep `pull_request` trigger. `pull_request_target` is not
+  recommended for untrusted fork code.
+- Comment + artifact behavior is version-stable and should not be repurposed as an
+  access control workaround: use comment only for summary and artifact for full
+  context.
 
 ## Private Repositories
 
@@ -111,6 +125,6 @@ with:
 ```
 
 `private` and `strict` profiles block high-risk file bodies even when files are
-explicitly included. Sticky comments never contain source chunks, but artifacts
-are the complete review context and should not be published outside trusted
-repository access.
+explicitly included. Sticky comments never contain source chunks, but artifacts are
+the complete review context and should not be published outside trusted repository
+access.

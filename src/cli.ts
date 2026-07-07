@@ -1,12 +1,13 @@
 #!/usr/bin/env node
 import { promises as fs } from "node:fs";
 import path from "node:path";
+import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { parseDiffSpec } from "./diff.js";
 import { packRepository, renderPackOutput } from "./pack.js";
 import type { OutputFormat, PackMode, PackRequest, SecurityProfile } from "./types.js";
 
-const VERSION = "1.3.0-alpha.0";
+const VERSION = getPackageVersion();
 const GITHUB_REPO_URL_PATTERN = /^https:\/\/github\.com\/[^/\s?#]+\/[^/\s?#]+(?:\.git)?$/i;
 
 export type CliOptions = {
@@ -27,22 +28,24 @@ export type CliOptions = {
   debug: boolean;
 };
 
+export async function runCli(args: string[], options?: { emitWarnings: boolean }): Promise<string> {
+  const parsed = parseArgs(args);
+  if (options?.emitWarnings !== false && !parsed.redact) {
+      process.stderr.write("WARNING: --no-redact disables secret redaction. Do not share the generated bundle publicly.\n");
+  }
+  const request = createPackRequest(parsed);
+  const result = await packRepository(request);
+  const emitted = renderPackOutput(result, parsed.format);
+  if (parsed.output) {
+    await fs.writeFile(parsed.output, emitted, "utf8");
+  }
+  return emitted;
+}
+
 async function main(): Promise<void> {
   try {
-    const options = parseArgs(process.argv.slice(2));
-    if (!options.redact) {
-      process.stderr.write("WARNING: --no-redact disables secret redaction. Do not share the generated bundle publicly.\n");
-    }
-    const request = createPackRequest(options);
-    const result = await packRepository(request);
-    const emitted = renderPackOutput(result, options.format);
-
-    if (options.output) {
-      await fs.writeFile(options.output, emitted, "utf8");
-      return;
-    }
-
-    process.stdout.write(emitted);
+    const output = await runCli(process.argv.slice(2), { emitWarnings: true });
+    process.stdout.write(output);
   } catch (error) {
     process.stderr.write(`${formatError(error)}\n`);
     process.exitCode = 1;
@@ -284,4 +287,18 @@ function formatError(error: unknown): string {
 
 if (process.argv[1] && path.resolve(fileURLToPath(import.meta.url)) === path.resolve(process.argv[1])) {
   void main();
+}
+
+function getPackageVersion(): string {
+  try {
+    const packageJsonPath = new URL("../package.json", import.meta.url);
+    const raw = readFileSync(fileURLToPath(packageJsonPath), "utf8").replace(/^\uFEFF/, "");
+    const parsed = JSON.parse(raw);
+    if (typeof parsed?.version === "string" && parsed.version) {
+      return parsed.version;
+    }
+  } catch {
+    // Keep version derivation resilient in release packaging environments.
+  }
+  return "0.0.0";
 }

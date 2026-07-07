@@ -1,4 +1,4 @@
-# v1.3.0-alpha.0 Release Notes
+﻿# v1.3.0-alpha.0 Release Notes
 
 ## Summary
 
@@ -16,8 +16,7 @@ Release tag:
 - Public web demo example in `examples/public-web-demo`.
 - Web demo accepts only public `https://github.com/owner/repo` URLs.
 - Example workflows default to `profile: private`.
-- `pnpm test:examples` smoke-checks example argument construction and URL
-  safety.
+- `pnpm test:examples` smoke-checks example argument construction and URL safety.
 
 ## Verification
 
@@ -32,9 +31,20 @@ Release tag:
 - `pnpm bench:fixtures`
 - `pnpm bench:report`
 - `pnpm audit --audit-level high --registry https://registry.npmjs.org`
+- `pnpm run release:publish:print-command`
+- `pnpm run release:publish -- --skip-tag-check`
+  （需确认对应 `v<version>` 标签；当前环境如无 `gh` 或 token，记录为阻塞）
+- `npm run release:publish -- --skip-tag-check`
+  （当前环境无 `gh` 或 `GH_TOKEN`/`GITHUB_TOKEN`）
 
 ## Release Metadata
 
 - Version: `1.3.0-alpha.0`
 - Tag: `v1.3.0-alpha.0`
 - Release type: alpha prerelease
+- Published via GitHub Release:
+  `gh release create v1.3.0-alpha.0 --title "CtxSift v1.3.0-alpha.0" --notes-file docs/release-v1.3.0-alpha.0.md --target master --verify-tag --prerelease`
+
+## Release Flow Requirement
+
+- For every completed version milestone, run the release check and then execute the GitHub Release publish step (or record manual execution reason if blocked by environment).

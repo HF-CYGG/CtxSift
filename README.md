@@ -10,7 +10,7 @@
 
 <br />
 
-[![Release](https://img.shields.io/badge/Release-v1.3.0--alpha.0-000000?style=flat-square)](https://github.com/HF-CYGG/CtxSift/releases/tag/v1.3.0-alpha.0)
+[![Release](https://img.shields.io/badge/Release-v1.1.0--alpha.0-000000?style=flat-square)](https://github.com/HF-CYGG/CtxSift/releases/tag/v1.1.0-alpha.0)
 [![CI](https://img.shields.io/badge/CI-Passing-000000?style=flat-square)](https://github.com/HF-CYGG/CtxSift/actions)
 [![Node](https://img.shields.io/badge/Node-%3E%3D22-000000?style=flat-square)]()
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-000000?style=flat-square)]()
@@ -172,7 +172,7 @@ ctxsift --repo https://github.com/user/repo \
 | **Django** | Python Web 框架 | 7,100 | ~3.0s |
 | **Spring** | Java / Kotlin 框架 | 11,417 | ~5.0s |
 
-Fixture benchmark 使用 6 个本地样例，覆盖 simple TypeScript、pnpm monorepo、Turbo/Nx metadata、strict security profile 和 PR diff review bundle。完整结果见 [Benchmark 报告](benchmark-report.md) 和 [Benchmark 工具包](docs/benchmark.md)。
+Fixture benchmark 使用 6 个本地样例，覆盖 simple TypeScript、pnpm monorepo、Turbo/Nx metadata、strict security profile 和 PR diff review bundle。完整结果见 [Benchmark 报告](benchmarks/benchmark-report.md) 和 [Benchmark 工具包](docs/benchmark.md)。
 
 ---
 
@@ -203,10 +203,19 @@ pnpm lint
 pnpm typecheck
 pnpm test
 pnpm test:e2e
+pnpm test:examples
 pnpm build
 pnpm pack --dry-run
+pnpm bench:fixtures
+pnpm bench:report
 pnpm run release:check
+pnpm audit --audit-level high --registry https://registry.npmjs.org
 ```
+
+每个版本闭环完成后还应执行：
+
+- `pnpm run release:publish:print-command`
+- `pnpm run release:publish -- --skip-tag-check`
 
 ## 文档
 - [快速开始](docs/quickstart.md)

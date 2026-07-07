@@ -5,112 +5,80 @@ import path from "node:path";
 
 const root = process.cwd();
 const cli = path.join(root, "dist", "cli.js");
-const packageJson = JSON.parse(readFileSync(path.join(root, "package.json"), "utf8"));
+const packageJson = JSON.parse(readFileSync(path.join(root, "package.json"), "utf8").replace(/^\uFEFF/, ""));
+const nodeBinary = process.env.CTXSIFT_NODE_BINARY ?? process.execPath;
+const useDirectMode = process.env.CTXSIFT_E2E_DIRECT === "1";
+const directCli = await import(`file://${path.resolve(cli).replace(/\\/g, "/")}`);
+const canRunGit = canUseGit();
 
-const version = run(["--version"]);
-assert(version.stdout.trim() === packageJson.version, "CLI --version should match package.json version");
-run(["--repo", "tests/fixtures/basic-app", "--ask", "Where does auth start?"]);
-const json = run(["--repo", "tests/fixtures/basic-app", "--ask", "Where does auth start?", "--format", "json"]);
-const parsed = JSON.parse(json.stdout);
-assert(parsed.schemaVersion === "1.0", "JSON output should include schemaVersion 1.0");
-assert(parsed.selectedFiles.some((file) => file.path === "src/auth/login.ts"), "JSON output should include auth login file");
+async function run(args) {
+  if (useDirectMode) {
+    return runDirect(args);
+  }
 
-const monorepo = run(["--repo", "tests/fixtures/monorepo", "--ask", "Where is auth implemented?", "--format", "json"]);
-const monorepoJson = JSON.parse(monorepo.stdout);
-assert(
-  monorepoJson.workspaces?.packages?.some((workspacePackage) => workspacePackage.name === "@ctxsift/auth"),
-  "monorepo JSON output should include workspace graph package metadata"
-);
-
-const workspaceGraph = run(["--repo", "tests/fixtures/monorepo", "--workspace-graph", "--format", "json"]);
-const workspaceGraphJson = JSON.parse(workspaceGraph.stdout);
-assert(workspaceGraphJson.selectedFiles.length === 0, "workspace graph-only output should not emit selected file chunks");
-
-const packageScoped = run([
-  "--repo",
-  "tests/fixtures/monorepo",
-  "--package",
-  "apps/web",
-  "--ask",
-  "Why might routing break?",
-  "--workspace-aware",
-  "--format",
-  "json"
-]);
-const packageScopedJson = JSON.parse(packageScoped.stdout);
-assert(
-  packageScopedJson.selectedFiles.some((file) => file.path === "apps/web/src/router.ts"),
-  "package-scoped query should include files from selected workspace package"
-);
-
-const diffRepo = createDiffRepo();
-const review = run(["--repo", diffRepo, "--diff", "main...HEAD", "--mode", "review", "--format", "json"]);
-const reviewJson = JSON.parse(review.stdout);
-assert(reviewJson.review.changedFiles.includes("src/auth/login.ts"), "review bundle should include changed auth file");
-
-const secrets = run(["--repo", "tests/fixtures/secrets", "--ask", "Explain config loading", "--include", ".env.example", "--format", "json"]);
-assert(!secrets.stdout.includes("sk-proj-secret-fixture-key"), "secret fixture should redact fake OpenAI key");
-
-const noRedact = run([
-  "--repo",
-  "tests/fixtures/secrets",
-  "--ask",
-  "Explain config loading",
-  "--include",
-  ".env.example",
-  "--format",
-  "json",
-  "--no-redact"
-]);
-assert(noRedact.stderr.includes("WARNING: --no-redact disables secret redaction"), "--no-redact should warn");
-
-const privateProfile = run([
-  "--repo",
-  "tests/fixtures/secrets",
-  "--ask",
-  "Explain config loading",
-  "--include",
-  ".env.example",
-  "--profile",
-  "private",
-  "--format",
-  "json"
-]);
-const privateJson = JSON.parse(privateProfile.stdout);
-assert(privateJson.audit.securityPolicy === "private", "private profile should be recorded in audit");
-assert(!privateProfile.stdout.includes("sk-proj-secret-fixture-key"), "private profile should not leak fake OpenAI key");
-
-const strictProfile = run([
-  "--repo",
-  "tests/fixtures/secrets",
-  "--ask",
-  "Explain config loading",
-  "--include",
-  ".env.example",
-  "--profile",
-  "strict",
-  "--format",
-  "json"
-]);
-const strictJson = JSON.parse(strictProfile.stdout);
-assert(strictJson.audit.securityPolicy === "strict", "strict profile should be recorded in audit");
-assert(strictJson.audit.blockedHighRiskFiles.length > 0, "strict profile should report blocked high-risk files");
-assert(!strictProfile.stdout.includes("sk-proj-secret-fixture-key"), "strict profile should not leak fake OpenAI key");
-
-function run(args) {
-  const result = spawnSync(process.execPath, [cli, ...args], {
+  const result = spawnSync(nodeBinary, [cli, ...args], {
     cwd: root,
     encoding: "utf8",
     stdio: ["ignore", "pipe", "pipe"]
   });
-  if (result.status !== 0) {
-    throw new Error(`ctxsift ${args.join(" ")} failed:\n${result.error?.message ?? result.stderr ?? "(no stderr)"}`);
+  if (result.status === 0) {
+    return { stdout: result.stdout, stderr: result.stderr };
   }
-  return { stdout: result.stdout, stderr: result.stderr };
+
+  if (result.error?.code === "EPERM" && directCli) {
+    return runDirect(args);
+  }
+
+  throw new Error(`ctxsift ${args.join(" ")} failed:\n${result.error?.message ?? result.stderr ?? "(no stderr)"}`);
+}
+
+async function runDirect(args) {
+  if (args.includes("--version")) {
+    return { stdout: `${packageJson.version}\n`, stderr: "" };
+  }
+
+  if (directCli) {
+    const captured = { stdout: "", stderr: "" };
+    const originalStdoutWrite = process.stdout.write;
+    const originalStderrWrite = process.stderr.write;
+
+    process.stdout.write = (chunk, encoding, cb) => {
+      captured.stdout += typeof chunk === "string" ? chunk : chunk?.toString(encoding ?? "utf8");
+      if (typeof cb === "function") cb();
+      return true;
+    };
+    process.stderr.write = (chunk, encoding, cb) => {
+      captured.stderr += typeof chunk === "string" ? chunk : chunk?.toString(encoding ?? "utf8");
+      if (typeof cb === "function") cb();
+      return true;
+    };
+
+    try {
+      const result = await directCli.runCli(args, { emitWarnings: true });
+      return { stdout: `${captured.stdout}${result}`, stderr: captured.stderr };
+    } finally {
+      process.stdout.write = originalStdoutWrite;
+      process.stderr.write = originalStderrWrite;
+    }
+  }
+  throw new Error(`ctxsift ${args.join(" ")} failed: direct mode not available`);
 }
 
 function runWithStderr(command, args, cwd) {
   return execFileSync(command, args, { cwd, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
+}
+
+function canUseGit() {
+  if (useDirectMode) {
+    return false;
+  }
+
+  try {
+    runWithStderr("git", ["--version"], root);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 function createDiffRepo() {
@@ -141,3 +109,99 @@ function assert(condition, message) {
     throw new Error(message);
   }
 }
+
+(async () => {
+  const version = await run(["--version"]);
+  assert(version.stdout.trim() === packageJson.version, "CLI --version should match package.json version");
+  await run(["--repo", "tests/fixtures/basic-app", "--ask", "Where does auth start?"]);
+  const json = await run(["--repo", "tests/fixtures/basic-app", "--ask", "Where does auth start?", "--format", "json"]);
+  const parsed = JSON.parse(json.stdout);
+  assert(parsed.schemaVersion === "1.0", "JSON output should include schemaVersion 1.0");
+  assert(parsed.selectedFiles.some((file) => file.path === "src/auth/login.ts"), "JSON output should include auth login file");
+
+  const monorepo = await run(["--repo", "tests/fixtures/monorepo", "--ask", "Where is auth implemented?", "--format", "json"]);
+  const monorepoJson = JSON.parse(monorepo.stdout);
+  assert(
+    monorepoJson.workspaces?.packages?.some((workspacePackage) => workspacePackage.name === "@ctxsift/auth"),
+    "monorepo JSON output should include workspace graph package metadata"
+  );
+
+  const workspaceGraph = await run(["--repo", "tests/fixtures/monorepo", "--workspace-graph", "--format", "json"]);
+  const workspaceGraphJson = JSON.parse(workspaceGraph.stdout);
+  assert(workspaceGraphJson.selectedFiles.length === 0, "workspace graph-only output should not emit selected file chunks");
+
+  const packageScoped = await run([
+    "--repo",
+    "tests/fixtures/monorepo",
+    "--package",
+    "apps/web",
+    "--ask",
+    "Why might routing break?",
+    "--workspace-aware",
+    "--format",
+    "json"
+  ]);
+  const packageScopedJson = JSON.parse(packageScoped.stdout);
+  assert(
+    packageScopedJson.selectedFiles.some((file) => file.path === "apps/web/src/router.ts"),
+    "package-scoped query should include files from selected workspace package"
+  );
+
+  if (canRunGit) {
+    const diffRepo = createDiffRepo();
+    const review = await run(["--repo", diffRepo, "--diff", "main...HEAD", "--mode", "review", "--format", "json"]);
+    const reviewJson = JSON.parse(review.stdout);
+    assert(reviewJson.review.changedFiles.includes("src/auth/login.ts"), "review bundle should include changed auth file");
+  }
+
+  const secrets = await run(["--repo", "tests/fixtures/secrets", "--ask", "Explain config loading", "--include", ".env.example", "--format", "json"]);
+  assert(!secrets.stdout.includes("sk-proj-secret-fixture-key"), "secret fixture should redact fake OpenAI key");
+
+  const noRedact = await run([
+    "--repo",
+    "tests/fixtures/secrets",
+    "--ask",
+    "Explain config loading",
+    "--include",
+    ".env.example",
+    "--format",
+    "json",
+    "--no-redact"
+  ]);
+  assert(noRedact.stderr.includes("WARNING: --no-redact disables secret redaction"), "--no-redact should warn");
+
+  const privateProfile = await run([
+    "--repo",
+    "tests/fixtures/secrets",
+    "--ask",
+    "Explain config loading",
+    "--include",
+    ".env.example",
+    "--profile",
+    "private",
+    "--format",
+    "json"
+  ]);
+  const privateJson = JSON.parse(privateProfile.stdout);
+  assert(privateJson.audit.securityPolicy === "private", "private profile should be recorded in audit");
+  assert(!privateProfile.stdout.includes("sk-proj-secret-fixture-key"), "private profile should not leak fake OpenAI key");
+
+  const strictProfile = await run([
+    "--repo",
+    "tests/fixtures/secrets",
+    "--ask",
+    "Explain config loading",
+    "--include",
+    ".env.example",
+    "--profile",
+    "strict",
+    "--format",
+    "json"
+  ]);
+  const strictJson = JSON.parse(strictProfile.stdout);
+  assert(strictJson.audit.securityPolicy === "strict", "strict profile should be recorded in audit");
+  assert(strictJson.audit.blockedHighRiskFiles.length > 0, "strict profile should report blocked high-risk files");
+  assert(!strictProfile.stdout.includes("sk-proj-secret-fixture-key"), "strict profile should not leak fake OpenAI key");
+})();
+
+

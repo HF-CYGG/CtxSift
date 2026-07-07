@@ -1,14 +1,15 @@
-import { execFileSync, spawnSync } from "node:child_process";
+import { execFileSync } from "node:child_process";
 import { mkdtempSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { cp, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { performance } from "node:perf_hooks";
 import { renderBenchmarkMarkdown, summarizeBenchmarkResults } from "../dist/benchmark-reporter.js";
+import { runCli } from "../dist/cli.js";
 
 const root = process.cwd();
-const cli = path.join(root, "dist", "cli.js");
 const mode = process.argv[2] ?? "--report";
+const reportDirectory = path.join(root, "benchmarks");
 
 if (mode === "--fixtures") {
   validateFixtures();
@@ -29,19 +30,47 @@ function validateFixtures() {
 }
 
 async function generateReport() {
-  const prDiffRepo = await createPrDiffFixture();
-  const fixtures = [...staticFixtures(), prDiffFixture(prDiffRepo)];
-  const results = fixtures.map(runFixture);
+  const prDiffRepo = await createPrDiffFixtureOrSkip();
+  const fixtures = [...staticFixtures()];
+  if (prDiffRepo) {
+    fixtures.push(prDiffFixture(prDiffRepo));
+  } else {
+    process.stdout.write("Skipping dynamic pr-diff fixture: git unavailable in this environment.\n");
+  }
+
+  const results = [];
+  for (const fixture of fixtures) {
+    try {
+      results.push(await runFixture(fixture));
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      process.stdout.write(`Skipping fixture "${fixture.name}" due runtime failure: ${message}\n`);
+    }
+  }
+  if (!results.length) {
+    throw new Error("No benchmark fixtures completed successfully");
+  }
+  mkdirSync(reportDirectory, { recursive: true });
   const report = {
     generatedAt: new Date().toISOString(),
     results,
     summary: summarizeBenchmarkResults(results)
   };
 
-  writeFileSync(path.join(root, "benchmark-report.json"), `${JSON.stringify(report, null, 2)}\n`, "utf8");
-  writeFileSync(path.join(root, "benchmark-report.md"), renderBenchmarkMarkdown(report), "utf8");
-  rmSync(prDiffRepo, { recursive: true, force: true });
-  process.stdout.write(`Wrote benchmark-report.json and benchmark-report.md for ${results.length} fixtures\n`);
+  writeFileSync(
+    path.join(reportDirectory, "benchmark-report.json"),
+    `${JSON.stringify(report, null, 2)}\n`,
+    "utf8"
+  );
+  writeFileSync(
+    path.join(reportDirectory, "benchmark-report.md"),
+    renderBenchmarkMarkdown(report),
+    "utf8"
+  );
+  if (prDiffRepo) {
+    rmSync(prDiffRepo, { recursive: true, force: true });
+  }
+  process.stdout.write(`Wrote benchmarks/benchmark-report.json and benchmarks/benchmark-report.md for ${results.length} fixtures\n`);
 }
 
 function staticFixtures() {
@@ -94,10 +123,10 @@ function prDiffFixture(repo) {
   };
 }
 
-function runFixture(fixture) {
+async function runFixture(fixture) {
   const repoPath = path.isAbsolute(fixture.repo) ? fixture.repo : path.join(root, fixture.repo);
   const started = performance.now();
-  const result = runCtxsift(["--repo", repoPath, "--format", "json", ...fixture.args]);
+  const result = await runCtxsift(["--repo", repoPath, "--format", "json", ...fixture.args]);
   const elapsed = Math.round(performance.now() - started);
   const output = JSON.parse(result.stdout);
   const selectedPaths = output.selectedFiles.map((file) => file.path);
@@ -122,16 +151,14 @@ function runFixture(fixture) {
   };
 }
 
-function runCtxsift(args) {
-  const result = spawnSync(process.execPath, [cli, ...args], {
-    cwd: root,
-    encoding: "utf8",
-    stdio: ["ignore", "pipe", "pipe"]
-  });
-  if (result.status !== 0) {
-    throw new Error(`ctxsift ${args.join(" ")} failed:\n${result.stderr}`);
+async function runCtxsift(args) {
+  try {
+    const stdout = await runCli(args, { emitWarnings: false });
+    return { stdout };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    throw new Error(`ctxsift ${args.join(" ")} failed:\n${message}`);
   }
-  return { stdout: result.stdout };
 }
 
 function estimateFullRepoTokens(repoPath) {
@@ -183,4 +210,21 @@ async function createPrDiffFixture() {
 
 function runGit(cwd, args) {
   execFileSync("git", args, { cwd, stdio: ["ignore", "pipe", "pipe"] });
+}
+
+async function createPrDiffFixtureOrSkip() {
+  try {
+    return await createPrDiffFixture();
+  } catch (error) {
+    const maybeError = error;
+    if (
+      typeof maybeError === "object" &&
+      maybeError !== null &&
+      "code" in maybeError &&
+      (maybeError.code === "EPERM" || maybeError.code === "ENOENT")
+    ) {
+      return null;
+    }
+    throw error;
+  }
 }

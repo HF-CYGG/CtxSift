@@ -268,6 +268,9 @@ describe("github PR comments", () => {
 
   test("parses pull request event number strictly", () => {
     expect(parsePullRequestNumber({ pull_request: { number: 7 } })).toBe(7);
+    expect(() => parsePullRequestNumber(null as never)).toThrow(
+      "GITHUB_EVENT_PATH does not contain a positive pull_request.number"
+    );
     expect(() => parsePullRequestNumber({})).toThrow("GITHUB_EVENT_PATH does not contain a positive pull_request.number");
     expect(() => parsePullRequestNumber({ pull_request: { number: 0 } })).toThrow(
       "GITHUB_EVENT_PATH does not contain a positive pull_request.number"

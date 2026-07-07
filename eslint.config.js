@@ -5,13 +5,31 @@ export default tseslint.config(
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
-    ignores: ["dist/**", "node_modules/**", "tests/fixtures/**", "large-project-test/**"]
+    ignores: [
+      "dist/**",
+      "node_modules/**",
+      "tests/fixtures/**",
+      "large-project-test/**",
+      "vitest-config-no-ts.mjs",
+      "tmp-vitest-no-ts.cjs",
+      "tmp-vitest.config.js",
+      "tmp-npm-cache/**",
+      "tmp-vitest-commonjs.config.cjs",
+      "tmp-esbuild.exe",
+      "tmp-*.js",
+      "tmp-*.mjs",
+      "tmp-*.cjs",
+      "_tmp_*",
+      ".tmp-vitest.config.js",
+      ".tmp-vitest-no-ts.cjs"
+    ]
   },
   {
     files: ["scripts/**/*.mjs"],
     languageOptions: {
       globals: {
-        process: "readonly"
+        process: "readonly",
+        console: "readonly"
       }
     }
   },
