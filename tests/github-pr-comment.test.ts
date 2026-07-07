@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { buildReviewComment, CTXSIFT_COMMENT_MARKER, upsertPullRequestComment } from "../src/github-pr-comment.js";
-import { parseArgs } from "../src/pr-comment-cli.js";
+import { parseArgs, parseGitHubRepository } from "../src/pr-comment-cli.js";
 import type { PackOutput } from "../src/types.js";
 
 describe("github PR comments", () => {
@@ -80,6 +80,13 @@ describe("github PR comments", () => {
   test("rejects blank PR comment CLI option values", () => {
     expect(() => parseArgs(["--bundle", "   "])).toThrow("Missing value for --bundle");
     expect(() => parseArgs(["--artifact", "   "])).toThrow("Missing value for --artifact");
+  });
+
+  test("parses GitHub repository environment strictly", () => {
+    expect(parseGitHubRepository("acme/demo")).toEqual({ owner: "acme", repo: "demo" });
+    expect(() => parseGitHubRepository("acme/demo/extra")).toThrow("GITHUB_REPOSITORY must use owner/repo format");
+    expect(() => parseGitHubRepository("acme/   ")).toThrow("GITHUB_REPOSITORY must use owner/repo format");
+    expect(() => parseGitHubRepository("   /demo")).toThrow("GITHUB_REPOSITORY must use owner/repo format");
   });
 });
 

@@ -17,10 +17,7 @@ async function main(): Promise<void> {
     const token = requireEnv("GITHUB_TOKEN");
     const repository = requireEnv("GITHUB_REPOSITORY");
     const eventPath = requireEnv("GITHUB_EVENT_PATH");
-    const [owner, repo] = repository.split("/");
-    if (!owner || !repo) {
-      throw new Error("GITHUB_REPOSITORY must use owner/repo format");
-    }
+    const { owner, repo } = parseGitHubRepository(repository);
 
     const event = JSON.parse(await fs.readFile(eventPath, "utf8")) as { pull_request?: { number?: number } };
     const pullNumber = event.pull_request?.number;
@@ -65,6 +62,14 @@ export function parseArgs(args: string[]): CliOptions {
   }
 
   return options;
+}
+
+export function parseGitHubRepository(value: string): { owner: string; repo: string } {
+  const parts = value.split("/").map((part) => part.trim());
+  if (parts.length !== 2 || !parts[0] || !parts[1]) {
+    throw new Error("GITHUB_REPOSITORY must use owner/repo format");
+  }
+  return { owner: parts[0], repo: parts[1] };
 }
 
 function requireValue(flag: string, value: string | undefined): string {
