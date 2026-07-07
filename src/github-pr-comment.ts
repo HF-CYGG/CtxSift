@@ -87,10 +87,10 @@ function validateUpsertCommentRequest(request: UpsertCommentRequest): void {
   if (!Number.isSafeInteger(request.pullNumber) || request.pullNumber <= 0) {
     throw new Error("pullNumber must be a positive integer");
   }
-  if (!request.token.trim()) {
+  if (typeof request.token !== "string" || !request.token.trim()) {
     throw new Error("token must be non-empty");
   }
-  if (!request.body.trim()) {
+  if (typeof request.body !== "string" || !request.body.trim()) {
     throw new Error("body must be non-empty");
   }
 }

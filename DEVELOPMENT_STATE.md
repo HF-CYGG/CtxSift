@@ -77,6 +77,8 @@ v1.3.0-alpha.0 continuous optimization
 - Tightened GitHub PR comment route and CLI repository validation so backslashes are rejected before GitHub URLs are built.
 - Added GitHub PR comment coverage that rejects non-string owner/repo/repository values with stable validation errors.
 - Tightened GitHub PR comment route and CLI repository validation with explicit runtime string checks.
+- Added GitHub PR comment coverage that rejects non-string token/body values with stable validation errors.
+- Tightened GitHub PR comment request validation with explicit token/body runtime string checks.
 
 ## Latest Verification Evidence
 
@@ -132,6 +134,8 @@ v1.3.0-alpha.0 continuous optimization
 - `pnpm run release:check`: elevated rerun passed with 25 Vitest files / 68 tests, E2E, examples, build, pack dry-run, and high audit after PR comment backslash-segment validation.
 - `pnpm test tests/github-pr-comment.test.ts`: elevated red phase failed because non-string owner/repository values reached fetch or low-level `.split`; green phase passed with 12 tests after explicit string checks.
 - `pnpm run release:check`: elevated rerun passed with 25 Vitest files / 68 tests, E2E, examples, build, pack dry-run, and high audit after PR comment runtime type validation.
+- `pnpm test tests/github-pr-comment.test.ts`: elevated red phase failed because non-string token values reached low-level `.trim`; green phase passed with 12 tests after explicit token/body string checks.
+- `pnpm run release:check`: elevated rerun passed with 25 Vitest files / 68 tests, E2E, examples, build, pack dry-run, and high audit after PR comment token/body runtime type validation.
 - `pnpm pack --dry-run`: latest full gate packed `ctxsift@1.3.0-alpha.0` and included `examples`.
 - `pnpm audit --audit-level high --registry https://registry.npmjs.org`: latest full gate reported no known vulnerabilities.
 
@@ -146,4 +150,4 @@ v1.3.0-alpha.0 continuous optimization
 
 ## Latest Milestone Commit Hash
 
-- `97ad205` latest committed optimization before the current GitHub PR comment runtime type validation cycle; current cycle pending commit.
+- `46a3aa6` latest committed optimization before the current GitHub PR comment token/body runtime type validation cycle; current cycle pending commit.
