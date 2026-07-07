@@ -35,6 +35,7 @@
 - `pnpm audit --audit-level high --registry https://registry.npmjs.org`（等价于 `npm run audit:high`）: PASS（`No known vulnerabilities`）
 - `pnpm run release:check`（等价于 `npm run release:check`）: PASS
 - `npm run release:publish:print-command`: PASS（输出 `gh release create v1.1.0-alpha.1 --title ...`）
+- `git push origin v1.1.0-alpha.1`: PASS（tag 已推送，指向 `30fc0964821c0eb6b7fc146355818fdb1063339a`）
 - `npm run release:publish`: BLOCKED（当前环境无 `gh` 且无 `GH_TOKEN/GITHUB_TOKEN`）
 - `npm run release:publish:api`: BLOCKED（GitHub API 返回 `401 Requires authentication`）
 - 发布命令预检：`gh release create v1.1.0-alpha.1 --title CtxSift v1.1.0-alpha.1 --notes-file docs\\release-v1.1.0-alpha.1.md --target master --verify-tag --prerelease`
@@ -50,6 +51,7 @@
 
 - `pnpm` 会尝试访问外网 registry，当前受限导致命令失败；核心命令链通过 `npm` 已闭环通过。
 - `v1.1.0-alpha.0` 已在 GitHub 成功发布，但该 tag 指向旧提交；当前 `master` 后续收口提交必须使用新 tag `v1.1.0-alpha.1` 发布，不能移动旧 tag。
+- `v1.1.0-alpha.1` tag 已推送并指向当前收口提交；GitHub Release 页面仍需 `gh` 登录态或 `GH_TOKEN/GITHUB_TOKEN` 才能创建。
 
 ## 下一步（每个版本需重复）
 
