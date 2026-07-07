@@ -70,4 +70,4 @@
 
 ## Latest Milestone Commit
 
-- 未产生新提交（持续优化与证据归档）
+- `0c77c6a`（chore: 收口 v1.1.0-alpha 发布闭环）
