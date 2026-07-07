@@ -36,6 +36,9 @@ async function main(): Promise<void> {
 }
 
 export function parseArgs(args: string[]): CliOptions {
+  if (!Array.isArray(args)) {
+    throw new Error("args must be an array");
+  }
   const options: CliOptions = {
     bundlePath: "review-context.json",
     artifactName: "ctxsift-review-context"

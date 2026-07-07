@@ -239,6 +239,8 @@ describe("github PR comments", () => {
   });
 
   test("rejects blank PR comment CLI option values", () => {
+    expect(() => parseArgs(null as never)).toThrow("args must be an array");
+    expect(() => parseArgs("--bundle" as never)).toThrow("args must be an array");
     expect(() => parseArgs(["--bundle", "   "])).toThrow("Missing value for --bundle");
     expect(() => parseArgs(["--artifact", "   "])).toThrow("Missing value for --artifact");
   });
