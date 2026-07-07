@@ -19,11 +19,8 @@ async function main(): Promise<void> {
     const eventPath = requireEnv("GITHUB_EVENT_PATH");
     const { owner, repo } = parseGitHubRepository(repository);
 
-    const event = JSON.parse(await fs.readFile(eventPath, "utf8")) as { pull_request?: { number?: number } };
-    const pullNumber = event.pull_request?.number;
-    if (!pullNumber) {
-      throw new Error("GITHUB_EVENT_PATH does not contain pull_request.number");
-    }
+    const event = JSON.parse(await fs.readFile(eventPath, "utf8")) as { pull_request?: { number?: unknown } };
+    const pullNumber = parsePullRequestNumber(event);
 
     await upsertPullRequestComment({
       owner,
@@ -70,6 +67,14 @@ export function parseGitHubRepository(value: string): { owner: string; repo: str
     throw new Error("GITHUB_REPOSITORY must use owner/repo format");
   }
   return { owner: parts[0], repo: parts[1] };
+}
+
+export function parsePullRequestNumber(event: { pull_request?: { number?: unknown } }): number {
+  const pullNumber = event.pull_request?.number;
+  if (typeof pullNumber !== "number" || !Number.isSafeInteger(pullNumber) || pullNumber <= 0) {
+    throw new Error("GITHUB_EVENT_PATH does not contain a positive pull_request.number");
+  }
+  return pullNumber;
 }
 
 function requireValue(flag: string, value: string | undefined): string {

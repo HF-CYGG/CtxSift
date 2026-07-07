@@ -48,6 +48,8 @@ v1.3.0-alpha.0 continuous optimization
 - Tightened GitHub PR comment CLI required-value parsing so whitespace-only values are treated as missing.
 - Added GitHub PR comment CLI coverage for strict `GITHUB_REPOSITORY` owner/repo parsing.
 - Tightened GitHub PR comment CLI repository parsing so extra path segments and blank owner/repo values are rejected.
+- Added GitHub PR comment CLI coverage for strict pull request event number parsing.
+- Tightened GitHub PR comment CLI event parsing so missing, non-integer, or non-positive pull request numbers are rejected before comment upsert.
 
 ## Latest Verification Evidence
 
@@ -75,6 +77,8 @@ v1.3.0-alpha.0 continuous optimization
 - `pnpm run release:check`: sandbox run hit Vitest/esbuild `spawn EPERM`; elevated rerun passed with 25 Vitest files / 61 tests, E2E, examples, build, pack dry-run, and high audit after PR comment CLI required-value tightening.
 - `pnpm test tests/github-pr-comment.test.ts`: red phase failed because `parseGitHubRepository` was missing; green phase passed with 6 tests after strict repository parsing.
 - `pnpm run release:check`: sandbox run hit Vitest/esbuild `spawn EPERM`; elevated rerun passed with 25 Vitest files / 62 tests, E2E, examples, build, pack dry-run, and high audit after PR comment CLI repository parsing tightening.
+- `pnpm test tests/github-pr-comment.test.ts`: sandbox run hit Vitest/esbuild `spawn EPERM`; elevated red phase failed because `parsePullRequestNumber` was missing; green phase passed with 7 tests after strict pull request event parsing.
+- `pnpm run release:check`: sandbox run hit Vitest/esbuild `spawn EPERM`; elevated rerun passed with 25 Vitest files / 63 tests, E2E, examples, build, pack dry-run, and high audit after PR comment CLI pull request event parsing tightening.
 - `pnpm pack --dry-run`: latest full gate packed `ctxsift@1.3.0-alpha.0` and included `examples`.
 - `pnpm audit --audit-level high --registry https://registry.npmjs.org`: latest full gate reported no known vulnerabilities.
 
@@ -89,4 +93,4 @@ v1.3.0-alpha.0 continuous optimization
 
 ## Latest Milestone Commit Hash
 
-- `af1a7bc` latest committed optimization before the current Web Demo allowlist cycle; current cycle pending commit.
+- current pull request event parsing cycle pending commit.

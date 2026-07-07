@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { buildReviewComment, CTXSIFT_COMMENT_MARKER, upsertPullRequestComment } from "../src/github-pr-comment.js";
-import { parseArgs, parseGitHubRepository } from "../src/pr-comment-cli.js";
+import { parseArgs, parseGitHubRepository, parsePullRequestNumber } from "../src/pr-comment-cli.js";
 import type { PackOutput } from "../src/types.js";
 
 describe("github PR comments", () => {
@@ -87,6 +87,17 @@ describe("github PR comments", () => {
     expect(() => parseGitHubRepository("acme/demo/extra")).toThrow("GITHUB_REPOSITORY must use owner/repo format");
     expect(() => parseGitHubRepository("acme/   ")).toThrow("GITHUB_REPOSITORY must use owner/repo format");
     expect(() => parseGitHubRepository("   /demo")).toThrow("GITHUB_REPOSITORY must use owner/repo format");
+  });
+
+  test("parses pull request event number strictly", () => {
+    expect(parsePullRequestNumber({ pull_request: { number: 7 } })).toBe(7);
+    expect(() => parsePullRequestNumber({})).toThrow("GITHUB_EVENT_PATH does not contain a positive pull_request.number");
+    expect(() => parsePullRequestNumber({ pull_request: { number: 0 } })).toThrow(
+      "GITHUB_EVENT_PATH does not contain a positive pull_request.number"
+    );
+    expect(() => parsePullRequestNumber({ pull_request: { number: "7" } })).toThrow(
+      "GITHUB_EVENT_PATH does not contain a positive pull_request.number"
+    );
   });
 });
 
