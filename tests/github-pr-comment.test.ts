@@ -76,6 +76,11 @@ describe("github PR comments", () => {
       artifactName: "ctxsift-review-context"
     });
   });
+
+  test("rejects blank PR comment CLI option values", () => {
+    expect(() => parseArgs(["--bundle", "   "])).toThrow("Missing value for --bundle");
+    expect(() => parseArgs(["--artifact", "   "])).toThrow("Missing value for --artifact");
+  });
 });
 
 function jsonResponse(value: unknown): Response {
