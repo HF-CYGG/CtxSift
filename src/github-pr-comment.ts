@@ -16,7 +16,7 @@ export type UpsertCommentRequest = {
 
 type FetchLike = (url: string | URL, init?: RequestInit) => Promise<Response>;
 type GitHubComment = {
-  id: number;
+  id: unknown;
   body?: string;
 };
 
@@ -62,7 +62,8 @@ export async function upsertPullRequestComment(request: UpsertCommentRequest, fe
   const comments = (await commentsResponse.json()) as GitHubComment[];
   const existing = comments.find((comment) => comment.body?.includes(CTXSIFT_COMMENT_MARKER));
   if (existing) {
-    const updateUrl = `https://api.github.com/repos/${request.owner}/${request.repo}/issues/comments/${existing.id}`;
+    const commentId = parseGitHubCommentId(existing.id);
+    const updateUrl = `https://api.github.com/repos/${request.owner}/${request.repo}/issues/comments/${commentId}`;
     const updateResponse = await fetchImpl(updateUrl, {
       method: "PATCH",
       headers: githubHeaders(token),
@@ -107,6 +108,13 @@ function githubHeaders(token: string): Record<string, string> {
     "content-type": "application/json",
     "x-github-api-version": "2022-11-28"
   };
+}
+
+function parseGitHubCommentId(value: unknown): number {
+  if (typeof value !== "number" || !Number.isSafeInteger(value) || value <= 0) {
+    throw new Error("comment id must be a positive integer");
+  }
+  return value;
 }
 
 async function assertOk(response: Response, action: string): Promise<void> {

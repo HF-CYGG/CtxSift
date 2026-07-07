@@ -47,6 +47,28 @@ describe("github PR comments", () => {
     ]);
   });
 
+  test("rejects invalid existing sticky comment ids before updating", async () => {
+    const fetchImpl = async (_url: string | URL, init?: RequestInit): Promise<Response> => {
+      if (!init?.method) {
+        return jsonResponse([{ id: "42/evil", body: `${CTXSIFT_COMMENT_MARKER}\nold` }]);
+      }
+      throw new Error("fetch should not be called");
+    };
+
+    await expect(
+      upsertPullRequestComment(
+        {
+          owner: "acme",
+          repo: "demo",
+          pullNumber: 7,
+          token: "ghs_test",
+          body: "new body"
+        },
+        fetchImpl
+      )
+    ).rejects.toThrow("comment id must be a positive integer");
+  });
+
   test("trims GitHub token before sending authorization headers", async () => {
     const authorizations: string[] = [];
     const fetchImpl = async (_url: string | URL, init?: RequestInit): Promise<Response> => {
