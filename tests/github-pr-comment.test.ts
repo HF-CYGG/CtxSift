@@ -205,6 +205,9 @@ describe("github PR comments", () => {
     expect(() => parseGitHubRepository("acme/demo/extra")).toThrow("GITHUB_REPOSITORY must use owner/repo format");
     expect(() => parseGitHubRepository("acme/   ")).toThrow("GITHUB_REPOSITORY must use owner/repo format");
     expect(() => parseGitHubRepository("   /demo")).toThrow("GITHUB_REPOSITORY must use owner/repo format");
+    expect(() => parseGitHubRepository("acme?/demo")).toThrow("GITHUB_REPOSITORY must use owner/repo format");
+    expect(() => parseGitHubRepository("acme/demo#readme")).toThrow("GITHUB_REPOSITORY must use owner/repo format");
+    expect(() => parseGitHubRepository("acme demo/repo")).toThrow("GITHUB_REPOSITORY must use owner/repo format");
   });
 
   test("parses pull request event number strictly", () => {
