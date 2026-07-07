@@ -11,6 +11,7 @@ describe("github PR comments", () => {
     expect(body).toContain("ctxsift-review-context");
     expect(body).toContain("Changed files: 1");
     expect(body).toContain("src/auth/login.ts");
+    expect(body).toContain("- `src/auth/login.ts` — changed in requested diff; workspace package: @acme/auth");
     expect(body).not.toContain("export function login");
   });
 
@@ -177,6 +178,12 @@ describe("github PR comments", () => {
     await expect(upsertPullRequestComment({ ...baseRequest, repo: "demo?tab=issues" }, fetchImpl)).rejects.toThrow(
       "repo must be a GitHub path segment"
     );
+    await expect(upsertPullRequestComment({ ...baseRequest, owner: "." }, fetchImpl)).rejects.toThrow(
+      "owner must be a GitHub path segment"
+    );
+    await expect(upsertPullRequestComment({ ...baseRequest, repo: ".." }, fetchImpl)).rejects.toThrow(
+      "repo must be a GitHub path segment"
+    );
     await expect(upsertPullRequestComment({ ...baseRequest, pullNumber: 0 }, fetchImpl)).rejects.toThrow(
       "pullNumber must be a positive integer"
     );
@@ -208,6 +215,8 @@ describe("github PR comments", () => {
     expect(() => parseGitHubRepository("acme?/demo")).toThrow("GITHUB_REPOSITORY must use owner/repo format");
     expect(() => parseGitHubRepository("acme/demo#readme")).toThrow("GITHUB_REPOSITORY must use owner/repo format");
     expect(() => parseGitHubRepository("acme demo/repo")).toThrow("GITHUB_REPOSITORY must use owner/repo format");
+    expect(() => parseGitHubRepository("./demo")).toThrow("GITHUB_REPOSITORY must use owner/repo format");
+    expect(() => parseGitHubRepository("acme/..")).toThrow("GITHUB_REPOSITORY must use owner/repo format");
   });
 
   test("parses pull request event number strictly", () => {

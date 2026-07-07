@@ -67,6 +67,10 @@ v1.3.0-alpha.0 continuous optimization
 - Tightened GitHub PR comment response handling so present comment body fields must be strings before `.includes` matching.
 - Added GitHub PR comment CLI coverage that rejects invalid `GITHUB_REPOSITORY` path segment characters.
 - Tightened GitHub PR comment CLI repository parsing so owner and repo segments reject whitespace, query, or fragment characters before comment upsert.
+- Added GitHub PR comment coverage that rejects `.` and `..` owner/repo path segments before fetching.
+- Tightened GitHub PR comment route and CLI repository validation so dot segments are rejected before GitHub URLs are built.
+- Added GitHub PR comment format coverage that keeps the selected-file summary separator stable.
+- Restored the PR comment selected-file separator after a UTF-8 encoding regression.
 
 ## Latest Verification Evidence
 
@@ -112,6 +116,10 @@ v1.3.0-alpha.0 continuous optimization
 - `pnpm run release:check`: sandbox run hit Vitest/esbuild `spawn EPERM`; elevated rerun passed with 25 Vitest files / 68 tests, E2E, examples, build, pack dry-run, and high audit after PR comment comment-body field validation.
 - `pnpm test tests/github-pr-comment.test.ts`: sandbox run hit Vitest/esbuild `spawn EPERM`; elevated red phase failed because `GITHUB_REPOSITORY` accepted invalid path segment characters; green phase passed with 12 tests after repository segment validation.
 - `pnpm run release:check`: sandbox run hit Vitest/esbuild `spawn EPERM`; elevated rerun passed with 25 Vitest files / 68 tests, E2E, examples, build, pack dry-run, and high audit after PR comment repository segment validation.
+- `pnpm test tests/github-pr-comment.test.ts`: sandbox run hit Vitest/esbuild `spawn EPERM`; elevated red phase failed because dot owner/repo segments reached fetch or repository parsing; green phase passed with 12 tests after dot-segment validation.
+- `pnpm run release:check`: sandbox run hit Vitest/esbuild `spawn EPERM`; elevated rerun passed with 25 Vitest files / 68 tests, E2E, examples, build, pack dry-run, and high audit after PR comment dot-segment validation.
+- `pnpm test tests/github-pr-comment.test.ts`: elevated red phase failed because the selected-file summary contained `�?`; green phase passed with 12 tests after restoring the separator.
+- `pnpm run release:check`: elevated rerun passed with 25 Vitest files / 68 tests, E2E, examples, build, pack dry-run, and high audit after PR comment separator regression coverage.
 - `pnpm pack --dry-run`: latest full gate packed `ctxsift@1.3.0-alpha.0` and included `examples`.
 - `pnpm audit --audit-level high --registry https://registry.npmjs.org`: latest full gate reported no known vulnerabilities.
 
@@ -126,4 +134,4 @@ v1.3.0-alpha.0 continuous optimization
 
 ## Latest Milestone Commit Hash
 
-- `460170a` latest committed optimization before the current GitHub PR comment repository-segment validation cycle; current cycle pending commit.
+- `24178ce` latest committed optimization before the current GitHub PR comment dot-segment validation cycle; current cycle pending commit.
