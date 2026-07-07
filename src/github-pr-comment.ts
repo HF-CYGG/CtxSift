@@ -51,10 +51,11 @@ export function buildReviewComment(output: PackOutput, options: ReviewCommentOpt
 
 export async function upsertPullRequestComment(request: UpsertCommentRequest, fetchImpl: FetchLike = fetch): Promise<void> {
   validateUpsertCommentRequest(request);
+  const token = request.token.trim();
 
   const commentsUrl = `https://api.github.com/repos/${request.owner}/${request.repo}/issues/${request.pullNumber}/comments?per_page=100`;
   const commentsResponse = await fetchImpl(commentsUrl, {
-    headers: githubHeaders(request.token)
+    headers: githubHeaders(token)
   });
   await assertOk(commentsResponse, "list pull request comments");
 
@@ -64,7 +65,7 @@ export async function upsertPullRequestComment(request: UpsertCommentRequest, fe
     const updateUrl = `https://api.github.com/repos/${request.owner}/${request.repo}/issues/comments/${existing.id}`;
     const updateResponse = await fetchImpl(updateUrl, {
       method: "PATCH",
-      headers: githubHeaders(request.token),
+      headers: githubHeaders(token),
       body: JSON.stringify({ body: request.body })
     });
     await assertOk(updateResponse, "update pull request comment");
@@ -73,7 +74,7 @@ export async function upsertPullRequestComment(request: UpsertCommentRequest, fe
 
   const createResponse = await fetchImpl(commentsUrl.replace("?per_page=100", ""), {
     method: "POST",
-    headers: githubHeaders(request.token),
+    headers: githubHeaders(token),
     body: JSON.stringify({ body: request.body })
   });
   await assertOk(createResponse, "create pull request comment");

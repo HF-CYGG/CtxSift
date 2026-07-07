@@ -47,6 +47,30 @@ describe("github PR comments", () => {
     ]);
   });
 
+  test("trims GitHub token before sending authorization headers", async () => {
+    const authorizations: string[] = [];
+    const fetchImpl = async (_url: string | URL, init?: RequestInit): Promise<Response> => {
+      authorizations.push((init?.headers as Record<string, string>).authorization);
+      if (!init?.method) {
+        return jsonResponse([]);
+      }
+      return jsonResponse({ id: 43 });
+    };
+
+    await upsertPullRequestComment(
+      {
+        owner: "acme",
+        repo: "demo",
+        pullNumber: 7,
+        token: "  ghs_test  ",
+        body: "new body"
+      },
+      fetchImpl
+    );
+
+    expect(authorizations).toEqual(["Bearer ghs_test", "Bearer ghs_test"]);
+  });
+
   test("rejects invalid GitHub comment request values before fetching", async () => {
     const fetchImpl = async (): Promise<Response> => {
       throw new Error("fetch should not be called");
