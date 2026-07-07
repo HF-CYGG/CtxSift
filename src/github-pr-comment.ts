@@ -85,6 +85,9 @@ function validateUpsertCommentRequest(request: UpsertCommentRequest): void {
   if (!Number.isSafeInteger(request.pullNumber) || request.pullNumber <= 0) {
     throw new Error("pullNumber must be a positive integer");
   }
+  if (!request.token.trim()) {
+    throw new Error("token must be non-empty");
+  }
 }
 
 function assertGitHubPathSegment(value: string, name: string): void {

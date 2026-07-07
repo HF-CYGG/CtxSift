@@ -47,7 +47,7 @@ describe("github PR comments", () => {
     ]);
   });
 
-  test("rejects invalid GitHub route parameters before fetching", async () => {
+  test("rejects invalid GitHub comment request values before fetching", async () => {
     const fetchImpl = async (): Promise<Response> => {
       throw new Error("fetch should not be called");
     };
@@ -67,6 +67,9 @@ describe("github PR comments", () => {
     );
     await expect(upsertPullRequestComment({ ...baseRequest, pullNumber: 0 }, fetchImpl)).rejects.toThrow(
       "pullNumber must be a positive integer"
+    );
+    await expect(upsertPullRequestComment({ ...baseRequest, token: "   " }, fetchImpl)).rejects.toThrow(
+      "token must be non-empty"
     );
   });
 

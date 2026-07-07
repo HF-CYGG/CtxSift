@@ -11,6 +11,7 @@ v1.3.0-alpha.0 continuous optimization
 - Current branch: `master`
 - Latest release commit: `95ab8a3`
 - Published GitHub releases:
+  - `v1.0.0`
   - `v1.1.0-alpha.0`
   - `v1.2.0-alpha.0`
   - `v1.3.0-alpha.0`
@@ -50,6 +51,8 @@ v1.3.0-alpha.0 continuous optimization
 - Tightened GitHub PR comment CLI repository parsing so extra path segments and blank owner/repo values are rejected.
 - Added GitHub PR comment CLI coverage for strict pull request event number parsing.
 - Tightened GitHub PR comment CLI event parsing so missing, non-integer, or non-positive pull request numbers are rejected before comment upsert.
+- Added GitHub PR comment coverage that rejects whitespace-only tokens before fetching.
+- Tightened GitHub PR comment upsert validation so blank tokens are rejected before Authorization headers are built.
 
 ## Latest Verification Evidence
 
@@ -79,6 +82,8 @@ v1.3.0-alpha.0 continuous optimization
 - `pnpm run release:check`: sandbox run hit Vitest/esbuild `spawn EPERM`; elevated rerun passed with 25 Vitest files / 62 tests, E2E, examples, build, pack dry-run, and high audit after PR comment CLI repository parsing tightening.
 - `pnpm test tests/github-pr-comment.test.ts`: sandbox run hit Vitest/esbuild `spawn EPERM`; elevated red phase failed because `parsePullRequestNumber` was missing; green phase passed with 7 tests after strict pull request event parsing.
 - `pnpm run release:check`: sandbox run hit Vitest/esbuild `spawn EPERM`; elevated rerun passed with 25 Vitest files / 63 tests, E2E, examples, build, pack dry-run, and high audit after PR comment CLI pull request event parsing tightening.
+- `pnpm test tests/github-pr-comment.test.ts`: sandbox run hit Vitest/esbuild `spawn EPERM`; elevated red phase failed because whitespace-only token reached fetch; green phase passed with 7 tests after token validation.
+- `pnpm run release:check`: sandbox run hit Vitest/esbuild `spawn EPERM`; elevated rerun passed with 25 Vitest files / 63 tests, E2E, examples, build, pack dry-run, and high audit after PR comment token validation.
 - `pnpm pack --dry-run`: latest full gate packed `ctxsift@1.3.0-alpha.0` and included `examples`.
 - `pnpm audit --audit-level high --registry https://registry.npmjs.org`: latest full gate reported no known vulnerabilities.
 
@@ -93,4 +98,4 @@ v1.3.0-alpha.0 continuous optimization
 
 ## Latest Milestone Commit Hash
 
-- current pull request event parsing cycle pending commit.
+- `8a6a9d2` latest committed optimization before the current GitHub PR comment token validation cycle; current cycle pending commit.
