@@ -66,10 +66,20 @@ export function parseGitHubRepository(value: string): { owner: string; repo: str
     throw new Error("GITHUB_REPOSITORY must use owner/repo format");
   }
   const parts = value.split("/").map((part) => part.trim());
-  if (parts.length !== 2 || !parts[0] || !parts[1] || parts.some((part) => !/^[^/\s?#%\\]+$/.test(part) || part === "." || part === "..")) {
+  if (parts.length !== 2 || !parts[0] || !parts[1] || parts.some((part) => !/^[^/\s?#%\\]+$/.test(part) || hasAsciiControlCharacter(part) || part === "." || part === "..")) {
     throw new Error("GITHUB_REPOSITORY must use owner/repo format");
   }
   return { owner: parts[0], repo: parts[1] };
+}
+
+function hasAsciiControlCharacter(value: string): boolean {
+  for (let index = 0; index < value.length; index += 1) {
+    const code = value.charCodeAt(index);
+    if (code <= 0x1f || code === 0x7f) {
+      return true;
+    }
+  }
+  return false;
 }
 
 export function parsePullRequestNumber(event: { pull_request?: { number?: unknown } }): number {

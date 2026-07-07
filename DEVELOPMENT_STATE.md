@@ -79,6 +79,8 @@ v1.3.0-alpha.0 continuous optimization
 - Tightened GitHub PR comment route and CLI repository validation with explicit runtime string checks.
 - Added GitHub PR comment coverage that rejects non-string token/body values with stable validation errors.
 - Tightened GitHub PR comment request validation with explicit token/body runtime string checks.
+- Added GitHub PR comment coverage that rejects C0/DEL control characters in owner/repo path segments.
+- Tightened GitHub PR comment route and CLI repository validation so control characters are rejected before GitHub URLs are built.
 
 ## Latest Verification Evidence
 
@@ -136,6 +138,9 @@ v1.3.0-alpha.0 continuous optimization
 - `pnpm run release:check`: elevated rerun passed with 25 Vitest files / 68 tests, E2E, examples, build, pack dry-run, and high audit after PR comment runtime type validation.
 - `pnpm test tests/github-pr-comment.test.ts`: elevated red phase failed because non-string token values reached low-level `.trim`; green phase passed with 12 tests after explicit token/body string checks.
 - `pnpm run release:check`: elevated rerun passed with 25 Vitest files / 68 tests, E2E, examples, build, pack dry-run, and high audit after PR comment token/body runtime type validation.
+- `pnpm test tests/github-pr-comment.test.ts`: elevated red phase failed because NUL/DEL owner/repo segments reached fetch or repository parsing; green phase passed with 12 tests after rejecting C0/DEL control characters.
+- `pnpm run release:check`: elevated run failed in lint with `no-control-regex` after adding control-character regex ranges; implementation was changed to explicit `charCodeAt` checks and target test passed with 12 tests.
+- `pnpm run release:check`: elevated rerun passed with 25 Vitest files / 68 tests, E2E, examples, build, pack dry-run, and high audit after PR comment control-character validation.
 - `pnpm pack --dry-run`: latest full gate packed `ctxsift@1.3.0-alpha.0` and included `examples`.
 - `pnpm audit --audit-level high --registry https://registry.npmjs.org`: latest full gate reported no known vulnerabilities.
 
@@ -150,4 +155,4 @@ v1.3.0-alpha.0 continuous optimization
 
 ## Latest Milestone Commit Hash
 
-- `46a3aa6` latest committed optimization before the current GitHub PR comment token/body runtime type validation cycle; current cycle pending commit.
+- `b4d3136` latest committed optimization before the current GitHub PR comment control-character validation cycle; current cycle pending commit.

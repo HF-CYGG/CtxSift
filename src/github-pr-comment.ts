@@ -96,9 +96,19 @@ function validateUpsertCommentRequest(request: UpsertCommentRequest): void {
 }
 
 function assertGitHubPathSegment(value: unknown, name: string): void {
-  if (typeof value !== "string" || !/^[^/\s?#%\\]+$/.test(value) || value === "." || value === "..") {
+  if (typeof value !== "string" || !/^[^/\s?#%\\]+$/.test(value) || hasAsciiControlCharacter(value) || value === "." || value === "..") {
     throw new Error(`${name} must be a GitHub path segment`);
   }
+}
+
+function hasAsciiControlCharacter(value: string): boolean {
+  for (let index = 0; index < value.length; index += 1) {
+    const code = value.charCodeAt(index);
+    if (code <= 0x1f || code === 0x7f) {
+      return true;
+    }
+  }
+  return false;
 }
 
 function githubHeaders(token: string): Record<string, string> {
