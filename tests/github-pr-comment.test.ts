@@ -172,6 +172,12 @@ describe("github PR comments", () => {
       body: "new body"
     };
 
+    await expect(upsertPullRequestComment(null as unknown as Parameters<typeof upsertPullRequestComment>[0], fetchImpl)).rejects.toThrow(
+      "request must be an object"
+    );
+    await expect(upsertPullRequestComment([] as unknown as Parameters<typeof upsertPullRequestComment>[0], fetchImpl)).rejects.toThrow(
+      "request must be an object"
+    );
     await expect(upsertPullRequestComment({ ...baseRequest, owner: "acme/evil" }, fetchImpl)).rejects.toThrow(
       "owner must be a GitHub path segment"
     );

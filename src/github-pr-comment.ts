@@ -82,6 +82,9 @@ export async function upsertPullRequestComment(request: UpsertCommentRequest, fe
 }
 
 function validateUpsertCommentRequest(request: UpsertCommentRequest): void {
+  if (typeof request !== "object" || request === null || Array.isArray(request)) {
+    throw new Error("request must be an object");
+  }
   assertGitHubPathSegment(request.owner, "owner");
   assertGitHubPathSegment(request.repo, "repo");
   if (!Number.isSafeInteger(request.pullNumber) || request.pullNumber <= 0) {
