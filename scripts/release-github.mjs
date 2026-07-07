@@ -2,8 +2,8 @@
 import { spawnSync } from "node:child_process";
 import path from "node:path";
 import https from "node:https";
-import { URL } from "node:url";
 import { Buffer } from "node:buffer";
+import { formatCommand, parseRepository } from "./release-github-utils.mjs";
 
 const args = new Set(process.argv.slice(2));
 const printCommand = args.has("--print-command") || args.has("--dry-run");
@@ -11,6 +11,7 @@ const skipTagCheck = args.has("--skip-tag-check");
 const preferApi = args.has("--use-api");
 
 const authToken = process.env.GH_TOKEN || process.env.GITHUB_TOKEN;
+const ghCommand = parseCommandPrefix(process.env.CTXSIFT_GH_COMMAND) ?? ["gh"];
 
 const packageJsonPath = path.resolve(process.cwd(), "package.json");
 const packageJsonText = readFileSync(packageJsonPath, "utf8").replace(/^\uFEFF/, "");
@@ -26,7 +27,7 @@ if (!existsSync(releaseNotesPath)) {
   throw new Error(`Release note file missing: docs/release-${tag}.md`);
 }
 
-const hasGh = Boolean(runCommand(["gh", "--version"], { allowFailure: true }));
+const hasGh = Boolean(runCommand([...ghCommand, "--version"], { allowFailure: true }));
 const useApi = preferApi || (!hasGh && Boolean(authToken));
 const branch = getCurrentBranch();
 const tagCheck = checkLocalTag(tag);
@@ -50,7 +51,7 @@ if (/[A-Za-z]/.test(tag) && /-(alpha|beta|rc)\b/.test(tag)) {
   releaseArgs.push("--prerelease");
 }
 
-const command = `gh ${releaseArgs.join(" ")}`;
+const command = formatCommand(["gh", ...releaseArgs]);
 const scriptPath = path.resolve(process.cwd(), "scripts/release-github.mjs");
 const apiCommand = `node ${path.relative(process.cwd(), scriptPath)} --use-api`;
 
@@ -84,12 +85,13 @@ if (!skipTagCheck && !hasLocalTag) {
 const repository = parseRepository(packageJson.repository);
 
 if (hasGh && !useApi) {
-  const existing = runCommand(["gh", "release", "view", tag], { requireSuccess: false });
+  const existing = runCommand([...ghCommand, "release", "view", tag], { requireSuccess: false });
   if (existing) {
-    throw new Error(`Release ${tag} already exists. If this is intended, delete or edit the existing GitHub release first.`);
+    console.log(`Release ${tag} already exists on GitHub` + (existing ? `: ${existing}` : ""));
+    process.exit(0);
   }
 
-  const releaseResult = spawnSync("gh", releaseArgs, { stdio: "inherit", windowsHide: true, shell: false });
+  const releaseResult = spawnSync(ghCommand[0], [...ghCommand.slice(1), ...releaseArgs], { stdio: "inherit", windowsHide: true, shell: false });
   if (releaseResult.status !== 0) {
     const code = releaseResult.status === null ? "spawn-failed" : String(releaseResult.status);
     throw new Error(`gh release create returned non-zero status: ${code}`);
@@ -164,34 +166,6 @@ function checkLocalTag(tag) {
     return { checked: true, exists: found };
   } catch {
     return { checked: false, exists: false };
-  }
-}
-
-function parseRepository(repository) {
-  if (!repository) {
-    return null;
-  }
-
-  const rawRepository = typeof repository === "string" ? repository : repository.url;
-  if (!rawRepository || typeof rawRepository !== "string") {
-    return null;
-  }
-
-  try {
-    const clean = rawRepository.replace(/\.git$/i, "");
-    const parsed = new URL(clean);
-    if (parsed.hostname !== "github.com") {
-      return null;
-    }
-
-    const segments = parsed.pathname.split("/").filter(Boolean);
-    if (segments.length !== 2) {
-      return null;
-    }
-
-    return { owner: segments[0], repo: segments[1] };
-  } catch {
-    return null;
   }
 }
 
@@ -273,4 +247,17 @@ function safeJsonParse(text) {
   } catch {
     return null;
   }
+}
+
+function parseCommandPrefix(value) {
+  if (!value) {
+    return null;
+  }
+
+  const parsed = safeJsonParse(value);
+  if (!Array.isArray(parsed) || parsed.length === 0 || parsed.some((part) => typeof part !== "string" || !part)) {
+    throw new Error("CTXSIFT_GH_COMMAND must be a JSON array of non-empty strings.");
+  }
+
+  return parsed;
 }

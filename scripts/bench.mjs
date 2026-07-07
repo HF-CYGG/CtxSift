@@ -1,5 +1,5 @@
 import { execFileSync } from "node:child_process";
-import { mkdtempSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { existsSync, mkdtempSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { cp, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -20,57 +20,64 @@ if (mode === "--fixtures") {
 }
 
 function validateFixtures() {
-  for (const fixture of staticFixtures()) {
-    const fixtureRoot = path.join(root, fixture.repo);
-    if (!statSync(fixtureRoot).isDirectory()) {
-      throw new Error(`Benchmark fixture missing: ${fixture.repo}`);
+  for (const fixture of requiredFixtures()) {
+    const fixtureRoot = path.join(root, fixture);
+    if (!existsSync(fixtureRoot) || !statSync(fixtureRoot).isDirectory()) {
+      throw new Error(`Benchmark fixture missing: ${fixture}`);
     }
   }
   process.stdout.write(`Validated ${staticFixtures().length + 1} benchmark fixtures\n`);
 }
 
+function requiredFixtures() {
+  return [...new Set([...staticFixtures().map((fixture) => fixture.repo), "tests/fixtures/pr-review"])];
+}
+
 async function generateReport() {
   const prDiffRepo = await createPrDiffFixtureOrSkip();
-  const fixtures = [...staticFixtures()];
-  if (prDiffRepo) {
-    fixtures.push(prDiffFixture(prDiffRepo));
-  } else {
-    process.stdout.write("Skipping dynamic pr-diff fixture: git unavailable in this environment.\n");
-  }
+  try {
+    const fixtures = [...staticFixtures()];
+    if (prDiffRepo) {
+      fixtures.push(prDiffFixture(prDiffRepo));
+    } else {
+      process.stdout.write("Skipping dynamic pr-diff fixture: git unavailable in this environment.\n");
+    }
 
-  const results = [];
-  for (const fixture of fixtures) {
-    try {
-      results.push(await runFixture(fixture));
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      process.stdout.write(`Skipping fixture "${fixture.name}" due runtime failure: ${message}\n`);
+    const results = [];
+    for (const fixture of fixtures) {
+      try {
+        results.push(await runFixture(fixture));
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        process.stdout.write(`Skipping fixture "${fixture.name}" due runtime failure: ${message}\n`);
+      }
+    }
+    if (!results.length) {
+      throw new Error("No benchmark fixtures completed successfully");
+    }
+    mkdirSync(reportDirectory, { recursive: true });
+    const report = {
+      generatedAt: new Date().toISOString(),
+      results,
+      summary: summarizeBenchmarkResults(results)
+    };
+
+    writeFileSync(
+      path.join(reportDirectory, "benchmark-report.json"),
+      `${JSON.stringify(report, null, 2)}\n`,
+      "utf8"
+    );
+    writeFileSync(
+      path.join(reportDirectory, "benchmark-report.md"),
+      renderBenchmarkMarkdown(report),
+      "utf8"
+    );
+    process.stdout.write(`Wrote benchmarks/benchmark-report.json and benchmarks/benchmark-report.md for ${results.length} fixtures\n`);
+  } finally {
+    if (prDiffRepo) {
+      rmSync(prDiffRepo, { recursive: true, force: true });
     }
   }
-  if (!results.length) {
-    throw new Error("No benchmark fixtures completed successfully");
-  }
-  mkdirSync(reportDirectory, { recursive: true });
-  const report = {
-    generatedAt: new Date().toISOString(),
-    results,
-    summary: summarizeBenchmarkResults(results)
-  };
-
-  writeFileSync(
-    path.join(reportDirectory, "benchmark-report.json"),
-    `${JSON.stringify(report, null, 2)}\n`,
-    "utf8"
-  );
-  writeFileSync(
-    path.join(reportDirectory, "benchmark-report.md"),
-    renderBenchmarkMarkdown(report),
-    "utf8"
-  );
-  if (prDiffRepo) {
-    rmSync(prDiffRepo, { recursive: true, force: true });
-  }
-  process.stdout.write(`Wrote benchmarks/benchmark-report.json and benchmarks/benchmark-report.md for ${results.length} fixtures\n`);
 }
 
 function staticFixtures() {

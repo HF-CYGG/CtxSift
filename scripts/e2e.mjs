@@ -1,5 +1,5 @@
 import { execFileSync, spawnSync } from "node:child_process";
-import { mkdtempSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 
@@ -149,9 +149,13 @@ function assert(condition, message) {
 
   if (canRunGit) {
     const diffRepo = createDiffRepo();
-    const review = await run(["--repo", diffRepo, "--diff", "main...HEAD", "--mode", "review", "--format", "json"]);
-    const reviewJson = JSON.parse(review.stdout);
-    assert(reviewJson.review.changedFiles.includes("src/auth/login.ts"), "review bundle should include changed auth file");
+    try {
+      const review = await run(["--repo", diffRepo, "--diff", "main...HEAD", "--mode", "review", "--format", "json"]);
+      const reviewJson = JSON.parse(review.stdout);
+      assert(reviewJson.review.changedFiles.includes("src/auth/login.ts"), "review bundle should include changed auth file");
+    } finally {
+      rmSync(diffRepo, { recursive: true, force: true });
+    }
   }
 
   const secrets = await run(["--repo", "tests/fixtures/secrets", "--ask", "Explain config loading", "--include", ".env.example", "--format", "json"]);

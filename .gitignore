@@ -4,6 +4,8 @@ coverage/
 .vitest/
 ctxbundle.md
 ctxbundle.json
+benchmark-report.md
+benchmark-report.json
 .superpowers/
 large-project-test/
 _tmp_*
