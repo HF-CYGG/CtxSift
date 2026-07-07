@@ -42,6 +42,8 @@ v1.3.0-alpha.0 continuous optimization
 - Tightened core CLI `--repo` parsing so unsupported HTTP(S) remote URLs fail during argument parsing.
 - Added CLI option coverage that rejects blank required values such as whitespace-only `--repo` and `--ask`.
 - Tightened core CLI required-value parsing so whitespace-only values are treated as missing.
+- Added GitHub PR comment coverage that rejects invalid owner, repo, and pull request route parameters before fetching.
+- Tightened GitHub PR comment upsert validation to block path injection and non-positive pull request numbers.
 
 ## Latest Verification Evidence
 
@@ -63,6 +65,8 @@ v1.3.0-alpha.0 continuous optimization
 - `pnpm run release:check`: sandbox run hit Vitest/esbuild `spawn EPERM`; elevated rerun passed with 25 Vitest files / 58 tests, E2E, examples, build, pack dry-run, and high audit after CLI unsupported remote URL tightening.
 - `pnpm test tests/cli-options.test.ts`: red phase failed on missing CLI exception for whitespace-only `--repo`; green phase passed with 6 tests after required-value tightening.
 - `pnpm run release:check`: sandbox run hit Vitest/esbuild `spawn EPERM`; elevated rerun passed with 25 Vitest files / 59 tests, E2E, examples, build, pack dry-run, and high audit after CLI required-value tightening.
+- `pnpm test tests/github-pr-comment.test.ts`: red phase failed because invalid owner reached fetch; green phase passed with 4 tests after route parameter validation.
+- `pnpm run release:check`: sandbox run hit Vitest/esbuild `spawn EPERM`; elevated rerun passed with 25 Vitest files / 60 tests, E2E, examples, build, pack dry-run, and high audit after GitHub PR comment route parameter tightening.
 - `pnpm pack --dry-run`: latest full gate packed `ctxsift@1.3.0-alpha.0` and included `examples`.
 - `pnpm audit --audit-level high --registry https://registry.npmjs.org`: latest full gate reported no known vulnerabilities.
 

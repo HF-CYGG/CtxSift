@@ -50,6 +50,8 @@ export function buildReviewComment(output: PackOutput, options: ReviewCommentOpt
 }
 
 export async function upsertPullRequestComment(request: UpsertCommentRequest, fetchImpl: FetchLike = fetch): Promise<void> {
+  validateUpsertCommentRequest(request);
+
   const commentsUrl = `https://api.github.com/repos/${request.owner}/${request.repo}/issues/${request.pullNumber}/comments?per_page=100`;
   const commentsResponse = await fetchImpl(commentsUrl, {
     headers: githubHeaders(request.token)
@@ -75,6 +77,20 @@ export async function upsertPullRequestComment(request: UpsertCommentRequest, fe
     body: JSON.stringify({ body: request.body })
   });
   await assertOk(createResponse, "create pull request comment");
+}
+
+function validateUpsertCommentRequest(request: UpsertCommentRequest): void {
+  assertGitHubPathSegment(request.owner, "owner");
+  assertGitHubPathSegment(request.repo, "repo");
+  if (!Number.isSafeInteger(request.pullNumber) || request.pullNumber <= 0) {
+    throw new Error("pullNumber must be a positive integer");
+  }
+}
+
+function assertGitHubPathSegment(value: string, name: string): void {
+  if (!/^[^/\s?#]+$/.test(value)) {
+    throw new Error(`${name} must be a GitHub path segment`);
+  }
 }
 
 function githubHeaders(token: string): Record<string, string> {

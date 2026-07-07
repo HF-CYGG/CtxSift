@@ -47,6 +47,29 @@ describe("github PR comments", () => {
     ]);
   });
 
+  test("rejects invalid GitHub route parameters before fetching", async () => {
+    const fetchImpl = async (): Promise<Response> => {
+      throw new Error("fetch should not be called");
+    };
+    const baseRequest = {
+      owner: "acme",
+      repo: "demo",
+      pullNumber: 7,
+      token: "ghs_test",
+      body: "new body"
+    };
+
+    await expect(upsertPullRequestComment({ ...baseRequest, owner: "acme/evil" }, fetchImpl)).rejects.toThrow(
+      "owner must be a GitHub path segment"
+    );
+    await expect(upsertPullRequestComment({ ...baseRequest, repo: "demo?tab=issues" }, fetchImpl)).rejects.toThrow(
+      "repo must be a GitHub path segment"
+    );
+    await expect(upsertPullRequestComment({ ...baseRequest, pullNumber: 0 }, fetchImpl)).rejects.toThrow(
+      "pullNumber must be a positive integer"
+    );
+  });
+
   test("parses PR comment CLI options", () => {
     expect(parseArgs(["--bundle", "bundle.json", "--artifact", "ctxsift-review-context"])).toEqual({
       bundlePath: "bundle.json",
