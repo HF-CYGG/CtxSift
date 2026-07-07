@@ -91,6 +91,28 @@ describe("github PR comments", () => {
     ).rejects.toThrow("GitHub comments response must be an array");
   });
 
+  test("rejects non-object GitHub comments response items before writing", async () => {
+    const fetchImpl = async (_url: string | URL, init?: RequestInit): Promise<Response> => {
+      if (!init?.method) {
+        return jsonResponse([null]);
+      }
+      throw new Error("fetch should not be called");
+    };
+
+    await expect(
+      upsertPullRequestComment(
+        {
+          owner: "acme",
+          repo: "demo",
+          pullNumber: 7,
+          token: "ghs_test",
+          body: "new body"
+        },
+        fetchImpl
+      )
+    ).rejects.toThrow("GitHub comments response items must be objects");
+  });
+
   test("trims GitHub token before sending authorization headers", async () => {
     const authorizations: string[] = [];
     const fetchImpl = async (_url: string | URL, init?: RequestInit): Promise<Response> => {

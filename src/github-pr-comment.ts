@@ -121,6 +121,11 @@ function parseGitHubComments(value: unknown): GitHubComment[] {
   if (!Array.isArray(value)) {
     throw new Error("GitHub comments response must be an array");
   }
+  for (const item of value) {
+    if (typeof item !== "object" || item === null || Array.isArray(item)) {
+      throw new Error("GitHub comments response items must be objects");
+    }
+  }
   return value as GitHubComment[];
 }
 
