@@ -55,6 +55,8 @@ v1.3.0-alpha.0 continuous optimization
 - Tightened GitHub PR comment upsert validation so blank tokens are rejected before Authorization headers are built.
 - Added GitHub PR comment coverage that trims token whitespace before sending Authorization headers.
 - Tightened GitHub PR comment upsert header construction so validated tokens are normalized once before list, update, or create requests.
+- Added GitHub PR comment coverage that rejects whitespace-only comment bodies before fetching.
+- Tightened GitHub PR comment upsert validation so blank comment bodies are rejected before GitHub requests are sent.
 
 ## Latest Verification Evidence
 
@@ -88,6 +90,8 @@ v1.3.0-alpha.0 continuous optimization
 - `pnpm run release:check`: sandbox run hit Vitest/esbuild `spawn EPERM`; elevated rerun passed with 25 Vitest files / 63 tests, E2E, examples, build, pack dry-run, and high audit after PR comment token validation.
 - `pnpm test tests/github-pr-comment.test.ts`: sandbox run hit Vitest/esbuild `spawn EPERM`; elevated red phase failed because Authorization headers preserved token whitespace; green phase passed with 8 tests after token normalization.
 - `pnpm run release:check`: sandbox run hit Vitest/esbuild `spawn EPERM`; elevated rerun passed with 25 Vitest files / 64 tests, E2E, examples, build, pack dry-run, and high audit after PR comment token normalization.
+- `pnpm test tests/github-pr-comment.test.ts`: sandbox run hit Vitest/esbuild `spawn EPERM`; elevated red phase failed because whitespace-only comment body reached fetch; green phase passed with 8 tests after body validation.
+- `pnpm run release:check`: sandbox run hit Vitest/esbuild `spawn EPERM`; elevated rerun passed with 25 Vitest files / 64 tests, E2E, examples, build, pack dry-run, and high audit after PR comment body validation.
 - `pnpm pack --dry-run`: latest full gate packed `ctxsift@1.3.0-alpha.0` and included `examples`.
 - `pnpm audit --audit-level high --registry https://registry.npmjs.org`: latest full gate reported no known vulnerabilities.
 
@@ -102,4 +106,4 @@ v1.3.0-alpha.0 continuous optimization
 
 ## Latest Milestone Commit Hash
 
-- `f8104a5` latest committed optimization before the current GitHub PR comment token normalization cycle; current cycle pending commit.
+- `9062143` latest committed optimization before the current GitHub PR comment body validation cycle; current cycle pending commit.

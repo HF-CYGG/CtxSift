@@ -95,6 +95,9 @@ describe("github PR comments", () => {
     await expect(upsertPullRequestComment({ ...baseRequest, token: "   " }, fetchImpl)).rejects.toThrow(
       "token must be non-empty"
     );
+    await expect(upsertPullRequestComment({ ...baseRequest, body: "   " }, fetchImpl)).rejects.toThrow(
+      "body must be non-empty"
+    );
   });
 
   test("parses PR comment CLI options", () => {

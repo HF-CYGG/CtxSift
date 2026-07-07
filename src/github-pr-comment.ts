@@ -89,6 +89,9 @@ function validateUpsertCommentRequest(request: UpsertCommentRequest): void {
   if (!request.token.trim()) {
     throw new Error("token must be non-empty");
   }
+  if (!request.body.trim()) {
+    throw new Error("body must be non-empty");
+  }
 }
 
 function assertGitHubPathSegment(value: string, name: string): void {
