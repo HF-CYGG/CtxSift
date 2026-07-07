@@ -190,6 +190,12 @@ describe("github PR comments", () => {
     await expect(upsertPullRequestComment({ ...baseRequest, repo: "demo%2fissues" }, fetchImpl)).rejects.toThrow(
       "repo must be a GitHub path segment"
     );
+    await expect(upsertPullRequestComment({ ...baseRequest, owner: "acme\\evil" }, fetchImpl)).rejects.toThrow(
+      "owner must be a GitHub path segment"
+    );
+    await expect(upsertPullRequestComment({ ...baseRequest, repo: "demo\\issues" }, fetchImpl)).rejects.toThrow(
+      "repo must be a GitHub path segment"
+    );
     await expect(upsertPullRequestComment({ ...baseRequest, pullNumber: 0 }, fetchImpl)).rejects.toThrow(
       "pullNumber must be a positive integer"
     );
@@ -225,6 +231,8 @@ describe("github PR comments", () => {
     expect(() => parseGitHubRepository("acme/..")).toThrow("GITHUB_REPOSITORY must use owner/repo format");
     expect(() => parseGitHubRepository("acme%2Fdemo/repo")).toThrow("GITHUB_REPOSITORY must use owner/repo format");
     expect(() => parseGitHubRepository("acme/demo%2fissues")).toThrow("GITHUB_REPOSITORY must use owner/repo format");
+    expect(() => parseGitHubRepository("acme\\demo/repo")).toThrow("GITHUB_REPOSITORY must use owner/repo format");
+    expect(() => parseGitHubRepository("acme/demo\\issues")).toThrow("GITHUB_REPOSITORY must use owner/repo format");
   });
 
   test("parses pull request event number strictly", () => {

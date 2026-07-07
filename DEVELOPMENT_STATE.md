@@ -73,6 +73,8 @@ v1.3.0-alpha.0 continuous optimization
 - Restored the PR comment selected-file separator after a UTF-8 encoding regression.
 - Added GitHub PR comment coverage that rejects percent-encoded owner/repo path segments before fetching or parsing repository env.
 - Tightened GitHub PR comment route and CLI repository validation so percent signs are rejected before GitHub URLs are built.
+- Added GitHub PR comment coverage that rejects backslash owner/repo path segments before fetching or parsing repository env.
+- Tightened GitHub PR comment route and CLI repository validation so backslashes are rejected before GitHub URLs are built.
 
 ## Latest Verification Evidence
 
@@ -124,6 +126,8 @@ v1.3.0-alpha.0 continuous optimization
 - `pnpm run release:check`: elevated rerun passed with 25 Vitest files / 68 tests, E2E, examples, build, pack dry-run, and high audit after PR comment separator regression coverage.
 - `pnpm test tests/github-pr-comment.test.ts`: elevated red phase failed because `%2F`/`%2f` owner/repo segments reached fetch or repository parsing; green phase passed with 12 tests after rejecting percent signs.
 - `pnpm run release:check`: elevated rerun passed with 25 Vitest files / 68 tests, E2E, examples, build, pack dry-run, and high audit after PR comment percent-segment validation.
+- `pnpm test tests/github-pr-comment.test.ts`: elevated red phase failed because backslash owner/repo segments reached fetch or repository parsing; green phase passed with 12 tests after rejecting backslashes.
+- `pnpm run release:check`: elevated rerun passed with 25 Vitest files / 68 tests, E2E, examples, build, pack dry-run, and high audit after PR comment backslash-segment validation.
 - `pnpm pack --dry-run`: latest full gate packed `ctxsift@1.3.0-alpha.0` and included `examples`.
 - `pnpm audit --audit-level high --registry https://registry.npmjs.org`: latest full gate reported no known vulnerabilities.
 
@@ -138,4 +142,4 @@ v1.3.0-alpha.0 continuous optimization
 
 ## Latest Milestone Commit Hash
 
-- `34cdcdc` latest committed optimization before the current GitHub PR comment percent-segment validation cycle; current cycle pending commit.
+- `54552a6` latest committed optimization before the current GitHub PR comment backslash-segment validation cycle; current cycle pending commit.

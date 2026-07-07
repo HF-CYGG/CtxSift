@@ -96,7 +96,7 @@ function validateUpsertCommentRequest(request: UpsertCommentRequest): void {
 }
 
 function assertGitHubPathSegment(value: string, name: string): void {
-  if (!/^[^/\s?#%]+$/.test(value) || value === "." || value === "..") {
+  if (!/^[^/\s?#%\\]+$/.test(value) || value === "." || value === "..") {
     throw new Error(`${name} must be a GitHub path segment`);
   }
 }
