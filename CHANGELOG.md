@@ -4,6 +4,19 @@
 
 - None pending for this release branch.
 
+## 1.1.0-alpha.1 - 2026-07-07
+
+### 已实现功能
+
+- 发布边界修正：用 `1.1.0-alpha.1` 承载 `master` 上晚于 `v1.1.0-alpha.0` 的发布收口提交，避免移动已发布 tag。
+- 发布脚本收敛：`release:publish:api` 在 release 已存在时返回现有 Release URL 并成功退出，便于同版本闭环复核。
+- 基准产物收敛：`bench:report` 仅写入 `benchmarks/benchmark-report.md/json` 主产物，避免根目录旧报告进入同步范围。
+- 同步范围收敛：保留本地规则文件和临时文件在忽略范围内，仅同步版本、文档、脚本、测试和主基准证据。
+
+### 未发布功能
+
+- 本次 alpha patch 不新增 CLI 公共能力，不改变输出 schema。
+
 ## 1.3.0-alpha.0 - 2026-07-07
 
 - Added a VS Code command example that shells out to the local CtxSift CLI.

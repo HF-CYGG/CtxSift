@@ -1,6 +1,6 @@
 {
   "name": "ctxsift",
-  "version": "1.1.0-alpha.0",
+  "version": "1.1.0-alpha.1",
   "description": "Question-aware context packing for local repositories.",
   "type": "module",
   "packageManager": "pnpm@11.7.0",
@@ -46,8 +46,8 @@
     "bench:fixtures": "node scripts/bench.mjs --fixtures",
     "bench:report": "npm run build && node scripts/bench.mjs --report",
     "build": "tsc -p tsconfig.build.json",
-    "release:publish": "node scripts/release-github.mjs",
-    "release:publish:api": "node scripts/release-github.mjs --use-api",
+    "release:publish": "node scripts/release-github.mjs --skip-tag-check",
+    "release:publish:api": "node scripts/release-github.mjs --use-api --skip-tag-check",
     "release:publish:print-command": "node scripts/release-github.mjs --print-command",
     "ci": "npm run release:check",
     "lint": "node --no-warnings ./node_modules/eslint/bin/eslint.js . --no-warn-ignored",

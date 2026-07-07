@@ -2,15 +2,16 @@
 
 ## 当前里程碑
 
-- v1.1.0-alpha.0 continuous optimization
-- 当前目标：版本边界与验证闭环固定为可复现状态
+- v1.1.0-alpha.1 continuous optimization
+- 当前目标：用新 alpha patch 承载晚于 `v1.1.0-alpha.0` tag 的发布收口提交
 - 当前分支：`master`
 
 ## 当前发布状态
 
-- Package version：`1.1.0-alpha.0`
-- CLI version：`1.1.0-alpha.0`
-- 里程碑：`v1.1.0-alpha.0`
+- Package version：`1.1.0-alpha.1`
+- CLI version：`1.1.0-alpha.1`
+- 里程碑：`v1.1.0-alpha.1`
+- 当前发布目标：`v1.1.0-alpha.1`
 - 已发布版本记录：
   - `1.0.0`
   - `1.1.0-alpha.0`
@@ -28,26 +29,27 @@
 - `pnpm test:e2e`（等价于 `npm run test:e2e`）: PASS
 - `pnpm test:examples`（等价于 `npm run test:examples`）: PASS
 - `pnpm build`（等价于 `npm run build`）: PASS
-- `pnpm pack:dry-run`（等价于 `npm run pack:dry-run`）: PASS（`ctxsift-1.1.0-alpha.0.tgz`）
+- `pnpm pack:dry-run`（等价于 `npm run pack:dry-run`）: PASS（`ctxsift-1.1.0-alpha.1.tgz`）
 - `pnpm bench:fixtures`（等价于 `npm run bench:fixtures`）: PASS（6 个 fixtures 校验通过）
 - `pnpm bench:report`（等价于 `npm run bench:report`）: PASS（报告更新为 5 条记录）
 - `pnpm audit --audit-level high --registry https://registry.npmjs.org`（等价于 `npm run audit:high`）: PASS（`No known vulnerabilities`）
 - `pnpm run release:check`（等价于 `npm run release:check`）: PASS
-- `npm run release:publish:print-command`: PASS（输出 `gh release create v1.1.0-alpha.0 --title ...`）
-- `npm run release:publish:api -- --skip-tag-check`: PASS（GitHub 已存在 `v1.1.0-alpha.0`，脚本返回现有 Release URL 并成功退出）
-- `npm run release:publish -- --skip-tag-check`: N/A（`v1.1.0-alpha.0` 已存在于 GitHub，重复发布不执行，仍符合闭环后的发布完整性）
-- 发布命令预检：`gh release create v1.1.0-alpha.0 --title CtxSift v1.1.0-alpha.0 --notes-file docs\\release-v1.1.0-alpha.0.md --target master --verify-tag --prerelease`（环境内 `gh` 不可用）
+- `npm run release:publish:print-command`: PASS（输出 `gh release create v1.1.0-alpha.1 --title ...`）
+- `npm run release:publish`: BLOCKED（当前环境无 `gh` 且无 `GH_TOKEN/GITHUB_TOKEN`）
+- `npm run release:publish:api`: BLOCKED（GitHub API 返回 `401 Requires authentication`）
+- 发布命令预检：`gh release create v1.1.0-alpha.1 --title CtxSift v1.1.0-alpha.1 --notes-file docs\\release-v1.1.0-alpha.1.md --target master --verify-tag --prerelease`
 
 ### 失败与阻塞（仅限 spawn 场景说明）
 
 - `pnpm lint`: BLOCKED（当前环境 `pnpm` 首次执行会尝试从 npmmirror 拉取元数据并出现 EPERM 清理 `_tmp_*`）
-- `npm run release:publish -- --skip-tag-check`: N/A（当前标签 `v1.1.0-alpha.0` 为已发布标签，不属于首次发布场景）
-- `gh` CLI 与 `GH_TOKEN/GITHUB_TOKEN`: N/A（当前环境缺少该能力，仅影响新 tag 的首次发布路径）
+- `npm run release:publish`: BLOCKED（新 tag 首次创建 Release 需要 `gh` 或 `GH_TOKEN/GITHUB_TOKEN`）
+- `npm run release:publish:api`: BLOCKED（无 token，GitHub API 返回 401）
+- `gh` CLI 与 `GH_TOKEN/GITHUB_TOKEN`: BLOCKED（当前环境缺少该能力）
 
 ### 根因说明
 
 - `pnpm` 会尝试访问外网 registry，当前受限导致命令失败；核心命令链通过 `npm` 已闭环通过。
-- `v1.1.0-alpha.0` 已在 GitHub 成功发布；发布脚本现在可在 API 模式下确认既有 Release 并返回成功，后续新 tag 仍按完整发布流程执行。
+- `v1.1.0-alpha.0` 已在 GitHub 成功发布，但该 tag 指向旧提交；当前 `master` 后续收口提交必须使用新 tag `v1.1.0-alpha.1` 发布，不能移动旧 tag。
 
 ## 下一步（每个版本需重复）
 
@@ -70,4 +72,4 @@
 
 ## Latest Milestone Commit
 
-- `0c77c6a`（chore: 收口 v1.1.0-alpha 发布闭环）
+- `a6c797f`（docs: 回填发布闭环提交记录）
