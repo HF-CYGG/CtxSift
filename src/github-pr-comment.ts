@@ -59,7 +59,7 @@ export async function upsertPullRequestComment(request: UpsertCommentRequest, fe
   });
   await assertOk(commentsResponse, "list pull request comments");
 
-  const comments = (await commentsResponse.json()) as GitHubComment[];
+  const comments = parseGitHubComments(await commentsResponse.json());
   const existing = comments.find((comment) => comment.body?.includes(CTXSIFT_COMMENT_MARKER));
   if (existing) {
     const commentId = parseGitHubCommentId(existing.id);
@@ -115,6 +115,13 @@ function parseGitHubCommentId(value: unknown): number {
     throw new Error("comment id must be a positive integer");
   }
   return value;
+}
+
+function parseGitHubComments(value: unknown): GitHubComment[] {
+  if (!Array.isArray(value)) {
+    throw new Error("GitHub comments response must be an array");
+  }
+  return value as GitHubComment[];
 }
 
 async function assertOk(response: Response, action: string): Promise<void> {

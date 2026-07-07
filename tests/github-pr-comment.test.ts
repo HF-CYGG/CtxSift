@@ -69,6 +69,28 @@ describe("github PR comments", () => {
     ).rejects.toThrow("comment id must be a positive integer");
   });
 
+  test("rejects non-array GitHub comments responses before writing", async () => {
+    const fetchImpl = async (_url: string | URL, init?: RequestInit): Promise<Response> => {
+      if (!init?.method) {
+        return jsonResponse({ id: 42, body: `${CTXSIFT_COMMENT_MARKER}\nold` });
+      }
+      throw new Error("fetch should not be called");
+    };
+
+    await expect(
+      upsertPullRequestComment(
+        {
+          owner: "acme",
+          repo: "demo",
+          pullNumber: 7,
+          token: "ghs_test",
+          body: "new body"
+        },
+        fetchImpl
+      )
+    ).rejects.toThrow("GitHub comments response must be an array");
+  });
+
   test("trims GitHub token before sending authorization headers", async () => {
     const authorizations: string[] = [];
     const fetchImpl = async (_url: string | URL, init?: RequestInit): Promise<Response> => {
