@@ -113,6 +113,28 @@ describe("github PR comments", () => {
     ).rejects.toThrow("GitHub comments response items must be objects");
   });
 
+  test("rejects non-string GitHub comment bodies before matching sticky comments", async () => {
+    const fetchImpl = async (_url: string | URL, init?: RequestInit): Promise<Response> => {
+      if (!init?.method) {
+        return jsonResponse([{ id: 42, body: 123 }]);
+      }
+      throw new Error("fetch should not be called");
+    };
+
+    await expect(
+      upsertPullRequestComment(
+        {
+          owner: "acme",
+          repo: "demo",
+          pullNumber: 7,
+          token: "ghs_test",
+          body: "new body"
+        },
+        fetchImpl
+      )
+    ).rejects.toThrow("GitHub comment body must be a string when present");
+  });
+
   test("trims GitHub token before sending authorization headers", async () => {
     const authorizations: string[] = [];
     const fetchImpl = async (_url: string | URL, init?: RequestInit): Promise<Response> => {

@@ -63,6 +63,8 @@ v1.3.0-alpha.0 continuous optimization
 - Tightened GitHub PR comment response handling so the comments list JSON must be an array before sticky-comment lookup.
 - Added GitHub PR comment coverage that rejects non-object comments list items before writing.
 - Tightened GitHub PR comment response handling so each comments list item must be an object before sticky-comment lookup.
+- Added GitHub PR comment coverage that rejects non-string comment body fields before sticky-comment matching.
+- Tightened GitHub PR comment response handling so present comment body fields must be strings before `.includes` matching.
 
 ## Latest Verification Evidence
 
@@ -104,6 +106,8 @@ v1.3.0-alpha.0 continuous optimization
 - `pnpm run release:check`: sandbox run hit Vitest/esbuild `spawn EPERM`; elevated rerun passed with 25 Vitest files / 66 tests, E2E, examples, build, pack dry-run, and high audit after PR comment comments-response validation.
 - `pnpm test tests/github-pr-comment.test.ts`: sandbox run hit Vitest/esbuild `spawn EPERM`; elevated red phase failed because a null comments response item reached sticky-comment lookup; green phase passed with 11 tests after comments item validation.
 - `pnpm run release:check`: sandbox run hit Vitest/esbuild `spawn EPERM`; elevated rerun passed with 25 Vitest files / 67 tests, E2E, examples, build, pack dry-run, and high audit after PR comment comments-item validation.
+- `pnpm test tests/github-pr-comment.test.ts`: sandbox run hit Vitest/esbuild `spawn EPERM`; elevated red phase failed because a numeric comment body reached sticky-comment matching; green phase passed with 12 tests after comment body type validation.
+- `pnpm run release:check`: sandbox run hit Vitest/esbuild `spawn EPERM`; elevated rerun passed with 25 Vitest files / 68 tests, E2E, examples, build, pack dry-run, and high audit after PR comment comment-body field validation.
 - `pnpm pack --dry-run`: latest full gate packed `ctxsift@1.3.0-alpha.0` and included `examples`.
 - `pnpm audit --audit-level high --registry https://registry.npmjs.org`: latest full gate reported no known vulnerabilities.
 
@@ -118,4 +122,4 @@ v1.3.0-alpha.0 continuous optimization
 
 ## Latest Milestone Commit Hash
 
-- `e91196a` latest committed optimization before the current GitHub PR comment comments-item validation cycle; current cycle pending commit.
+- `09759e8` latest committed optimization before the current GitHub PR comment body-field validation cycle; current cycle pending commit.

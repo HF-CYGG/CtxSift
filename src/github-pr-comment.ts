@@ -125,6 +125,9 @@ function parseGitHubComments(value: unknown): GitHubComment[] {
     if (typeof item !== "object" || item === null || Array.isArray(item)) {
       throw new Error("GitHub comments response items must be objects");
     }
+    if ("body" in item && item.body !== undefined && typeof item.body !== "string") {
+      throw new Error("GitHub comment body must be a string when present");
+    }
   }
   return value as GitHubComment[];
 }
