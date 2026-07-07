@@ -94,7 +94,7 @@ export function parsePullRequestNumber(event: { pull_request?: { number?: unknow
 }
 
 function requireValue(flag: string, value: string | undefined): string {
-  const normalized = value?.trim();
+  const normalized = typeof value === "string" ? value.trim() : "";
   if (!normalized || normalized.startsWith("--")) {
     throw new Error(`Missing value for ${flag}`);
   }

@@ -85,6 +85,8 @@ v1.3.0-alpha.0 continuous optimization
 - Tightened GitHub PR comment request validation with an explicit object/array guard.
 - Added GitHub PR comment CLI coverage that rejects non-array `parseArgs` inputs with stable validation errors.
 - Tightened GitHub PR comment CLI argument parsing with an explicit args array guard.
+- Added GitHub PR comment CLI coverage that rejects non-string option values with stable missing-value errors.
+- Tightened GitHub PR comment CLI value parsing with an explicit option value string guard.
 
 ## Latest Verification Evidence
 
@@ -149,6 +151,8 @@ v1.3.0-alpha.0 continuous optimization
 - `pnpm run release:check`: elevated rerun passed with 25 Vitest files / 68 tests, E2E, examples, build, pack dry-run, and high audit after PR comment request-container validation.
 - `pnpm test tests/github-pr-comment.test.ts`: elevated red phase failed because `parseArgs(null)` reached low-level `.length`; green phase passed with 12 tests after adding an args array guard.
 - `pnpm run release:check`: elevated rerun passed with 25 Vitest files / 68 tests, E2E, examples, build, pack dry-run, and high audit after PR comment CLI args validation.
+- `pnpm test tests/github-pr-comment.test.ts`: elevated red phase failed because a non-string `--bundle` value reached low-level `.trim`; green phase passed with 12 tests after adding an option value string guard.
+- `pnpm run release:check`: elevated rerun passed with 25 Vitest files / 68 tests, E2E, examples, build, pack dry-run, and high audit after PR comment CLI option value validation.
 - `pnpm pack --dry-run`: latest full gate packed `ctxsift@1.3.0-alpha.0` and included `examples`.
 - `pnpm audit --audit-level high --registry https://registry.npmjs.org`: latest full gate reported no known vulnerabilities.
 
@@ -163,4 +167,4 @@ v1.3.0-alpha.0 continuous optimization
 
 ## Latest Milestone Commit Hash
 
-- `a145468` latest committed optimization before the current GitHub PR comment CLI args validation cycle; current cycle pending commit.
+- `c099869` latest committed optimization before the current GitHub PR comment CLI option value validation cycle; current cycle pending commit.

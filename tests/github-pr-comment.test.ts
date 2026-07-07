@@ -242,7 +242,9 @@ describe("github PR comments", () => {
     expect(() => parseArgs(null as never)).toThrow("args must be an array");
     expect(() => parseArgs("--bundle" as never)).toThrow("args must be an array");
     expect(() => parseArgs(["--bundle", "   "])).toThrow("Missing value for --bundle");
+    expect(() => parseArgs(["--bundle", 123 as never])).toThrow("Missing value for --bundle");
     expect(() => parseArgs(["--artifact", "   "])).toThrow("Missing value for --artifact");
+    expect(() => parseArgs(["--artifact", null as never])).toThrow("Missing value for --artifact");
   });
 
   test("parses GitHub repository environment strictly", () => {
